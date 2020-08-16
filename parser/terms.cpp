@@ -92,6 +92,13 @@ ParserResult Parser::atom()
 		result.register_advance();
 		return result;
 	}
+	else if (curr_token->matches(TokenType::IDENTIFIER))
+	{
+		result.success(new VarAccessNode(curr_token, curr_token->get_start(), curr_token->get_end()));
+		advance();
+		result.register_advance();
+		return result;
+	}
 	// LPAREN expr RPAREN
 	else if (curr_token->matches(TokenType::LPAREN))
 	{

@@ -26,7 +26,7 @@ void LexerResult::print (std::ostream& os) const
 		}
 		os << "]\n";
 	}
-	else os << "No tokens";
+	else os << "No tokens\n";
 }
 
 std::vector<Token*>& LexerResult::get_tokens()

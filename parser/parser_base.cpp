@@ -48,9 +48,9 @@ void ParserResult::failure(Error* err)
 
 void ParserResult::print(std::ostream& os) const
 {
-	if (error) os << *error;
-	else if (node) os << *node;
-	else os << "No node";
+	if (error) os << *error << "\n";
+	else if (node) os << *node << "\n";
+	else os << "No node\n";
 }
 
 std::ostream& operator<<(std::ostream& os, const ParserResult& parres)

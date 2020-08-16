@@ -10,7 +10,7 @@ Value* SymbolTable::get_value(std::string name)
 {
 	if (symbols.count(name) > 0) return symbols[name];
 	if (parent) return parent->get_value(name);
-	return new Integer(0);
+	return new Null();
 }
 
 void SymbolTable::set_value(std::string name, Value* val)

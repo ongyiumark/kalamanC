@@ -55,6 +55,7 @@ ParserResult Parser::body()
 	ParserResult result = ParserResult();
 
 	// SEMICOLON
+	Position start = curr_token->get_start();
 	if (curr_token->matches(TokenType::SEMICOLON))
 	{
 		advance();

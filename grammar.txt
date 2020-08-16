@@ -1,9 +1,11 @@
-statements				: SEMICOLON* statement (SEMICOLON* statement)* SEMICOLON* //
+statements				: SEMICOLON* statement (SEMICOLON* statement)* SEMICOLON* 
 
 statement 				: KEYWORD:RETURN expr? SEMICOLON //
 						: KEYWORD:BREAK SEMICOLON//
 						: KEYWORD:CONTINUE SEMICOLON//
 						: expr SEMICOLON 
+						: KEYWORD:(INT|DOUBLE|STRING|LIST|FUNC) IDENTIFIER (EQUALS expr)? SEMICOLON 
+						: IDENTIFIER EQUALS expr SEMICOLON //
 						: if-stm SEMICOLON //
 
 expr 					: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
@@ -20,7 +22,7 @@ factor					: (PLUS|MINUS)* factor
 
 power					: atom (POW factor)*
 
-atom					: INT|DOUBLE|STRING
+atom					: INT|DOUBLE|STRING|IDENTIFIER
 						: LPAREN expr RPAREN
 						: list-expr
 

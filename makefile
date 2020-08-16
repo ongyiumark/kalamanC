@@ -28,9 +28,11 @@ lexer.o : lexer/lexer.cpp
 	g++ -std=c++11 -c lexer/lexer.cpp
 
 nodes.o : nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
-			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o
+			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
+			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o
 	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
-			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o
+			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
+			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o
 
 nodes_base.o : nodes/nodes_base.cpp
 	g++ -std=c++11 -c nodes/nodes_base.cpp
@@ -52,6 +54,18 @@ nodes_unary.o : nodes/nodes_unary.cpp
 
 nodes_list.o : nodes/nodes_list.cpp
 	g++ -std=c++11 -c nodes/nodes_list.cpp
+
+nodes_sequence.o : nodes/nodes_sequence.cpp
+	g++ -std=c++11 -c nodes/nodes_sequence.cpp
+
+nodes_condition.o : nodes/nodes_condition.cpp
+	g++ -std=c++11 -c nodes/nodes_condition.cpp
+
+nodes_loop.o : nodes/nodes_loop.cpp
+	g++ -std=c++11 -c nodes/nodes_loop.cpp
+
+nodes_var.o : nodes/nodes_var.cpp
+	g++ -std=c++11 -c nodes/nodes_var.cpp
 
 parser.o : parser/parser_base.o parser/statements.o parser/expressions.o \
 		 	parser/terms.o parser/atom_exprs.o
