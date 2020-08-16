@@ -1,12 +1,10 @@
 #include "values.h"
-#include "position.h"
-#include <iostream>
 
 ////////////////////////////////////
 // VALUE BASE CLASS
 ////////////////////////////////////
 Value::Value() {}
-Value::Value(Position s, Position e) : start(s), end(e) {}
+Value::Value(std::string t, Position s, Position e) : type(t), start(s), end(e) {}
 
 std::ostream& operator<<(std::ostream& os, const Value &val)
 {

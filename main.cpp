@@ -1,13 +1,33 @@
+#include "lexer.h"
+#include "parser.h"
+#include "interpreter.h"
+
 #include <iostream>
 #include <fstream>
 
-#include "lexer.h"
-
 // Runs the kalman script
-void run(std::string filename, std::string script)
+RTResult run(std::string filename, std::string script)
 {
+	RTResult result = RTResult();
+
 	LexerResult lex_result = Lexer(filename, script).make_tokens();
-	// std::cout << lex_result << std::endl;
+	if (lex_result.get_error()) 
+	{
+		result.failure(lex_result.get_error());
+		return result;
+	}
+	std::cout << lex_result << std::endl;
+
+	ParserResult parse_result = Parser(lex_result.get_tokens()).parse();
+	if (parse_result.get_error()) 
+	{
+		result.failure(parse_result.get_error());
+		return result;
+	}
+	std::cout << parse_result << std::endl;
+
+	result = parse_result.get_node()->visit(NULL);
+	return result;
 }
 
 // Reads file and runs
@@ -35,7 +55,8 @@ int main(int argc, char const *argv[])
 			printf("kalamansi >> ");
 			std::string script;
 			getline(std::cin, script);
-			run("<stdin>", script);
+			RTResult result = run("<stdin>", script);
+			std::cout << result << std::endl;
 		}
 		return 0;
 	}

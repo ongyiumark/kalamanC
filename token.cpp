@@ -1,8 +1,4 @@
 #include "token.h"
-#include "position.h"
-
-#include <string>
-#include <iostream>
 
 ////////////////////////////////////
 // TOKEN CLASS

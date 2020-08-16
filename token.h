@@ -2,9 +2,9 @@
 #define TOKEN_H
 
 #include "position.h"
+
 #include <string>
 #include <iostream>
-
 
 enum TokenType 
 {
@@ -38,12 +38,15 @@ enum TokenType
 };
 
 // For debugging
-const std::string TOKENTYPES[] = {"INTEGER","DOUBLE","STRING",
-									"PLUS","MINUS","MUL","DIV","MOD","POW",
-									"LPAREN","RPAREN","LSQUARE","RSQUARE","LCURLY","RCURLY",
-									"EQUALS","NEQUALS","DEQUALS",
-									"LESS","GREATER","LEQUALS","GEQUALS",
-									"SEMICOLON","COMMA","KEYWORD","IDENTIFIER","ENDFILE"};
+const std::string TOKENTYPES[] = 
+{
+	"INTEGER","DOUBLE","STRING",
+	"PLUS","MINUS","MUL","DIV","MOD","POW",
+	"LPAREN","RPAREN","LSQUARE","RSQUARE","LCURLY","RCURLY",
+	"EQUALS","NEQUALS","DEQUALS",
+	"LESS","GREATER","LEQUALS","GEQUALS",
+	"SEMICOLON","COMMA","KEYWORD","IDENTIFIER","ENDFILE"
+};
 
 class Token
 {

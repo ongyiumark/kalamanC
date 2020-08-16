@@ -2,6 +2,7 @@
 #define POSITION_H
 
 #include <string>
+
 class Position
 {
 private:

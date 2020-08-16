@@ -1,7 +1,4 @@
 #include "symbol_table.h"
-#include "values.h"
-#include <string>
-#include <map>
 
 ////////////////////////////////////
 // SYMBOL TABLE CLASS

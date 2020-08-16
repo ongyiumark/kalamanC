@@ -1,11 +1,5 @@
 #include "lexer.h"
-#include "token.h"
-#include "errors.h"
 #include "constants.h"
-
-#include <vector>
-#include <iostream>
-#include <string>
 
 ////////////////////////////////////
 // TOKEN ERROR STRUCT
@@ -21,7 +15,7 @@ LexerResult::LexerResult (std::vector<Token*> toks) : tokens(toks), error(NULL) 
 void LexerResult::print (std::ostream& os) const 
 {
 	if (error) os << *error;
-	else 
+	else if (tokens.size())
 	{
 		int n = tokens.size();
 		os << "[";
@@ -32,6 +26,7 @@ void LexerResult::print (std::ostream& os) const
 		}
 		os << "]\n";
 	}
+	else os << "No tokens";
 }
 
 std::vector<Token*>& LexerResult::get_tokens()

@@ -2,15 +2,18 @@
 #define VALUES_H
 
 #include "position.h"
+
 #include <iostream>
+#include <string>
 
 class Value
 {
 private:
+	std::string type;
 	Position start, end;
 public:
 	Value();
-	Value(Position s, Position e);
+	Value(std::string t, Position s, Position e);
 	virtual void print(std::ostream& os) const = 0;
 };
 

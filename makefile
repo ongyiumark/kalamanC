@@ -1,5 +1,6 @@
-kalman: main.o position.o token.o values.o symbol_table.o context.o errors.o lexer.o
-	g++ -std=c++11 main.o position.o token.o values.o symbol_table.o context.o errors.o lexer.o -o kalman 
+kalman: main.o position.o token.o values.o symbol_table.o context.o errors.o lexer.o interpreter.o nodes.o parser.o 
+	g++ -std=c++11 main.o position.o token.o values.o symbol_table.o \
+	context.o errors.o lexer.o interpreter.o nodes.o parser.o -o kalman 
 
 main.o: main.cpp
 	g++ -std=c++11 -c main.cpp 
@@ -24,6 +25,15 @@ errors.o : errors.cpp
 
 lexer.o : lexer.cpp
 	g++ -std=c++11 -c lexer.cpp
+
+interpreter.o : interpreter.cpp
+	g++ -std=c++11 -c interpreter.cpp
+
+nodes.o : nodes.cpp
+	g++ -std=c++11 -c nodes.cpp
+
+parser.o : parser.cpp
+	g++ -std=c++11 -c parser.cpp
 
 clean:
 	rm *.o kalman

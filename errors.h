@@ -15,8 +15,13 @@ private:
 public:
 	Error(std::string n, std::string dets, Position s, Position e);
 	
-	std::string arrowed_string() const;
-	void print(std::ostream& os) const;
+	virtual std::string arrowed_string() const;
+	virtual void print(std::ostream& os) const;
+
+	Position get_start() const;
+	Position get_end() const;
+	std::string get_name() const;
+	std::string get_details() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Error &err);
@@ -31,6 +36,22 @@ class ExpectedCharacter : public Error
 {
 public:
 	ExpectedCharacter(std::string dets, Position s, Position e);
+};
+
+class IllegalSyntax : public Error
+{
+public:
+	IllegalSyntax(std::string dets, Position s, Position e);
+};
+
+class RuntimeError : public Error
+{
+private:
+	Context* context;
+public:
+	RuntimeError(std::string dets, Position s, Position e, Context* ctx);
+	std::string generate_traceback() const;
+	void print(std::ostream& os) const;
 };
 
 #endif

@@ -1,7 +1,4 @@
 #include "context.h"
-#include "symbol_table.h"
-
-#include <string>
 
 ////////////////////////////////////
 // CONTEXT CLASS
