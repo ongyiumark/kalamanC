@@ -53,20 +53,25 @@ nodes_unary.o : nodes/nodes_unary.cpp
 nodes_list.o : nodes/nodes_list.cpp
 	g++ -std=c++11 -c nodes/nodes_list.cpp
 
-parser.o : parser/parser_base.o parser/statement.o parser/expressions.o parser/terms.o
-	ld -r -o parser.o parser/parser_base.o parser/statement.o parser/expressions.o parser/terms.o
+parser.o : parser/parser_base.o parser/statements.o parser/expressions.o \
+		 	parser/terms.o parser/atom_exprs.o
+	ld -r -o parser.o parser/parser_base.o parser/statements.o parser/expressions.o \
+			parser/terms.o parser/atom_exprs.o
 
 parser_base.o : parser/parser_base.cpp
 	g++ -std=c++11 -c parser/parser_base.cpp
 
-statement.o : parser/statement.cpp
-	g++ -std=c++11 -c parser/statement.cpp
+statements.o : parser/statements.cpp
+	g++ -std=c++11 -c parser/statements.cpp
 
 expressions.o : parser/expressions.cpp
 	g++ -std=c++11 -c parser/expressions.cpp
 
 terms.o : parser/terms.cpp
 	g++ -std=c++11 -c parser/terms.cpp
+
+atom_exprs.o : parser/atom_exprs.cpp
+	g++ -std=c++11 -c parser/atom_exprs.cpp
 
 values.o : values/values_base.o values/values_null.o values/values_integer.o \
 			values/values_double.o values/values_list.o values/values_string.o
@@ -91,7 +96,7 @@ values_list.o : values/values_list.cpp
 
 values_string.o : values/values_string.cpp
 	g++ -std=c++11 -c values/values_string.cpp
-	
+
 interpreter.o : interpreter/interpreter.cpp
 	g++ -std=c++11 -c interpreter/interpreter.cpp
 

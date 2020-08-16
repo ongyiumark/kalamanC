@@ -49,8 +49,9 @@ public:
 	std::string expected_details(const std::vector<std::string>& chars, const std::vector<std::string>& toks);
 	ParserResult parse();
 
-	ParserResult stm();
-	ParserResult cmpd_expr();
+	ParserResult body();
+	ParserResult statements();
+	ParserResult statement();
 	ParserResult expr();
 	ParserResult comp_expr();
 	ParserResult arith_expr();
@@ -58,6 +59,8 @@ public:
 	ParserResult factor();
 	ParserResult power();
 	ParserResult atom();
+
+	ParserResult list_expr();
 };
 
 #endif

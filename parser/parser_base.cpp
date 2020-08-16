@@ -129,7 +129,7 @@ std::string Parser::expected_details(const std::vector<std::string>& chars, cons
 
 ParserResult Parser::parse()
 {
-	ParserResult result = stm();
+	ParserResult result = statements();
 	if (!result.get_error() && !curr_token->matches(TokenType::ENDFILE))
 	{
 		std::string details = "Expected end of file";

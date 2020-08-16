@@ -113,9 +113,16 @@ ParserResult Parser::atom()
 		result.success(express);
 		return result;
 	}
+	// list-expr
+	else if (curr_token->matches(TokenType::LSQUARE))
+	{
+		result.register_node(list_expr());
+		return result;
+	}
 
-	std::string details = "Expected '(', " + TOKENTYPES[TokenType::INTEGER];
-	details += ", " + TOKENTYPES[TokenType::DOUBLE];
+
+	std::string details = "Expected '(', '['" + TOKENTYPES[TokenType::INTEGER];
+	details += ", " + TOKENTYPES[TokenType::DOUBLE] + ", " + TOKENTYPES[TokenType::STRING];
 	result.failure(new IllegalSyntax(details, curr_token->get_start(), curr_token->get_end()));
 	return result;
 }
