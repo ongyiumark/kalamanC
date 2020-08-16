@@ -2,8 +2,15 @@
 #include "parser.h"
 #include "interpreter.h"
 
+#include "context.h"
+#include "symbol_table.h"
+
 #include <iostream>
 #include <fstream>
+
+// Sets the global context
+SymbolTable* global_symbol_table = new SymbolTable();
+Context* global_context = new Context("<program>", global_symbol_table);
 
 // Runs the kalman script
 RTResult run(std::string filename, std::string script)
@@ -26,7 +33,7 @@ RTResult run(std::string filename, std::string script)
 	}
 	std::cout << parse_result << std::endl;
 
-	result = parse_result.get_node()->visit(NULL);
+	result = parse_result.get_node()->visit(global_context);
 	return result;
 }
 

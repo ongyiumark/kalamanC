@@ -1,7 +1,7 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
-#include "values.h"
+#include "values/values.h"
 
 #include <string>
 #include <map>

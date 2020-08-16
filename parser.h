@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "nodes.h"
+#include "nodes/nodes.h"
 #include "errors.h"
 #include "token.h"
 

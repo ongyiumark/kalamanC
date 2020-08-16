@@ -1,8 +1,8 @@
 #ifndef NODES_H
 #define NODES_H
 
-#include "interpreter.h"
-#include "token.h"
+#include "../interpreter.h"
+#include "../token.h"
 
 #include <iostream>
 #include <string>
@@ -58,6 +58,7 @@ private:
 public:
 	BinOpNode(Token* tok, Node* l, Node* r, Position s, Position e);
 	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
 };
 
 class UnaryOpNode : public Node
@@ -78,7 +79,6 @@ public:
 	ListNode(std::vector<Node*>& elems, Position s, Position e);
 	void print(std::ostream& os) const;
 };
-
 
 class NoOpNode : public Node
 {
