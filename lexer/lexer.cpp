@@ -1,5 +1,5 @@
 #include "lexer.h"
-#include "constants.h"
+#include "../constants.h"
 
 ////////////////////////////////////
 // TOKEN ERROR STRUCT

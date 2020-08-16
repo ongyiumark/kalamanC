@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "position.h"
+#include "../tracers/position.h"
 
 #include <string>
 #include <iostream>
@@ -66,6 +66,7 @@ public:
 	Position get_start();
 	Position get_end();
 	std::string get_value();
+	std::string as_string();
 };
 
 std::ostream& operator<<(std::ostream& os, const Token &tok);

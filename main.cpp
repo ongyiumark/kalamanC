@@ -1,9 +1,9 @@
-#include "lexer.h"
-#include "parser.h"
-#include "interpreter.h"
+#include "lexer/lexer.h"
+#include "parser/parser.h"
+#include "interpreter/interpreter.h"
 
-#include "context.h"
-#include "symbol_table.h"
+#include "tracers/context.h"
+#include "tracers/symbol_table.h"
 
 #include <iostream>
 #include <fstream>

@@ -17,3 +17,21 @@ void ListNode::print(std::ostream& os) const
 	}
 	os << "]";
 }
+
+RTResult ListNode::visit(Context* context)
+{
+	RTResult result = RTResult();
+
+	std::vector<Value*> values;
+	for(Node* n : elements)
+	{
+		Value* val = result.register_value(n->visit(context));
+		if (result.should_return()) return result;
+
+		values.push_back(val);
+	}
+	Value* res_val = new List(values);
+	res_val->set_position(get_start(), get_end());
+	result.success(res_val);
+	return result;
+}

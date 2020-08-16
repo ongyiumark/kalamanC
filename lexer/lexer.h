@@ -2,7 +2,7 @@
 #define LEXER_H
 
 #include "token.h"
-#include "errors.h"
+#include "../tracers/errors.h"
 
 #include <vector>
 #include <iostream>

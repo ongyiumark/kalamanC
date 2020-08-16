@@ -1,8 +1,8 @@
 #ifndef NODES_H
 #define NODES_H
 
-#include "../interpreter.h"
-#include "../token.h"
+#include "../interpreter/interpreter.h"
+#include "../lexer/token.h"
 
 #include <iostream>
 #include <string>
@@ -11,6 +11,7 @@
 enum NodeType
 {
 	NUMBER,
+	STRINGNODE,
 	BINOP,
 	UNARYOP,
 	LIST,
@@ -19,7 +20,7 @@ enum NodeType
 
 const std::string NODETYPES[] = 
 {
-	"NUMBER", "BINOP", "UNARYOP", "LIST", "NOOP"
+	"NUMBER", "STRING", "BINOP", "UNARYOP", "LIST", "NOOP"
 };
 
 class Node 
@@ -49,6 +50,16 @@ public:
 	RTResult visit(Context* context);
 };
 
+class StringNode : public Node
+{
+private:
+	Token* value;
+public:
+	StringNode(Token* tok, Position s, Position e);
+	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
+};
+
 class BinOpNode : public Node
 {
 private:
@@ -69,6 +80,7 @@ private:
 public:
 	UnaryOpNode(Token* tok, Node* c, Position s, Position e);
 	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
 };
 
 class ListNode : public Node
@@ -78,6 +90,7 @@ private:
 public:
 	ListNode(std::vector<Node*>& elems, Position s, Position e);
 	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
 };
 
 class NoOpNode : public Node

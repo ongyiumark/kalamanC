@@ -83,3 +83,52 @@ Value* Double::power(const Value* other) const
 			return new Null();
 	}
 }
+
+bool Double::is_true() const
+{
+	return value;
+}
+
+Value* Double::less_than(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value < other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value < other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Double::greater_than(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value > other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value > other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Double::equals(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value == other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value == other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Double::copy() const
+{
+	return new Double(value);
+}

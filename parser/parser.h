@@ -1,9 +1,9 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "nodes/nodes.h"
-#include "errors.h"
-#include "token.h"
+#include "../nodes/nodes.h"
+#include "../tracers/errors.h"
+#include "../lexer/token.h"
 
 #include <iostream>
 #include <vector>
@@ -50,8 +50,8 @@ public:
 	ParserResult parse();
 
 	ParserResult stm();
+	ParserResult cmpd_expr();
 	ParserResult expr();
-	ParserResult val_expr();
 	ParserResult comp_expr();
 	ParserResult arith_expr();
 	ParserResult term();

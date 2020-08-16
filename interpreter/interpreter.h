@@ -1,8 +1,8 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include "values.h"
-#include "errors.h"
+#include "../values/values.h"
+#include "../tracers/errors.h"
 
 #include <iostream>
 
@@ -24,11 +24,11 @@ public:
 	void success_continue();
 	void success_return(Value* val);
 
-	Value* get_value();
-	Value* get_return_value();
-	Error* get_error();
-	bool get_continue();
-	bool get_break();
+	Value* get_value() const;
+	Value* get_return_value() const;
+	Error* get_error() const;
+	bool get_continue() const;
+	bool get_break() const;
 
 	void print(std::ostream& os) const;
 };

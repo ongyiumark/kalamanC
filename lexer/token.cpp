@@ -12,7 +12,7 @@ Token::Token(TokenType t, Position s, std::string val)
 		end.advance();
 	}
 
-// Checks if Token matches
+// Checks if token matches
 bool Token::matches(TokenType t, std::string val)
 {
 	if (!val.empty()) return (t==type)&&(val == value);
@@ -53,3 +53,10 @@ std::ostream& operator<<(std::ostream& os, const Token &tok)
 	return os;
 }
 
+std::string Token::as_string()
+{
+	std::string result;
+	if (!value.empty()) result += TOKENTYPES[type] + ":" + value;
+	else result += TOKENTYPES[type];
+	return result;
+}

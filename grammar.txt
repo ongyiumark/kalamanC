@@ -1,12 +1,10 @@
-stm						: LCURLY stm (SEMICOLON* stm)* SEMICOLON* RCURLY
-						: expr
+stm						: LCURLY cmpd-expr* RCURLY
+						: expr SEMICOLON+;
+						: SEMICOLON+
 
-expr 					: SEMICOLON+
-						: val-expr
+cmpd-expr 				: expr (SEMICOLON+ expr)* SEMICOLON+
 
-val-expr 				: KEYWORD:(INT|DOUBLE) IDENTIFIER EQUALS val-expr 
-						: IDENTIFIER EQUALS val-expr
-						: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
+expr 					: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
 
 comp-expr				: KEYWORD:NOT comp-expr 
 						: arith-expr ((EQUALS|NEQUALS|LESS|GREATER|GEQUALS|LEQUALS) arith-expr)*
@@ -20,5 +18,5 @@ factor					: (PLUS|MINUS)* factor
 
 power					: atom (POW factor)*
 
-atom					: INT|DOUBLE
+atom					: INT|DOUBLE|STRING
 						: LPAREN expr RPAREN

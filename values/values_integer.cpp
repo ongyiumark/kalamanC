@@ -51,6 +51,23 @@ Value* Integer::multiply(const Value* other) const
 			return new Integer(value * other->get_int_value());
 		case ValueType::DOUBLETYPE:
 			return new Double(value * other->get_double_value());
+		case ValueType::STRINGTYPE:
+		{
+			std::string val = other->get_string_value();
+			std::string res;
+			long long num = value;
+			if (num < 0) return new Null();
+			if (num == 0) return new String("");
+
+			while(num > 0)
+			{
+				if (num&1) res += val;
+				val += val;
+				num >>= 1;
+			}
+
+			return new String(res);
+		}
 		default:
 			return new Null();
 	}
@@ -111,4 +128,53 @@ Value* Integer::power(const Value* other) const
 		default:
 			return new Null();
 	}
+}
+
+bool Integer::is_true() const
+{
+	return value;
+}
+
+Value* Integer::less_than(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value < other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value < other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Integer::greater_than(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value > other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value > other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Integer::equals(const Value* other) const
+{
+	switch (other->get_type())
+	{
+		case ValueType::INTEGERTYPE:
+			return new Integer(value == other->get_int_value());
+		case ValueType::DOUBLETYPE:
+			return new Integer(value == other->get_double_value());
+		default:
+			return new Null();
+	}
+}
+
+Value* Integer::copy() const
+{
+	return new Integer(value);
 }
