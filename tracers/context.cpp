@@ -29,3 +29,8 @@ Position Context::get_parent_pos() const
 {
 	return parent_pos;
 }
+
+Context* Context::copy() const
+{
+	return new Context(display_name, parent, parent_pos, symbol_table);
+}

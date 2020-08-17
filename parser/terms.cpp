@@ -75,55 +75,85 @@ ParserResult Parser::power()
 
 ParserResult Parser::call()
 {
-	// atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
 	ParserResult result = ParserResult();
 	Node* atom_node = result.register_node(atom());
-
-	if (curr_token->matches(TokenType::LPAREN))
+	Position start = curr_token->get_start();
+	
+	switch(curr_token->get_type())
 	{
-		Position start = curr_token->get_start();
-		std::vector<Node*> arg_nodes;
+		// atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
+		case TokenType::LPAREN:
+		{		
+			std::vector<Node*> arg_nodes;
 
-		advance();
-		result.register_advance();
-
-		if (curr_token->matches(TokenType::RPAREN))
-		{
 			advance();
 			result.register_advance();
+
+			if (curr_token->matches(TokenType::RPAREN))
+			{
+				advance();
+				result.register_advance();
+				result.success(new FuncCallNode(atom_node, arg_nodes, start, curr_token->get_end()));
+				return result;
+			}
+
+			Node* expres = result.register_node(expr());
+			if (result.get_error()) return result;
+
+			arg_nodes.push_back(expres);
+
+			while(curr_token->matches(TokenType::COMMA))
+			{
+				advance();
+				result.register_advance();
+				expres = result.register_node(expr());
+				if (result.get_error()) return result;
+				arg_nodes.push_back(expres);
+			}
+
+			if (!curr_token->matches(TokenType::RPAREN))
+			{
+				result.failure(new IllegalSyntax("Expected ')'", curr_token->get_start(), curr_token->get_end()));
+				return result;
+			}
+
+			advance();
+			result.register_advance();
+
 			result.success(new FuncCallNode(atom_node, arg_nodes, start, curr_token->get_end()));
 			return result;
 		}
-
-		Node* expres = result.register_node(expr());
-		if (result.get_error()) return result;
-
-		arg_nodes.push_back(expres);
-
-		while(curr_token->matches(TokenType::COMMA))
+		case TokenType::LSQUARE:
 		{
-			advance();
-			result.register_advance();
-			expres = result.register_node(expr());
-			if (result.get_error()) return result;
-			arg_nodes.push_back(expres);
-		}
+			Node* left = atom_node;
 
-		if (!curr_token->matches(TokenType::RPAREN))
-		{
-			result.failure(new IllegalSyntax("Expected ')'", curr_token->get_start(), curr_token->get_end()));
+			while(curr_token->get_type() == TokenType::LSQUARE)
+			{
+				advance();
+				result.register_advance();
+
+				Node* right = result.register_node(expr());
+				if (result.get_error()) return result;
+
+				if (curr_token->get_type() != TokenType::RSQUARE)
+				{
+					result.failure(new IllegalSyntax("Expected ']'", 
+						curr_token->get_start(), curr_token->get_end()));
+					return result;		
+				}
+				advance();
+				result.register_advance();
+
+				left = new IndexNode(left, right, left->get_start(), right->get_end());
+			}
+
+			result.success(left);
 			return result;
 		}
-
-		advance();
-		result.register_advance();
-
-		result.success(new FuncCallNode(atom_node, arg_nodes, start, curr_token->get_end()));
-		return result;
+		default:
+			result.success(atom_node);
+			return result;
 	}
-
-	result.success(atom_node);
-	return result;
 }
 
 

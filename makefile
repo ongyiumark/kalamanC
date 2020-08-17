@@ -28,10 +28,10 @@ lexer.o : lexer/lexer.cpp
 
 nodes.o : nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
 			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
-			nodes/nodes_functions.o
+			nodes/nodes_functions.o nodes/nodes_index.o
 	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
 			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
-			nodes/nodes_functions.o
+			nodes/nodes_functions.o nodes/nodes_index.o
 
 nodes_base.o : nodes/nodes_base.cpp
 	g++ -std=c++11 -c nodes/nodes_base.cpp
@@ -56,6 +56,9 @@ nodes_var.o : nodes/nodes_var.cpp
 
 nodes_functions.o : nodes/nodes_functions.cpp
 	g++ -std=c++11 -c nodes/nodes_functions.cpp
+
+nodes_index.o : nodes/nodes_index.cpp
+	g++ -std=c++11 -c nodes/nodes_index.cpp
 
 parser.o : parser/parser_base.o parser/statements.o parser/expressions.o \
 		 	parser/terms.o parser/atom_exprs.o
@@ -113,5 +116,6 @@ interpreter.o : interpreter/interpreter.cpp
 
 builtin_functions.o : interpreter/builtin_functions.cpp
 	g++ -std=c++11 -c interpreter/builtin_functions.cpp
+
 clean:
 	rm *.o */*.o kalman 

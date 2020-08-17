@@ -49,6 +49,7 @@ ParserResult Parser::statements()
 		{
 			reverse_token(result.get_reverse_count());
 			result.success(new SequenceNode(nodes, start, curr_token->get_end()));
+			if (show_output) result.success(new ListNode(nodes, start, curr_token->get_end()));
 			return result;
 		}
 		if (result.get_error()) return result;

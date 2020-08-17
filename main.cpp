@@ -14,7 +14,7 @@ SymbolTable* global_symbol_table = new SymbolTable();
 Context* global_context = new Context("<program>", global_symbol_table);
 
 // Runs the kalman script
-RTResult run(std::string filename, std::string script)
+RTResult run(std::string filename, std::string script, bool show_output)
 {
 	RTResult result = RTResult();
 
@@ -24,10 +24,10 @@ RTResult run(std::string filename, std::string script)
 		result.failure(lex_result.get_error());
 		return result;
 	}
-	
+
 	//std::cout << lex_result << std::endl;
 
-	ParserResult parse_result = Parser(lex_result.get_tokens()).parse();
+	ParserResult parse_result = Parser(lex_result.get_tokens(), show_output).parse();
 	if (parse_result.get_error()) 
 	{
 		result.failure(parse_result.get_error());
@@ -52,7 +52,7 @@ void run_file(std::string filename)
 
 		file.close();
 	}
-	RTResult result = run(filename, script);
+	RTResult result = run(filename, script, false);
 	if (result.get_error())
 		std::cout << result << std::endl;
 }
@@ -79,7 +79,8 @@ int main(int argc, char const *argv[])
 			printf("kalamansi >> ");
 			std::string script;
 			getline(std::cin, script);
-			RTResult result = run("<stdin>", script);
+			script += ";";			// You'll forget, trust me
+			RTResult result = run("<stdin>", script, true);
 			std::cout << result << std::endl;
 		}
 		return 0;

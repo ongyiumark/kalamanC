@@ -17,6 +17,11 @@ std::string String::get_string_value() const
 	return value;
 }
 
+int String::get_size() const
+{
+	return value.size();
+}
+
 Value* String::add(const Value* other) const
 {
 	switch (other->get_type())
@@ -90,6 +95,13 @@ Value* String::equals(const Value* other) const
 		default:
 			return new Null();
 	}
+}
+
+Value* String::index(const int &idx) const
+{
+	std::string val;
+	val += value[idx];
+	return new String(val);
 }
 
 Value* String::copy() const

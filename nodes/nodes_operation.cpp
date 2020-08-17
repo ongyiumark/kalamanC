@@ -15,7 +15,7 @@ void BinOpNode::print(std::ostream& os) const
 	os << *right << ")"; 
 }
 
-RTResult BinOpNode::visit(Context* context) const
+const RTResult BinOpNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 
@@ -118,7 +118,7 @@ void UnaryOpNode::print(std::ostream& os) const
 	os << *child << ")"; 
 }
 
-RTResult UnaryOpNode::visit(Context* context) const
+const RTResult UnaryOpNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 
@@ -171,7 +171,7 @@ void NoOpNode::print(std::ostream& os) const
 	os << "(" << NODETYPES[NodeType::NOOP] << ")";
 }
 
-RTResult NoOpNode::visit(Context* context) const
+const RTResult NoOpNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	result.success(new Null());

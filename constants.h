@@ -67,4 +67,11 @@ const std::string BUILTINNAMES[] =
 	"print", "input", "intput"
 };
 
+const std::set<std::string> RESERVED = 
+{
+	BUILTINNAMES[BuiltInName::PRINT],
+	BUILTINNAMES[BuiltInName::INPUTSTR],
+	BUILTINNAMES[BuiltInName::INPUTINT],
+};
+
 #endif

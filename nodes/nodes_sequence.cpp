@@ -18,7 +18,7 @@ void SequenceNode::print(std::ostream& os) const
 	os << "}";
 }
 
-RTResult SequenceNode::visit(Context* context) const
+const RTResult SequenceNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 
@@ -51,7 +51,7 @@ void ListNode::print(std::ostream& os) const
 	os << "]";
 }
 
-RTResult ListNode::visit(Context* context) const
+const RTResult ListNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 

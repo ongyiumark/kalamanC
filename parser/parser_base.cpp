@@ -82,8 +82,8 @@ int ParserResult::get_reverse_count() const
 ////////////////////////////////////
 // PARSER CLASS
 ////////////////////////////////////
-Parser::Parser(const std::vector<Token*>& toks)
-	: tokens(toks), curr_token(NULL), idx(-1) 
+Parser::Parser(const std::vector<Token*>& toks, bool show)
+	: tokens(toks), curr_token(NULL), idx(-1) , show_output(show)
 	{
 		advance();
 	}
@@ -104,27 +104,6 @@ void Parser::reverse_token(int count)
 {
 	idx -= count;
 	update_token();
-}
-
-std::string Parser::expected_details(const std::vector<std::string>& chars, const std::vector<std::string>& toks)
-{
-	std::string details = "Expected ";
-	int n = chars.size();
-	for (int i = 0; i < n; i++)
-	{
-		details += "'";
-		details += chars[i];
-		details += "'";
-		if (i != n-1) details += ", ";
-	}
-
-	n = toks.size();
-	for (int i = 0; i < n; i++)
-	{
-		details += chars[i];
-		if (i != n-1) details += ", ";
-	}
-	return details;
 }
 
 ParserResult Parser::parse()

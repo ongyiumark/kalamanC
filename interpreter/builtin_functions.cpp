@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-RTResult BFunctions::PRINT(Context* context)	
+RTResult BFunctions::PRINT(const Context* context)	
 {
 	RTResult result = RTResult();
 	Value* val = context->get_table()->get_value("value");
@@ -12,7 +12,7 @@ RTResult BFunctions::PRINT(Context* context)
 	return result;
 }
 
-RTResult BFunctions::INPUTSTR(Context* context)	
+RTResult BFunctions::INPUTSTR(const Context* context)	
 {
 	RTResult result = RTResult();
 	std::string val_str;
@@ -20,3 +20,4 @@ RTResult BFunctions::INPUTSTR(Context* context)
 	result.success(new String(val_str));
 	return result;
 }
+

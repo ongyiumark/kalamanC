@@ -15,9 +15,9 @@ private:
 public:
 	RTResult();
 
-	Value* register_value(RTResult result);
+	Value* register_value(const RTResult& result);
 	void reset();
-	bool should_return();
+	bool should_return() const;
 	void success(Value* val);
 	void failure(Error* err);
 	void success_break();

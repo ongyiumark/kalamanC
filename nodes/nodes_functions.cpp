@@ -21,7 +21,7 @@ void FuncDefNode::print(std::ostream& os) const
 	os << ")}";
 }
 
-RTResult FuncDefNode::visit(Context* context) const
+const RTResult FuncDefNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -54,15 +54,22 @@ void FuncCallNode::print(std::ostream& os) const
 	os << ")}";
 }
 
-RTResult FuncCallNode::visit(Context* context) const
+const RTResult FuncCallNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	Value* func = result.register_value(to_call->visit(context));
 	if (result.should_return()) return result;
 
-	if (func->get_type() != ValueType::FUNCTIONTYPE && func->get_type() != ValueType::BIFUNCTYPE)
+	if (func->get_type() != ValueType::FUNCTIONTYPE)
 	{
 		result.failure(new RuntimeError("Cannot call " + VALUETYPES[func->get_type()],
+			get_start(), get_end(), context));
+		return result;
+	}
+
+	if (!func->get_func_body() && !func->is_bifunc())
+	{
+		result.failure(new RuntimeError("Cannot call uninitialized function",
 			get_start(), get_end(), context));
 		return result;
 	}
@@ -78,7 +85,7 @@ RTResult FuncCallNode::visit(Context* context) const
 	}
 	
 	// Generate context
-	Context* exec_ctx = new Context(func->get_func_name(), context, get_start(), 
+	Context* exec_ctx = new Context(func->get_func_name(), context->copy(), get_start(), 
 		new SymbolTable(context->get_table()));
 
 	// Check arguments
@@ -134,7 +141,7 @@ void ReturnNode::print(std::ostream& os) const
 	os << ")";
 }
 
-RTResult ReturnNode::visit(Context* context) const
+const RTResult ReturnNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	result.success_return(new Null());

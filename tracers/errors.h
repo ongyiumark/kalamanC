@@ -50,7 +50,7 @@ private:
 	Context* context;
 	
 public:
-	RuntimeError(std::string dets, Position s, Position e, Context* ctx);
+	RuntimeError(std::string dets, Position s, Position e, const Context* ctx);
 	std::string generate_traceback() const;
 	void print(std::ostream& os) const;
 };

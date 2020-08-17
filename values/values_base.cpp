@@ -58,6 +58,11 @@ std::vector<std::string> Value::get_func_argnames() const
 	return std::vector<std::string>();
 }
 
+int Value::get_size() const
+{
+	return 0;
+}
+
 // Operations
 Value* Value::add(const Value* other) const
 {
@@ -128,6 +133,11 @@ Value* Value::greater_equals(const Value* other) const
 	if (less_than(other)->get_type() == ValueType::NULLTYPE)
 		return new Null();
 	return less_than(other)->notted();
+}
+
+Value* Value::index(const int &idx) const
+{
+	return new Null();
 }
 
 std::ostream& operator<<(std::ostream& os, const Value &val)

@@ -7,7 +7,7 @@ RTResult::RTResult()
 	: value(NULL), return_value(NULL), error(NULL), to_continue(false), to_break(false) {}
 
 // Propagate values
-Value* RTResult::register_value(RTResult result)
+Value* RTResult::register_value(const RTResult& result)
 {
 	error = result.get_error();
 	value = result.get_value();
@@ -28,7 +28,7 @@ void RTResult::reset()
 }
 
 // Stops propagating
-bool RTResult::should_return()
+bool RTResult::should_return() const 
 {
 	return error || return_value || to_continue || to_break;
 }
@@ -98,7 +98,11 @@ bool RTResult::get_break() const
 void RTResult::print(std::ostream& os) const 
 {
 	if (error) os << *error;
-	else if (value) os << *value;
+	else if (value) 
+	{
+		if (value->get_list_values().size() == 1) os << *value->get_list_values()[0];
+		else os << *value;
+	}
 	else os << "No value";
 }
 

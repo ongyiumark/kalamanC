@@ -11,7 +11,7 @@ void VarDeclareNode::print(std::ostream& os) const
 	os << "(DECLARE:" << VALUETYPES[type] << ":" << identifier->get_value() << ")";
 }
 
-RTResult VarDeclareNode::visit(Context* context) const
+const RTResult VarDeclareNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -33,7 +33,7 @@ RTResult VarDeclareNode::visit(Context* context) const
 		case ValueType::FUNCTIONTYPE:
 		{
 			std::vector<std::string> args;
-			val = new Function("<undeclared>", NULL, args);
+			val = new Function("<uninitialized>", NULL, args);
 			break;
 		}
 		default:
@@ -56,7 +56,7 @@ void VarAssignNode::print(std::ostream& os) const
 	os << "(ASSIGN:" << identifier->get_value() << " <- " << *child << ")";
 }
 
-RTResult VarAssignNode::visit(Context* context) const
+const RTResult VarAssignNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -90,7 +90,7 @@ void VarAccessNode::print(std::ostream& os) const
 	os << "(" << *identifier << ")";
 }
 
-RTResult VarAccessNode::visit(Context* context) const
+const RTResult VarAccessNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	

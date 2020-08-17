@@ -20,6 +20,7 @@ public:
 	Context* get_parent() const;
 	SymbolTable* get_table() const;
 	Position get_parent_pos() const;
+	Context* copy() const;
 };
 
 #endif

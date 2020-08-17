@@ -17,13 +17,12 @@ enum ValueType
 	STRINGTYPE,
 	LISTTYPE,
 	FUNCTIONTYPE,
-	BIFUNCTYPE,
 	NULLTYPE
 };
 
 const std::string VALUETYPES[] = 
 {
-	"INTEGER", "DOUBLE", "STRING", "LIST", "FUNCTION", "BUILTIN_FUNCTION", "NULL"
+	"INTEGER", "DOUBLE", "STRING", "LIST", "FUNCTION", "NULL"
 };
 
 class Value
@@ -46,6 +45,7 @@ public:
 	virtual std::string get_func_name() const;
 	virtual bool is_bifunc() const;
 	virtual BuiltInName get_bifunc_name() const;
+	virtual int get_size() const;
 
 	virtual bool is_true() const = 0;
 	virtual Value* add(const Value* other) const;
@@ -67,6 +67,7 @@ public:
 	virtual Value* less_equals(const Value* other) const;
 	virtual Value* greater_equals(const Value* other) const;
 
+	virtual Value* index(const int &idx) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Value &val);
@@ -141,6 +142,7 @@ public:
 	void print(std::ostream& os) const;
 
 	std::vector<Value*> get_list_values() const;
+	int get_size() const;
 
 	Value* add(const Value* other) const;
 
@@ -149,6 +151,8 @@ public:
 	Value* greater_than(const Value* other) const;
 	Value* equals(const Value* other) const;
 	Value* copy() const;
+
+	Value* index(const int &idx) const;
 };
 
 class String : public Value
@@ -160,6 +164,7 @@ public:
 	void print(std::ostream& os) const;
 
 	std::string get_string_value() const;
+	int get_size() const;
 
 	Value* add(const Value* other) const;
 	Value* multiply(const Value* other) const;
@@ -169,6 +174,9 @@ public:
 	Value* greater_than(const Value* other) const;
 	Value* equals(const Value* other) const;
 	Value* copy() const;
+
+	Value* index(const int &idx) const;
+
 };
 
 class Function : public Value

@@ -11,7 +11,7 @@ void NumberNode::print(std::ostream& os) const
 	os << "(" << NODETYPES[get_type()] << ":" << *number << ")"; 
 }
 
-bool is_valid(const std::string& s)
+bool is_valid_int(const std::string& s)
 {
 	std::string highest = std::to_string(LLONG_MAX);
 	int n = (s[0] == '-' ? s.size()-1 : s.size());
@@ -22,7 +22,7 @@ bool is_valid(const std::string& s)
 	return true;
 }
 
-RTResult NumberNode::visit(Context* context) const
+const RTResult NumberNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	Value *val = new Null();
@@ -32,7 +32,7 @@ RTResult NumberNode::visit(Context* context) const
 	{
 		case TokenType::INTEGER:
 		{
-			if (!is_valid(num_str))
+			if (!is_valid_int(num_str))
 			{
 				result.failure(new RuntimeError("Integer is too large, maximum is " + std::to_string(LLONG_MAX),
 					get_start(), get_end(), context));
@@ -60,7 +60,7 @@ void StringNode::print(std::ostream& os) const
 	os << "(" << NODETYPES[get_type()] << ":" << *value << ")"; 
 }
 
-RTResult StringNode::visit(Context* context) const
+const RTResult StringNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	Value *val = new String(value->get_value());

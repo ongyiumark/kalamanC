@@ -100,8 +100,8 @@ IllegalSyntax::IllegalSyntax(std::string dets, Position s, Position e)
 ////////////////////////////////////
 // RUNTIME ERROR CLASS
 ////////////////////////////////////
-RuntimeError::RuntimeError(std::string dets, Position s, Position e, Context* ctx)
-	: Error("Runtime Error", dets, s, e), context(ctx) {}
+RuntimeError::RuntimeError(std::string dets, Position s, Position e, const Context* ctx)
+	: Error("Runtime Error", dets, s, e), context(ctx->copy()) {}
 
 std::string RuntimeError::generate_traceback() const
 {

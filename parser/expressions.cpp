@@ -38,6 +38,14 @@ ParserResult Parser::expr()
 
 		Token* id = curr_token;
 
+		if (RESERVED.find(id->get_value()) != RESERVED.end())
+		{
+			std::string details = "'";
+			details += id->get_value() + "'";
+			details += " is reserved";
+			result.failure(new IllegalSyntax(details,curr_token->get_start(), curr_token->get_end()));
+			return result;
+		}
 		advance();
 		result.register_advance();
 
@@ -59,6 +67,7 @@ ParserResult Parser::expr()
 
 		std::vector<Node*> nodes_seq = {decl, assgn};
 		Node* seq = new SequenceNode(nodes_seq, start, curr_token->get_end());
+		
 		result.success(seq);
 		return result;
 	}

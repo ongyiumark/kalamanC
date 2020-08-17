@@ -23,7 +23,7 @@ void ConditionNode::print(std::ostream& os) const
 	os << "}";
 }
 
-RTResult ConditionNode::visit(Context* context) const
+const RTResult ConditionNode::visit(const Context* context) const
 {
 	RTResult result = RTResult();
 	int n = cases.size();

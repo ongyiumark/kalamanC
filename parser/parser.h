@@ -40,13 +40,13 @@ private:
 	std::vector<Token*> tokens;
 	Token* curr_token;
 	int idx;
+	bool show_output;
 public:
-	Parser(const std::vector<Token*>& toks);
+	Parser(const std::vector<Token*>& toks, bool show);
 	void update_token();
 	void advance();
 	void reverse_token(int count);
 
-	std::string expected_details(const std::vector<std::string>& chars, const std::vector<std::string>& toks);
 	ParserResult parse();
 
 	ParserResult body();

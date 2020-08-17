@@ -28,6 +28,7 @@ enum NodeType
 	FUNCDEF,
 	FUNCCALL,
 	RETURNNODE,
+	INDEXNODE,
 	NOOP
 };
 
@@ -36,7 +37,7 @@ const std::string NODETYPES[] =
 	"NUMBER", "STRING", "BINOP", "UNARYOP", "LIST", "SEQUENCE", 
 	"CONDITION", "FORNODE", "WHILENODE", "BREAKNODE", "CONTNODE", 
 	"VARDECL", "VARASSIGN", "VARACCESS", 
-	"FUNCDEF", "FUNCCALL", "RETURNNODE", "NOOP"
+	"FUNCDEF", "FUNCCALL", "RETURNNODE", "INDEXNODE", "NOOP"
 };
 
 class Node 
@@ -48,7 +49,7 @@ private:
 public:
 	Node(NodeType n, Position s, Position e);
 	virtual void print(std::ostream& os) const = 0;
-	virtual RTResult visit(Context* context) const;
+	virtual const RTResult visit(const Context* context) const;
 
 	NodeType get_type() const;
 	Position get_start() const;
@@ -66,7 +67,7 @@ private:
 public:
 	NumberNode(Token* tok, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class StringNode : public Node
@@ -76,7 +77,7 @@ private:
 public:
 	StringNode(Token* tok, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Operation nodes
@@ -89,7 +90,7 @@ private:
 public:
 	BinOpNode(Token* tok, Node* l, Node* r, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class UnaryOpNode : public Node
@@ -100,7 +101,7 @@ private:
 public:
 	UnaryOpNode(Token* tok, Node* c, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class NoOpNode : public Node
@@ -108,7 +109,7 @@ class NoOpNode : public Node
 public:
 	NoOpNode(Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Sequential nodes
@@ -119,7 +120,7 @@ private:
 public:
 	ListNode(std::vector<Node*>& elems, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class SequenceNode : public Node
@@ -129,7 +130,7 @@ private:
 public:
 	SequenceNode(std::vector<Node*>& elems, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Conditional nodes
@@ -142,7 +143,7 @@ private:
 public:
 	ConditionNode(std::vector<Node*>& cs, std::vector<Node*>& stms, Node* ecs, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Loop nodes
@@ -156,7 +157,7 @@ private:
 public:
 	ForLoopNode(Node* i, Node * c, Node* u, Node* b, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class WhileLoopNode : public Node
@@ -167,7 +168,7 @@ private:
 public:
 	WhileLoopNode(Node * c, Node* b, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class BreakNode : public Node
@@ -175,7 +176,7 @@ class BreakNode : public Node
 public:
 	BreakNode(Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class ContinueNode : public Node
@@ -183,7 +184,7 @@ class ContinueNode : public Node
 public:
 	ContinueNode(Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Variable nodes
@@ -195,7 +196,7 @@ private:
 public:
 	VarDeclareNode(ValueType t, Token* id, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class VarAssignNode : public Node
@@ -206,7 +207,7 @@ private:
 public:
 	VarAssignNode(Token* id, Node* c, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class VarAccessNode : public Node
@@ -216,7 +217,7 @@ private:
 public:
 	VarAccessNode(Token* id, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 // Function nodes
@@ -229,7 +230,7 @@ private:
 public:
 	FuncDefNode(Token* id, std::vector<Token*>& arg_n, Node* b, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class FuncCallNode : public Node
@@ -240,7 +241,7 @@ private:
 public:
 	FuncCallNode(Node* node, std::vector<Node*>& arg, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
 };
 
 class ReturnNode : public Node
@@ -250,7 +251,18 @@ private:
 public:
 	ReturnNode(Node* ret, Position s, Position e);
 	void print(std::ostream& os) const;
-	RTResult visit(Context* context) const;
+	const RTResult visit(const Context* context) const;
+};
+
+class IndexNode : public Node
+{
+private:
+	Node* to_index;
+	Node* index;
+public:
+	IndexNode(Node* to_idx, Node* idx, Position s, Position e);
+	void print(std::ostream& os) const;
+	const RTResult visit(const Context* context) const;
 };
 
 #endif

@@ -45,6 +45,11 @@ Value* List::add(const Value* other) const
 	}
 }
 
+int List::get_size() const
+{
+	return values.size();
+}
+
 bool List::is_true() const
 {
 	bool truth = true;
@@ -91,6 +96,11 @@ Value* List::equals(const Value* other) const
 		default:
 			return new Null();
 	}
+}
+
+Value* List::index(const int &idx) const
+{
+	return values[idx];
 }
 
 Value* List::copy() const
