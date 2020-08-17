@@ -1,9 +1,11 @@
-kalman: main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o builtin_functions.o
-	g++ -std=c++11 -o kalman main.o tracers.o token.o lexer.o nodes.o parser.o values.o \
-					interpreter.o builtin_functions.o
+kalman: main.o init.o tracers.o lxr.o nodes.o parser.o values.o intrprtr.o 
+	g++ -std=c++11 -o kalman main.o init.o tracers.o lxr.o nodes.o parser.o values.o intrprtr.o 
 
 main.o: main.cpp
 	g++ -std=c++11 -c main.cpp 
+
+init.o: init.cpp
+	g++ -std=c++11 -c init.cpp 
 
 tracers.o : tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
 	ld -r -o tracers.o tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
@@ -19,6 +21,9 @@ symbol_table.o : tracers/symbol_table.cpp
 
 context.o : tracers/context.cpp
 	g++ -std=c++11 -c tracers/context.cpp
+
+lxr.o : lexer/token.o lexer/lexer.o
+	ld -r -o lxr.o lexer/token.o lexer/lexer.o
 
 token.o: lexer/token.cpp
 	g++ -std=c++11 -c lexer/token.cpp 
@@ -110,6 +115,9 @@ values_function.o : values/values_function.cpp
 
 values_builtinfunc.o : values/values_builtinfunc.cpp
 	g++ -std=c++11 -c values/values_builtinfunc.cpp
+
+intrprtr.o : interpreter/interpreter.o interpreter/builtin_functions.o
+	ld -r -o intrprtr.o interpreter/interpreter.o interpreter/builtin_functions.o
 
 interpreter.o : interpreter/interpreter.cpp
 	g++ -std=c++11 -c interpreter/interpreter.cpp

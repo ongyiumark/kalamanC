@@ -307,7 +307,7 @@ TokenError Lexer::make_string()
 	std::string result;
 	bool escape_char = false;
 	advance();
-	while(curr_char && curr_char != '"')
+	while(curr_char && (curr_char != '"' || escape_char))
 	{
 		if (escape_char)
 		{
@@ -320,7 +320,6 @@ TokenError Lexer::make_string()
 			if (curr_char == '\\') escape_char = true;
 			else result += curr_char;
 		}
-
 		advance();
 	}
 
