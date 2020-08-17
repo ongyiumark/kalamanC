@@ -52,12 +52,19 @@ public:
 	ParserResult body();
 	ParserResult statements();
 	ParserResult statement();
+
+	ParserResult if_stm();
+	ParserResult for_stm();
+	ParserResult while_stm();
+	ParserResult funcdef_stm();
+
 	ParserResult expr();
 	ParserResult comp_expr();
 	ParserResult arith_expr();
 	ParserResult term();
 	ParserResult factor();
 	ParserResult power();
+	ParserResult call();
 	ParserResult atom();
 
 	ParserResult list_expr();

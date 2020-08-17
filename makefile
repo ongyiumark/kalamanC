@@ -1,5 +1,5 @@
-kalman: main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o
-	g++ -std=c++11 -o kalman main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o
+kalman: main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o builtin_functions.o
+	g++ -std=c++11 -o kalman main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o builtin_functions.o
 
 main.o: main.cpp
 	g++ -std=c++11 -c main.cpp 
@@ -29,10 +29,12 @@ lexer.o : lexer/lexer.cpp
 
 nodes.o : nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
 			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
-			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o
+			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
+			nodes/nodes_functions.o
 	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
 			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
-			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o
+			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
+			nodes/nodes_functions.o
 
 nodes_base.o : nodes/nodes_base.cpp
 	g++ -std=c++11 -c nodes/nodes_base.cpp
@@ -67,6 +69,9 @@ nodes_loop.o : nodes/nodes_loop.cpp
 nodes_var.o : nodes/nodes_var.cpp
 	g++ -std=c++11 -c nodes/nodes_var.cpp
 
+nodes_functions.o : nodes/nodes_functions.cpp
+	g++ -std=c++11 -c nodes/nodes_functions.cpp
+
 parser.o : parser/parser_base.o parser/statements.o parser/expressions.o \
 		 	parser/terms.o parser/atom_exprs.o
 	ld -r -o parser.o parser/parser_base.o parser/statements.o parser/expressions.o \
@@ -88,10 +93,11 @@ atom_exprs.o : parser/atom_exprs.cpp
 	g++ -std=c++11 -c parser/atom_exprs.cpp
 
 values.o : values/values_base.o values/values_null.o values/values_integer.o \
-			values/values_double.o values/values_list.o values/values_string.o
+			values/values_double.o values/values_list.o values/values_string.o \
+			values/values_function.o values/values_builtinfunc.o
 	ld -r -o values.o values/values_base.o values/values_null.o \
 			values/values_integer.o values/values_double.o values/values_list.o \
-			values/values_string.o
+			values/values_string.o values/values_function.o values/values_builtinfunc.o
 
 values_base.o : values/values_base.cpp
 	g++ -std=c++11 -c values/values_base.cpp
@@ -111,8 +117,16 @@ values_list.o : values/values_list.cpp
 values_string.o : values/values_string.cpp
 	g++ -std=c++11 -c values/values_string.cpp
 
+values_function.o : values/values_function.cpp
+	g++ -std=c++11 -c values/values_function.cpp
+
+values_builtinfunc.o : values/values_builtinfunc.cpp
+	g++ -std=c++11 -c values/values_builtinfunc.cpp
+
 interpreter.o : interpreter/interpreter.cpp
 	g++ -std=c++11 -c interpreter/interpreter.cpp
 
+builtin_functions.o : interpreter/builtin_functions.cpp
+	g++ -std=c++11 -c interpreter/builtin_functions.cpp
 clean:
 	rm *.o */*.o kalman 

@@ -14,7 +14,7 @@ private:
 	SymbolTable *symbol_table;
 public:
 	Context(std::string name, SymbolTable* table);
-	Context(std::string name, Context* par, Position par_pos, SymbolTable* table);
+	Context(std::string name, Context* par, Position par_pos, SymbolTable* table=NULL);
 
 	std::string get_name();
 	Context* get_parent();

@@ -1,47 +1,6 @@
-bilang a = 0;
+int n = 1000000;
 
-doble b = 2.2;#s
-mgawords s = 12;
-lista X = [12,12,12,21,3];
+int i = 0; 
+while(i < n) i = i +1;
 
-aka f(a, s)
-{
-	ibalik a;
-}
-
-kung (a == 0)
-{
-	lathala(3); // 3
-}
-ehkung (b == 0)
-{
-	lathala(b);
-}
-kundi
-{
-	lathala(wala);
-}
-
-lathala(X[0]);
-
-habang(a < 10)
-{
-	a = a + 1;
-	kung (a == 4)
-	{
-		tuloy;
-	}
-	ehkung (a == 8)
-	{
-		hinto;
-	}
-	lathala(a); // 1,2,3,5,6,7
-}
-
-
-lathala(f(10, 323)); // 10
-
-for (bilang i = 0; i < 3; i = i + 1)
-{
-	lathala(i);
-}
+print(i);

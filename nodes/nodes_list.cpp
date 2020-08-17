@@ -27,7 +27,6 @@ RTResult ListNode::visit(Context* context)
 	{
 		Value* val = result.register_value(n->visit(context));
 		if (result.should_return()) return result;
-
 		values.push_back(val);
 	}
 	Value* res_val = new List(values);

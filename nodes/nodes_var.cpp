@@ -90,7 +90,6 @@ RTResult VarAccessNode::visit(Context* context)
 	RTResult result = RTResult();
 	
 	Value* val = context->get_table()->get_value(identifier->get_value());
-
 	if (val->get_type() == ValueType::NULLTYPE)
 	{
 		result.failure(new RuntimeError(

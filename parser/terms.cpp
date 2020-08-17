@@ -53,8 +53,8 @@ ParserResult Parser::factor()
 ParserResult Parser::power()
 {
 	ParserResult result = ParserResult();
-	// atom (POW factor)*
-	Node* left = result.register_node(atom());
+	// call (POW factor)*
+	Node* left = result.register_node(call());
 	if (result.get_error()) return result;
 
 	while(curr_token->matches(TokenType::POW))
@@ -73,6 +73,61 @@ ParserResult Parser::power()
 	return result;
 }
 
+ParserResult Parser::call()
+{
+	// atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
+	ParserResult result = ParserResult();
+	Node* atom_node = result.register_node(atom());
+
+	if (curr_token->matches(TokenType::LPAREN))
+	{
+		Position start = curr_token->get_start();
+		std::vector<Node*> arg_nodes;
+
+		advance();
+		result.register_advance();
+
+		if (curr_token->matches(TokenType::RPAREN))
+		{
+			advance();
+			result.register_advance();
+			result.success(new FuncCallNode(atom_node, arg_nodes, start, curr_token->get_end()));
+			return result;
+		}
+
+		Node* expres = result.register_node(expr());
+		if (result.get_error()) return result;
+
+		arg_nodes.push_back(expres);
+
+		while(curr_token->matches(TokenType::COMMA))
+		{
+			advance();
+			result.register_advance();
+			expres = result.register_node(expr());
+			if (result.get_error()) return result;
+			arg_nodes.push_back(expres);
+		}
+
+		if (!curr_token->matches(TokenType::RPAREN))
+		{
+			result.failure(new IllegalSyntax("Expected ')'", curr_token->get_start(), curr_token->get_end()));
+			return result;
+		}
+
+		advance();
+		result.register_advance();
+
+		result.success(new FuncCallNode(atom_node, arg_nodes, start, curr_token->get_end()));
+		return result;
+	}
+
+
+	result.success(atom_node);
+	return result;
+}
+
+
 ParserResult Parser::atom()
 {
 	ParserResult result = ParserResult();
@@ -85,6 +140,7 @@ ParserResult Parser::atom()
 		result.register_advance();
 		return result;
 	}
+	// STRING
 	else if (curr_token->matches(TokenType::STRING))
 	{
 		result.success(new StringNode(curr_token, curr_token->get_start(), curr_token->get_end()));
@@ -92,6 +148,7 @@ ParserResult Parser::atom()
 		result.register_advance();
 		return result;
 	}
+	// IDENTIFIER
 	else if (curr_token->matches(TokenType::IDENTIFIER))
 	{
 		result.success(new VarAccessNode(curr_token, curr_token->get_start(), curr_token->get_end()));
@@ -128,7 +185,7 @@ ParserResult Parser::atom()
 	}
 
 
-	std::string details = "Expected '(', '['" + TOKENTYPES[TokenType::INTEGER];
+	std::string details = "Expected '(', '[', " + TOKENTYPES[TokenType::INTEGER];
 	details += ", " + TOKENTYPES[TokenType::DOUBLE] + ", " + TOKENTYPES[TokenType::STRING];
 	result.failure(new IllegalSyntax(details, curr_token->get_start(), curr_token->get_end()));
 	return result;

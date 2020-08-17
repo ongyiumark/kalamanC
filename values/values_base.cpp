@@ -49,6 +49,26 @@ std::string Value::get_string_value() const
 	return "";
 }
 
+std::string Value::get_func_name() const
+{
+	return "";
+}
+
+BuiltInName Value::get_bifunc_name() const
+{
+	return BuiltInName::UNDEFINED;
+}
+
+Node* Value::get_func_body() const 
+{
+	return NULL;
+}
+
+std::vector<std::string> Value::get_func_argnames() const
+{
+	return std::vector<std::string>();
+}
+
 Value* Value::add(const Value* other) const
 {
 	return new Null();

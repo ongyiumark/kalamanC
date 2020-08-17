@@ -45,4 +45,19 @@ const std::set<std::string> KEYWORDS = {KT_INT, KT_DOUBLE, KT_STRING, KT_LIST, K
 										KT_IF, KT_ELIF, KT_ELSE,
 										KT_FOR, KT_WHILE, KT_BREAK, KT_CONTINUE,
 										KT_FUNCDEF, KT_RETURN};
+////////////////////////////////////
+// Built In Functions
+////////////////////////////////////
+enum BuiltInName
+{
+	PRINT,
+	INPUTSTR,
+	INPUTINT,
+	UNDEFINED
+};
+
+const std::string BUILTINNAMES[] = 
+{
+	"print", "input", "intput"
+};
 #endif

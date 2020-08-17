@@ -93,19 +93,7 @@ ParserResult Parser::body()
 		return result;
 	}
 
-	// expr SEMICOLON
-	Node* express = result.register_node(expr());
-	if (result.get_error()) return result;
-	
-	if (!curr_token->matches(TokenType::SEMICOLON))
-	{
-		result.failure(new IllegalSyntax("Expected ';'", curr_token->get_start(), curr_token->get_end()));
-		return result;
-	}
-
-	advance();
-	result.register_advance();
-	
-	result.success(express);
+	// statement
+	Node* express = result.register_node(statement());
 	return result;
 }

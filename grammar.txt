@@ -1,17 +1,30 @@
 statements				: SEMICOLON* statement (SEMICOLON* statement)* SEMICOLON* 
 
-statement 				: KEYWORD:RETURN expr? SEMICOLON //
-						: KEYWORD:BREAK SEMICOLON//
-						: KEYWORD:CONTINUE SEMICOLON//
+statement 				: KEYWORD:RETURN expr? SEMICOLON 
+						: KEYWORD:BREAK SEMICOLON
+						: KEYWORD:CONTINUE SEMICOLON
 						: expr SEMICOLON 
-						: KEYWORD:(INT|DOUBLE|STRING|LIST|FUNC) IDENTIFIER (EQUALS expr)? SEMICOLON 
-						: IDENTIFIER EQUALS expr SEMICOLON //
-						: if-stm SEMICOLON //
+						: if-stm  
+						: for-stm
+						: while-stm
+						: funcdef-stm
+
+if-stm					: KEYWORD:IF LPAREN expr RPAREN body 
+							(KEYWORD:ELIF LPAREN expr RPAREN body)*
+							(KEYWORD:ELSE body)?
+
+for-stm					: KEYWORD:FOR LPAREN expr SEMICOLON expr SEMICOLON expr RPAREN body
+
+while-stm				: KEYWORD:WHILE LPAREN expr RPAREN body
+
+funcdef-stm				: KEYWORD:FUNCDEF IDENTIFIER LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN body
 
 expr 					: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
-
+						: KEYWORD:(INT|DOUBLE|STRING|LIST|FUNC) IDENTIFIER (EQUALS expr)?  
+						: IDENTIFIER EQUALS expr 
+ 
 comp-expr				: KEYWORD:NOT comp-expr 
-						: arith-expr ((EQUALS|NEQUALS|LESS|GREATER|GEQUALS|LEQUALS) arith-expr)*
+						: arith-expr ((DEQUALS|NEQUALS|LESS|GREATER|GEQUALS|LEQUALS) arith-expr)*
 
 arith-expr				: term ((PLUS|MINUS) term)*
 
@@ -20,7 +33,9 @@ term					: factor ((MUL|DIV|MOD) factor)*
 factor					: (PLUS|MINUS)* factor
 						: power
 
-power					: atom (POW factor)*
+power					: call (POW factor)*
+
+call					: atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
 
 atom					: INT|DOUBLE|STRING|IDENTIFIER
 						: LPAREN expr RPAREN
@@ -29,5 +44,5 @@ atom					: INT|DOUBLE|STRING|IDENTIFIER
 list-expr				: LSQUARE (expr (COMMA expr)*)? RSQUARE
 
 body					: LCURLY statements RCURLY
-						: expr SEMICOLON
+						: statement
 						: SEMICOLON

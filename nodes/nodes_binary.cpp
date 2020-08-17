@@ -49,7 +49,7 @@ RTResult BinOpNode::visit(Context* context)
 		case TokenType::POW:
 			val = left_val->power(right_val);
 			break;
-		case TokenType::EQUALS:
+		case TokenType::DEQUALS:
 			val = left_val->equals(right_val);
 			break;
 		case TokenType::NEQUALS:

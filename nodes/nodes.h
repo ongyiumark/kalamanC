@@ -25,6 +25,9 @@ enum NodeType
 	VARDECL,
 	VARASSIGN,
 	VARACCESS,
+	FUNCDEF,
+	FUNCCALL,
+	RETURNNODE,
 	NOOP
 };
 
@@ -32,7 +35,8 @@ const std::string NODETYPES[] =
 {
 	"NUMBER", "STRING", "BINOP", "UNARYOP", "LIST", "SEQUENCE", 
 	"CONDITION", "FORNODE", "WHILENODE", "BREAKNODE", "CONTNODE", 
-	"VARDECL", "VARASSIGN", "VARACCESS", "NOOP"
+	"VARDECL", "VARASSIGN", "VARACCESS", 
+	"FUNCDEF", "FUNCCALL", "RETURNNODE", "NOOP"
 };
 
 class Node 
@@ -203,6 +207,39 @@ private:
 	Token* identifier;
 public:
 	VarAccessNode(Token* id, Position s, Position e);
+	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
+};
+
+class FuncDefNode : public Node
+{
+private:
+	Token* identifier;
+	std::vector<Token*> arg_names;
+	Node* body;
+public:
+	FuncDefNode(Token* id, std::vector<Token*>& arg_n, Node* b, Position s, Position e);
+	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
+};
+
+class FuncCallNode : public Node
+{
+private:
+	Node* to_call;
+	std::vector<Node*> args; 
+public:
+	FuncCallNode(Node* node, std::vector<Node*>& arg, Position s, Position e);
+	void print(std::ostream& os) const;
+	RTResult visit(Context* context);
+};
+
+class ReturnNode : public Node
+{
+private:
+	Node* return_node;
+public:
+	ReturnNode(Node* ret, Position s, Position e);
 	void print(std::ostream& os) const;
 	RTResult visit(Context* context);
 };

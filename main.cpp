@@ -4,6 +4,7 @@
 
 #include "tracers/context.h"
 #include "tracers/symbol_table.h"
+#include "constants.h"
 
 #include <iostream>
 #include <fstream>
@@ -23,7 +24,8 @@ RTResult run(std::string filename, std::string script)
 		result.failure(lex_result.get_error());
 		return result;
 	}
-	std::cout << lex_result << std::endl;
+	//std::cout << lex_result << std::endl;
+	//std::cout << script << std::endl;
 
 	ParserResult parse_result = Parser(lex_result.get_tokens()).parse();
 	if (parse_result.get_error()) 
@@ -31,7 +33,7 @@ RTResult run(std::string filename, std::string script)
 		result.failure(parse_result.get_error());
 		return result;
 	}
-	std::cout << parse_result << std::endl;
+	//std::cout << parse_result << std::endl;
 
 	result = parse_result.get_node()->visit(global_context);
 	return result;
@@ -49,11 +51,25 @@ void run_file(std::string filename)
 
 		file.close();
 	}
-	run(filename, script);
+	RTResult result = run("<stdin>", script);
+	if (result.get_error())
+		std::cout << result << std::endl;
+}
+
+void set_builtins()
+{
+	std::vector<std::string> args = {"value"};
+	global_context->get_table()->set_value(BUILTINNAMES[BuiltInName::PRINT], 
+		new BuiltInFunction(BuiltInName::PRINT, args));
+
+	args = {};
+	global_context->get_table()->set_value(BUILTINNAMES[BuiltInName::INPUTSTR], 
+		new BuiltInFunction(BuiltInName::INPUTSTR, args));
 }
 
 int main(int argc, char const *argv[])
 {
+	set_builtins();
 	// Read script from console input
 	if (argc == 1)
 	{

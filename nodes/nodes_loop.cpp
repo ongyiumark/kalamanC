@@ -22,49 +22,30 @@ RTResult ForLoopNode::visit(Context* context)
 
 	result.register_value(init->visit(context));
 	if (result.should_return()) return result;
-
-	std::vector<Value*> vals;
 	while(1)
 	{
 		Value* cond_value = result.register_value(condition->visit(context));
-		if (result.should_return() && (result.get_continue() || result.get_break())) return result;
+		if (result.should_return()) return result;
 
 		if (!cond_value->is_true())
 			break;
 
-		if (result.get_continue() || result.get_break())
-		{
-			std::string details = "Cannot put " + KT_RETURN + " or " + KT_BREAK;
-			details += " on the head of the loop";
-			result.failure(new RuntimeError(details, get_start(), get_end(), context));
-			return result;
-		}
-
 		Value* body_val = result.register_value(body->visit(context));
-		if (result.should_return() && (result.get_continue() || result.get_break())) return result;
+		if (result.should_return() && !(result.get_continue() || result.get_break())) return result;
 
 		if (result.get_break())
 			break;
 
+		bool to_continue =  result.get_continue();
+
 		result.register_value(update->visit(context));
-		if (result.should_return() && (result.get_continue() || result.get_break())) return result;
-		if (result.get_continue() || result.get_break())
-		{
-			std::string details = "Cannot put " + KT_RETURN + " or " + KT_BREAK;
-			details += " on the head of the loop";
-			result.failure(new RuntimeError(details, get_start(), get_end(), context));
-			return result;
-		}
+		if (result.should_return()) return result;
 
-		if (result.get_continue())
+		if (to_continue)
 			continue;
-
-		if (body_val->get_type() != ValueType::NULLTYPE)
-			vals.push_back(body_val);
 	}
 
-	Value* res_val = new List(vals);
-	res_val->set_position(get_start(), get_end());
+	Value* res_val = new Null();
 	result.success(res_val);
 	return result;
 }
@@ -87,38 +68,25 @@ RTResult WhileLoopNode::visit(Context* context)
 {
 	RTResult result = RTResult();
 
-	std::vector<Value*> vals;
 	while(1)
 	{
 		Value* cond_value = result.register_value(condition->visit(context));
-		if (result.should_return() && (result.get_continue() || result.get_break())) return result;
+		if (result.should_return()) return result;
 
 		if (!cond_value->is_true())
 			break;
 
-		if (result.get_continue() || result.get_break())
-		{
-			std::string details = "Cannot put " + KT_RETURN + " or " + KT_BREAK;
-			details += " on the head of the loop";
-			result.failure(new RuntimeError(details, get_start(), get_end(), context));
-			return result;
-		}
-
 		Value* body_val = result.register_value(body->visit(context));
-		if (result.should_return() && (result.get_continue() || result.get_break())) return result;
+		if (result.should_return() && !(result.get_continue() || result.get_break())) return result;
 
 		if (result.get_break())
 			break;
 
 		if (result.get_continue())
 			continue;
-
-		if (body_val->get_type() != ValueType::NULLTYPE)
-			vals.push_back(body_val);
 	}
 
-	Value* res_val = new List(vals);
-	res_val->set_position(get_start(), get_end());
+	Value* res_val = new Null();
 	result.success(res_val);
 	return result;
 }

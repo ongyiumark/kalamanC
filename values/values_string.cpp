@@ -3,7 +3,7 @@
 #include <math.h>
 
 ////////////////////////////////////
-// DOUBLE CLASS
+// STRING CLASS
 ////////////////////////////////////
 String::String(std::string val) : Value(ValueType::STRINGTYPE), value(val) {}
 

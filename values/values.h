@@ -2,10 +2,13 @@
 #define VALUES_H
 
 #include "../tracers/position.h"
+#include "../constants.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
+
+class Node;
 
 enum ValueType 
 {
@@ -14,12 +17,13 @@ enum ValueType
 	STRINGTYPE,
 	LISTTYPE,
 	FUNCTIONTYPE,
+	BIFUNCTYPE,
 	NULLTYPE
 };
 
 const std::string VALUETYPES[] = 
 {
-	"INTEGER", "DOUBLE", "STRING", "LIST", "FUNCTION", "NULL"
+	"INTEGER", "DOUBLE", "STRING", "LIST", "FUNCTION", "BUILTIN_FUNCTION", "NULL"
 };
 
 class Value
@@ -42,6 +46,10 @@ public:
 	virtual long double get_double_value() const;
 	virtual std::vector<Value*> get_list_values() const;
 	virtual std::string get_string_value() const;
+	virtual Node* get_func_body() const;
+	virtual std::vector<std::string> get_func_argnames() const;
+	virtual std::string get_func_name() const;
+	virtual BuiltInName get_bifunc_name() const;
 
 	virtual bool is_true() const = 0;
 	virtual Value* add(const Value* other) const;
@@ -166,5 +174,49 @@ public:
 	Value* equals(const Value* other) const;
 	Value* copy() const;
 };
+
+class Function : public Value
+{
+private:
+	std::string name;
+	Node* body;
+	std::vector<std::string> arg_names;
+public:
+	Function(std::string nm, Node* n, const std::vector<std::string>& args_n);
+	void print(std::ostream& os) const;
+
+	std::vector<std::string> get_func_argnames() const;
+	Node* get_func_body() const;
+	std::string get_func_name() const;
+
+	bool is_true() const;
+	Value* less_than(const Value* other) const;
+	Value* greater_than(const Value* other) const;
+	Value* equals(const Value* other) const;
+	Value* copy() const;
+};
+
+
+
+class BuiltInFunction : public Value
+{
+private:
+	BuiltInName name;
+	std::vector<std::string> arg_names;
+public:
+	BuiltInFunction(BuiltInName nm, const std::vector<std::string>& args_n);
+	void print(std::ostream& os) const;
+
+	std::vector<std::string> get_func_argnames() const;
+	BuiltInName get_bifunc_name() const;
+	std::string get_func_name() const;
+
+	bool is_true() const;
+	Value* less_than(const Value* other) const;
+	Value* greater_than(const Value* other) const;
+	Value* equals(const Value* other) const;
+	Value* copy() const;
+};
+
 
 #endif
