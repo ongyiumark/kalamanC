@@ -59,14 +59,14 @@ public:
 	Token(TokenType t, Position s, Position e, std::string val="");
 	Token(TokenType t, Position s, std::string val="");
 
-	bool matches(TokenType t, std::string val="");
+	bool matches(const TokenType t, const std::string val="") const;
 	void print(std::ostream& os) const;
 
-	TokenType get_type();
-	Position get_start();
-	Position get_end();
-	std::string get_value();
-	std::string as_string();
+	TokenType get_type() const;
+	Position get_start() const;
+	Position get_end() const;
+	std::string get_value() const;
+	std::string as_string() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Token &tok);

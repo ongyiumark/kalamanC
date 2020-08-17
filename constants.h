@@ -8,16 +8,17 @@
 ////////////////////////////////////
 // CONSTANTS
 ////////////////////////////////////
-const std::string IGNORE = " \t\n";
+const std::string IGNORE = " \t\n\r"; // Character to ignore
 const std::string LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const std::string DIGITS = "0123456789";
-const std::map<char, char> ESCAPECHARS = {{'n','\n'}, {'t', '\t'}};
-const int ERRORLIMIT = 70;
+
+const std::map<char, char> ESCAPECHARS = {{'n','\n'}, {'t', '\t'}}; //Escape characters in STRINGTYPE
+const int ERRORLIMIT = 70; // Limit of the error message
 
 ////////////////////////////////////
 // KEYWORDS
 ////////////////////////////////////
-const std::string KT_INT 		= "int";
+const std::string KT_INT 		= "int";		// You may change these values
 const std::string KT_DOUBLE 	= "double";
 const std::string KT_STRING 	= "str";
 const std::string KT_LIST 		= "list";
@@ -40,11 +41,16 @@ const std::string KT_CONTINUE 	= "continue";
 const std::string KT_FUNCDEF 	= "def";
 const std::string KT_RETURN 	= "return";
 
-const std::set<std::string> KEYWORDS = {KT_INT, KT_DOUBLE, KT_STRING, KT_LIST, KT_FUNC,
-										KT_AND, KT_OR, KT_NOT, KT_XOR,
-										KT_IF, KT_ELIF, KT_ELSE,
-										KT_FOR, KT_WHILE, KT_BREAK, KT_CONTINUE,
-										KT_FUNCDEF, KT_RETURN};
+
+const std::set<std::string> KEYWORDS = 		// Add the keywords here if you add keywords
+{
+	KT_INT, KT_DOUBLE, KT_STRING, KT_LIST, KT_FUNC,
+	KT_AND, KT_OR, KT_NOT, KT_XOR,
+	KT_IF, KT_ELIF, KT_ELSE,
+	KT_FOR, KT_WHILE, KT_BREAK, KT_CONTINUE,
+	KT_FUNCDEF, KT_RETURN
+};
+
 ////////////////////////////////////
 // Built In Functions
 ////////////////////////////////////
@@ -53,11 +59,12 @@ enum BuiltInName
 	PRINT,
 	INPUTSTR,
 	INPUTINT,
-	UNDEFINED
+	UNDEFINED // Placeholder. Keep this at the last
 };
 
 const std::string BUILTINNAMES[] = 
 {
 	"print", "input", "intput"
 };
+
 #endif

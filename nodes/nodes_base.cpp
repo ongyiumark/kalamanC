@@ -5,10 +5,10 @@
 ////////////////////////////////////
 Node::Node(NodeType n, Position s, Position e) : type(n), start(s), end(e) {} 
 
-RTResult Node::visit(Context* context)
+RTResult Node::visit(Context* context) const
 {
 	RTResult result = RTResult();
-	result.failure(new RuntimeError("Unknown Node: "+NODETYPES[type], start,end, context));
+	result.failure(new RuntimeError("Unknown Node: " + NODETYPES[type], start, end, context));
 	return result;
 }
 

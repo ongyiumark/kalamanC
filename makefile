@@ -1,13 +1,12 @@
 kalman: main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o builtin_functions.o
-	g++ -std=c++11 -o kalman main.o tracers.o token.o lexer.o nodes.o parser.o values.o interpreter.o builtin_functions.o
+	g++ -std=c++11 -o kalman main.o tracers.o token.o lexer.o nodes.o parser.o values.o \
+					interpreter.o builtin_functions.o
 
 main.o: main.cpp
 	g++ -std=c++11 -c main.cpp 
 
-tracers.o : tracers/position.o tracers/errors.o tracers/symbol_table.o \
-			tracers/context.o
-	ld -r -o tracers.o tracers/position.o tracers/errors.o \
-		tracers/symbol_table.o tracers/context.o
+tracers.o : tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
+	ld -r -o tracers.o tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
 
 position.o: tracers/position.cpp
 	g++ -std=c++11 -c tracers/position.cpp 
@@ -27,35 +26,21 @@ token.o: lexer/token.cpp
 lexer.o : lexer/lexer.cpp
 	g++ -std=c++11 -c lexer/lexer.cpp
 
-nodes.o : nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
-			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
+nodes.o : nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
 			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
 			nodes/nodes_functions.o
-	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_noop.o nodes/nodes_number.o \
-			nodes/nodes_binary.o nodes/nodes_unary.o nodes/nodes_list.o nodes/nodes_string.o \
+	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
 			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
 			nodes/nodes_functions.o
 
 nodes_base.o : nodes/nodes_base.cpp
 	g++ -std=c++11 -c nodes/nodes_base.cpp
 
-nodes_noop.o : nodes/nodes_noop.cpp
-	g++ -std=c++11 -c nodes/nodes_noop.cpp
+nodes_literal.o : nodes/nodes_literal.cpp
+	g++ -std=c++11 -c nodes/nodes_literal.cpp
 
-nodes_number.o : nodes/nodes_number.cpp
-	g++ -std=c++11 -c nodes/nodes_number.cpp
-
-nodes_string.o : nodes/nodes_string.cpp
-	g++ -std=c++11 -c nodes/nodes_string.cpp
-
-nodes_binary.o : nodes/nodes_binary.cpp
-	g++ -std=c++11 -c nodes/nodes_binary.cpp
-
-nodes_unary.o : nodes/nodes_unary.cpp
-	g++ -std=c++11 -c nodes/nodes_unary.cpp
-
-nodes_list.o : nodes/nodes_list.cpp
-	g++ -std=c++11 -c nodes/nodes_list.cpp
+nodes_operation.o : nodes/nodes_operation.cpp
+	g++ -std=c++11 -c nodes/nodes_operation.cpp
 
 nodes_sequence.o : nodes/nodes_sequence.cpp
 	g++ -std=c++11 -c nodes/nodes_sequence.cpp

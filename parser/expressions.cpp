@@ -31,7 +31,7 @@ ParserResult Parser::expr()
 
 		if (!curr_token->matches(TokenType::IDENTIFIER))
 		{
-			result.failure(new IllegalSyntax("Expected IDENTIFIER", 
+			result.failure(new IllegalSyntax("Expected " + TOKENTYPES[TokenType::IDENTIFIER], 
 				curr_token->get_start(), curr_token->get_end()));
 			return result;
 		}

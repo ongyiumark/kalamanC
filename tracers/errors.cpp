@@ -14,6 +14,7 @@ std::string Error::arrowed_string() const
 	std::string script = *start.get_filetext();
 	
 	int i = start.get_ln_start();
+	int cnt = 0;
 	char c = script[i];
 	while((i-end.get_ln_start() < end.get_col() || c != '\n') && i < script.size())
 	{
@@ -31,6 +32,12 @@ std::string Error::arrowed_string() const
 		else arrows += " ";
 
 		i++;
+		cnt++;
+		if (cnt > ERRORLIMIT)
+		{
+			line += " <message truncated>";
+			break;
+		}
 	}
 
 	return line+"\n"+arrows;
@@ -38,7 +45,10 @@ std::string Error::arrowed_string() const
 
 void Error::print(std::ostream& os) const 
 {
-	os << name << " : " << details << "\n\n";
+	os << name << ": " << details << "\n";
+	os << "   File '" + start.get_filename() << "'";
+	os << ", line " + std::to_string(start.get_ln()+1);
+	os << ", col " + std::to_string(start.get_col()) << "\n\n";
 	os << arrowed_string();
 }
 
@@ -101,7 +111,7 @@ std::string RuntimeError::generate_traceback() const
 
 	while(ctx)
 	{
-		std::string curr = "   File " + pos.get_filename();
+		std::string curr = "   File '" + pos.get_filename() + "'";
 		curr += ", line " + std::to_string(pos.get_ln()+1);
 		curr += ", col " + std::to_string(pos.get_col());
 		curr += ", in " + ctx->get_name() + "\n";
@@ -115,7 +125,7 @@ std::string RuntimeError::generate_traceback() const
 
 void RuntimeError::print(std::ostream& os) const
 {
-	os << get_name() << " : " << get_details() << "\n";
+	os << get_name() << ": " << get_details() << "\n";
 	os << generate_traceback() << "\n";
 	os << arrowed_string();
 }

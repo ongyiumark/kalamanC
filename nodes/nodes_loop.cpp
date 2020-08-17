@@ -16,12 +16,13 @@ void ForLoopNode::print(std::ostream& os) const
 	os << "}";
 }
 
-RTResult ForLoopNode::visit(Context* context)
+RTResult ForLoopNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 
 	result.register_value(init->visit(context));
 	if (result.should_return()) return result;
+	
 	while(1)
 	{
 		Value* cond_value = result.register_value(condition->visit(context));
@@ -64,7 +65,7 @@ void WhileLoopNode::print(std::ostream& os) const
 	os << "}";
 }
 
-RTResult WhileLoopNode::visit(Context* context)
+RTResult WhileLoopNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 
@@ -102,7 +103,7 @@ void BreakNode::print(std::ostream& os) const
 	os << "(BREAK)";
 }
 
-RTResult BreakNode::visit(Context* context)
+RTResult BreakNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	result.success_break();
@@ -120,7 +121,7 @@ void ContinueNode::print(std::ostream& os) const
 	os << "(CONTINUE)";
 }
 
-RTResult ContinueNode::visit(Context* context)
+RTResult ContinueNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	result.success_continue();

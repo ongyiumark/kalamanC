@@ -29,12 +29,12 @@ void LexerResult::print (std::ostream& os) const
 	else os << "No tokens\n";
 }
 
-std::vector<Token*>& LexerResult::get_tokens()
+std::vector<Token*> LexerResult::get_tokens() const
 {
 	return tokens;
 }
 
-Error* LexerResult::get_error()
+Error* LexerResult::get_error() const
 {
 	return error;
 }
@@ -90,80 +90,106 @@ LexerResult Lexer::make_tokens()
 		switch (curr_char)
 		{
 			case '"':
-				{
-					TokenError result = make_string();
-					if (result.error) return LexerResult(result.error);
-					tokens.push_back(result.token);
-					break;
-				}
+			{
+				TokenError result = make_string();
+				if (result.error) return LexerResult(result.error);
+				tokens.push_back(result.token);
+				break;
+			}
 			case '+':
+			{
 				tokens.push_back(new Token(TokenType::PLUS, pos));
 				advance();
 				break;
+			}
 			case '-':
+			{
 				tokens.push_back(new Token(TokenType::MINUS, pos));
 				advance();
 				break;
+			}
 			case '*':
+			{
 				tokens.push_back(new Token(TokenType::MUL, pos));
 				advance();
 				break;
+			}
 			case '/':
-				{
-					Token* token = make_div_or_comment();
-					if (token) tokens.push_back(token);
-					break;
-				}
+			{
+				Token* token = make_div_or_comment();
+				if (token) tokens.push_back(token);
+				break;
+			}
 			case '%':
+			{
 				tokens.push_back(new Token(TokenType::MOD, pos));
 				advance();
 				break;
+			}
 			case '^':
+			{
 				tokens.push_back(new Token(TokenType::POW, pos));
 				advance();
 				break;
+			}
 			case '(':
+			{
 				tokens.push_back(new Token(TokenType::LPAREN, pos));
 				advance();
 				break;
+			}
 			case ')':
+			{
 				tokens.push_back(new Token(TokenType::RPAREN, pos));
 				advance();
 				break;
+			}
 			case '[':
+			{
 				tokens.push_back(new Token(TokenType::LSQUARE, pos));
 				advance();
 				break;
+			}
 			case ']':
+			{
 				tokens.push_back(new Token(TokenType::RSQUARE, pos));
 				advance();
 				break;
+			}
 			case '{':
+			{
 				tokens.push_back(new Token(TokenType::LCURLY, pos));
 				advance();
 				break;
+			}
 			case '}':
+			{
 				tokens.push_back(new Token(TokenType::RCURLY, pos));
 				advance();
 				break;
+			}
 			case ';':
+			{
 				tokens.push_back(new Token(TokenType::SEMICOLON, pos));
 				advance();
 				break;
+			}
 			case ',':
+			{
 				tokens.push_back(new Token(TokenType::COMMA, pos));
 				advance();
 				break;
+			}
 			case '=':
 				tokens.push_back(make_equals());
 				break;
 			case '!':
-				{
-					TokenError result = make_not_equals();
-					if (result.error) return LexerResult(result.error);
-					tokens.push_back(result.token);
-					break;
-				}
+			{
+				TokenError result = make_not_equals();
+				if (result.error) return LexerResult(result.error);
+				tokens.push_back(result.token);
+				break;
+			}
 			case '<':
 				tokens.push_back(make_less_than());
 				break;
@@ -171,6 +197,7 @@ LexerResult Lexer::make_tokens()
 				tokens.push_back(make_greater_than());
 				break;
 			default:
+			{
 				std::string details = "'";
 				details += curr_char;
 				details += "'";
@@ -178,6 +205,7 @@ LexerResult Lexer::make_tokens()
 				Position start = pos;
 				advance();
 				return LexerResult(new IllegalCharacter(details, start, pos));
+			}
 		}
 	}
 
@@ -203,10 +231,8 @@ Token* Lexer::make_number()
 		advance();
 	}
 
-	if (dot_count)
-		return new Token(TokenType::DOUBLE, start, pos, result);
-	else
-		return new Token(TokenType::INTEGER, start, pos, result);
+	if (dot_count) return new Token(TokenType::DOUBLE, start, pos, result);
+	else return new Token(TokenType::INTEGER, start, pos, result);
 }
 
 Token* Lexer::make_identifier()
@@ -230,9 +256,8 @@ TokenError Lexer::make_not_equals()
 	Position start = pos;
 	advance();
 	if (curr_char != '=')
-	{
 		return TokenError(NULL, new ExpectedCharacter("Expected '=' (after '!')", start, pos));
-	}
+	
 	advance();
 	return TokenError(new Token(TokenType::NEQUALS, start, pos), NULL);
 }
@@ -305,7 +330,7 @@ TokenError Lexer::make_string()
 		return TokenError(new Token(TokenType::STRING, start, pos, result),NULL);
 	}
 
-	return TokenError(NULL, new ExpectedCharacter("Expected \" to end the string", start, pos));
+	return TokenError(NULL, new ExpectedCharacter("Expected '\"' to end the string", start, pos));
 }
 
 void Lexer::single_line_comment()

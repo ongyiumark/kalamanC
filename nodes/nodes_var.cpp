@@ -11,7 +11,7 @@ void VarDeclareNode::print(std::ostream& os) const
 	os << "(DECLARE:" << VALUETYPES[type] << ":" << identifier->get_value() << ")";
 }
 
-RTResult VarDeclareNode::visit(Context* context)
+RTResult VarDeclareNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -30,13 +30,17 @@ RTResult VarDeclareNode::visit(Context* context)
 		case ValueType::LISTTYPE:
 			val = new List(std::vector<Value*>());
 			break;
+		case ValueType::FUNCTIONTYPE:
+		{
+			std::vector<std::string> args;
+			val = new Function("<undeclared>", NULL, args);
+			break;
+		}
 		default:
 			val = new Null();
 	}
 
-	val->set_position(get_start(), get_end());
 	context->get_table()->set_value(identifier->get_value(), val);
-
 	result.success(new Null());
 	return result;
 }
@@ -52,11 +56,13 @@ void VarAssignNode::print(std::ostream& os) const
 	os << "(ASSIGN:" << identifier->get_value() << " <- " << *child << ")";
 }
 
-RTResult VarAssignNode::visit(Context* context)
+RTResult VarAssignNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	
 	Value* val = result.register_value(child->visit(context));
+	if (result.should_return()) return result;
+
 	Value* orig_val = context->get_table()->get_value(identifier->get_value());
 
 	if (orig_val->get_type() != val->get_type())
@@ -67,7 +73,6 @@ RTResult VarAssignNode::visit(Context* context)
 		return result;
 	}
 
-	val->set_position(get_start(), get_end());
 	context->get_table()->set_value(identifier->get_value(), val);
 
 	result.success(val);
@@ -85,7 +90,7 @@ void VarAccessNode::print(std::ostream& os) const
 	os << "(" << *identifier << ")";
 }
 
-RTResult VarAccessNode::visit(Context* context)
+RTResult VarAccessNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -98,7 +103,6 @@ RTResult VarAccessNode::visit(Context* context)
 		return result;
 	}
 
-	val->set_position(get_start(), get_end());
 	result.success(val);
 	return result;
 }

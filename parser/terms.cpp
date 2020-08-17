@@ -122,71 +122,8 @@ ParserResult Parser::call()
 		return result;
 	}
 
-
 	result.success(atom_node);
 	return result;
 }
 
 
-ParserResult Parser::atom()
-{
-	ParserResult result = ParserResult();
-	// INT|DOUBLE
-	if (curr_token->matches(TokenType::INTEGER)
-		|| curr_token->matches(TokenType::DOUBLE))
-	{
-		result.success(new NumberNode(curr_token, curr_token->get_start(), curr_token->get_end()));
-		advance();
-		result.register_advance();
-		return result;
-	}
-	// STRING
-	else if (curr_token->matches(TokenType::STRING))
-	{
-		result.success(new StringNode(curr_token, curr_token->get_start(), curr_token->get_end()));
-		advance();
-		result.register_advance();
-		return result;
-	}
-	// IDENTIFIER
-	else if (curr_token->matches(TokenType::IDENTIFIER))
-	{
-		result.success(new VarAccessNode(curr_token, curr_token->get_start(), curr_token->get_end()));
-		advance();
-		result.register_advance();
-		return result;
-	}
-	// LPAREN expr RPAREN
-	else if (curr_token->matches(TokenType::LPAREN))
-	{
-		advance();
-		result.register_advance();
-
-		Node* express = result.register_node(expr());
-		if (result.get_error()) return result;
-
-		if (!curr_token->matches(TokenType::RPAREN))
-		{
-			result.failure(new IllegalSyntax("Expected ')'", curr_token->get_start(), curr_token->get_end()));
-			return result;
-		}
-
-		advance();
-		result.register_advance();
-
-		result.success(express);
-		return result;
-	}
-	// list-expr
-	else if (curr_token->matches(TokenType::LSQUARE))
-	{
-		result.register_node(list_expr());
-		return result;
-	}
-
-
-	std::string details = "Expected '(', '[', " + TOKENTYPES[TokenType::INTEGER];
-	details += ", " + TOKENTYPES[TokenType::DOUBLE] + ", " + TOKENTYPES[TokenType::STRING];
-	result.failure(new IllegalSyntax(details, curr_token->get_start(), curr_token->get_end()));
-	return result;
-}

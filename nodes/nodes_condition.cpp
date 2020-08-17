@@ -23,7 +23,7 @@ void ConditionNode::print(std::ostream& os) const
 	os << "}";
 }
 
-RTResult ConditionNode::visit(Context* context)
+RTResult ConditionNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	int n = cases.size();
@@ -36,7 +36,6 @@ RTResult ConditionNode::visit(Context* context)
 		{
 			Value* stm = result.register_value(statements[i]->visit(context));
 			if (result.should_return()) return result;
-			stm->set_position(get_start(), get_end());
 			result.success(stm);
 			return result;
 		}
@@ -46,13 +45,11 @@ RTResult ConditionNode::visit(Context* context)
 	{
 		Value* stm = result.register_value(else_case->visit(context));
 		if (result.should_return()) return result;
-		stm->set_position(get_start(), get_end());
 		result.success(stm);
 		return result;
 	}
 
 	Value* res_val = new Null();
-	res_val->set_position(get_start(), get_end());
 	result.success(res_val);
 	return result;
 }

@@ -7,27 +7,12 @@
 ////////////////////////////////////
 Value::Value(ValueType t) : type(t) {}
 
-void Value::set_position(Position s, Position e) 
-{
-	start = s;
-	end = e;
-}
-
 ValueType Value::get_type() const
 {
 	return type;
 }
 
-Position Value::get_start() const
-{
-	return start;
-}
-
-Position Value::get_end() const
-{
-	return end;
-}
-
+// Getter functions that will be overloaded depending on the value
 long long Value::get_int_value() const
 {
 	return 0;
@@ -59,6 +44,10 @@ BuiltInName Value::get_bifunc_name() const
 	return BuiltInName::UNDEFINED;
 }
 
+bool Value::is_bifunc() const {
+	return false;
+}
+
 Node* Value::get_func_body() const 
 {
 	return NULL;
@@ -69,6 +58,7 @@ std::vector<std::string> Value::get_func_argnames() const
 	return std::vector<std::string>();
 }
 
+// Operations
 Value* Value::add(const Value* other) const
 {
 	return new Null();

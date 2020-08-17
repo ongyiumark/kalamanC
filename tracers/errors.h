@@ -3,7 +3,6 @@
 
 #include "position.h"
 #include "context.h"
-
 #include <string>
 #include <iostream>
 
@@ -12,6 +11,7 @@ class Error
 private:
 	std::string name, details;
 	Position start, end;
+	
 public:
 	Error(std::string n, std::string dets, Position s, Position e);
 	
@@ -48,6 +48,7 @@ class RuntimeError : public Error
 {
 private:
 	Context* context;
+	
 public:
 	RuntimeError(std::string dets, Position s, Position e, Context* ctx);
 	std::string generate_traceback() const;

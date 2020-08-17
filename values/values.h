@@ -3,11 +3,11 @@
 
 #include "../tracers/position.h"
 #include "../constants.h"
-
 #include <iostream>
 #include <string>
 #include <vector>
 
+// Hacks to include Node class before it's actually made
 class Node;
 
 enum ValueType 
@@ -30,17 +30,12 @@ class Value
 {
 private:
 	ValueType type;
-	Position start, end;
 public:
 	Value(ValueType t);
 	virtual void print(std::ostream& os) const = 0;
 
-	void set_position(Position s, Position e);
-
 	ValueType get_type() const;
-	Position get_start() const;
-	Position get_end() const;
-
+	
 	virtual Value* copy() const = 0;
 	virtual long long get_int_value() const;
 	virtual long double get_double_value() const;
@@ -49,6 +44,7 @@ public:
 	virtual Node* get_func_body() const;
 	virtual std::vector<std::string> get_func_argnames() const;
 	virtual std::string get_func_name() const;
+	virtual bool is_bifunc() const;
 	virtual BuiltInName get_bifunc_name() const;
 
 	virtual bool is_true() const = 0;
@@ -185,9 +181,9 @@ public:
 	Function(std::string nm, Node* n, const std::vector<std::string>& args_n);
 	void print(std::ostream& os) const;
 
+	std::string get_func_name() const;
 	std::vector<std::string> get_func_argnames() const;
 	Node* get_func_body() const;
-	std::string get_func_name() const;
 
 	bool is_true() const;
 	Value* less_than(const Value* other) const;
@@ -195,8 +191,6 @@ public:
 	Value* equals(const Value* other) const;
 	Value* copy() const;
 };
-
-
 
 class BuiltInFunction : public Value
 {
@@ -210,7 +204,8 @@ public:
 	std::vector<std::string> get_func_argnames() const;
 	BuiltInName get_bifunc_name() const;
 	std::string get_func_name() const;
-
+	bool is_bifunc() const;
+	
 	bool is_true() const;
 	Value* less_than(const Value* other) const;
 	Value* greater_than(const Value* other) const;

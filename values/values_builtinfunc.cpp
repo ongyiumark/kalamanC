@@ -6,7 +6,7 @@
 // BUILT IN FUNCTION CLASS
 ////////////////////////////////////
 BuiltInFunction::BuiltInFunction(BuiltInName nm, const std::vector<std::string>& args_n)
-	: Value(ValueType::BIFUNCTYPE), name(nm), arg_names(args_n) {}
+	: Value(ValueType::FUNCTIONTYPE), name(nm), arg_names(args_n) {}
 
 void BuiltInFunction::print(std::ostream& os) const 
 {
@@ -23,6 +23,9 @@ std::string BuiltInFunction::get_func_name() const
 	return BUILTINNAMES[name];
 }
 
+bool BuiltInFunction::is_bifunc() const{
+	return true;
+}
 
 std::vector<std::string> BuiltInFunction::get_func_argnames() const
 {

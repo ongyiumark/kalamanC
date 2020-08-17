@@ -1,3 +1,5 @@
+This is a summary of the grammar of the language. This is how everything is parsed.
+
 statements				: SEMICOLON* statement (SEMICOLON* statement)* SEMICOLON* 
 
 statement 				: KEYWORD:RETURN expr? SEMICOLON 

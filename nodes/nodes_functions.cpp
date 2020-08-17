@@ -5,7 +5,6 @@
 ////////////////////////////////////
 // FUNCTION DEFINE NODE CLASS
 ////////////////////////////////////
-
 FuncDefNode::FuncDefNode(Token* id, std::vector<Token*>& arg_n, Node * b,  Position s, Position e)
 	: Node(NodeType::FUNCDEF, s, e), identifier(id), arg_names(arg_n), body(b) {}
 
@@ -22,7 +21,7 @@ void FuncDefNode::print(std::ostream& os) const
 	os << ")}";
 }
 
-RTResult FuncDefNode::visit(Context* context)
+RTResult FuncDefNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	
@@ -31,7 +30,6 @@ RTResult FuncDefNode::visit(Context* context)
 		args.push_back(t->get_value());
 
 	Value* val = new Function(identifier->get_value(), body, args);
-	val->set_position(get_start(), get_end());
 	context->get_table()->set_value(identifier->get_value(), val);
 	result.success(new Null());
 	return result;
@@ -40,7 +38,6 @@ RTResult FuncDefNode::visit(Context* context)
 ////////////////////////////////////
 // FUNCTION CALL NODE CLASS
 ////////////////////////////////////
-
 FuncCallNode::FuncCallNode(Node* node, std::vector<Node*>& arg, Position s, Position e)
 	: Node(NodeType::FUNCDEF, s, e), to_call(node), args(arg) {}
 
@@ -57,7 +54,7 @@ void FuncCallNode::print(std::ostream& os) const
 	os << ")}";
 }
 
-RTResult FuncCallNode::visit(Context* context)
+RTResult FuncCallNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	Value* func = result.register_value(to_call->visit(context));
@@ -98,7 +95,7 @@ RTResult FuncCallNode::visit(Context* context)
 	for (int i = 0; i < n; i++)
 		exec_ctx->get_table()->set_value(arg_names[i], arg_vals[i]);
 
-	if (func->get_type() == ValueType::FUNCTIONTYPE)
+	if (!func->is_bifunc())
 	{
 		result.register_value(func->get_func_body()->visit(exec_ctx));
 		if (result.should_return() && !result.get_return_value()) return result;
@@ -119,7 +116,7 @@ RTResult FuncCallNode::visit(Context* context)
 			result.register_value(BFunctions::INPUTSTR(exec_ctx));
 			return result;
 		default:
-			result.failure(new RuntimeError("Undefined Builtin Function ", get_start(), get_end(), context));
+			result.failure(new RuntimeError("Undefined Builtin Function", get_start(), get_end(), context));
 			return result;
 	}
 }
@@ -127,7 +124,7 @@ RTResult FuncCallNode::visit(Context* context)
 ////////////////////////////////////
 // RETURN NODE CLASS
 ////////////////////////////////////
-ReturnNode::ReturnNode(Node* ret, Position s, Position e)
+ReturnNode::ReturnNode(Node* ret, Position s, Position e) 
 	: Node(NodeType::RETURNNODE, s, e), return_node(ret) {}
 
 void ReturnNode::print(std::ostream& os) const 
@@ -137,7 +134,7 @@ void ReturnNode::print(std::ostream& os) const
 	os << ")";
 }
 
-RTResult ReturnNode::visit(Context* context)
+RTResult ReturnNode::visit(Context* context) const
 {
 	RTResult result = RTResult();
 	result.success_return(new Null());

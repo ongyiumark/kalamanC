@@ -24,8 +24,8 @@ RTResult run(std::string filename, std::string script)
 		result.failure(lex_result.get_error());
 		return result;
 	}
+	
 	//std::cout << lex_result << std::endl;
-	//std::cout << script << std::endl;
 
 	ParserResult parse_result = Parser(lex_result.get_tokens()).parse();
 	if (parse_result.get_error()) 
@@ -33,6 +33,7 @@ RTResult run(std::string filename, std::string script)
 		result.failure(parse_result.get_error());
 		return result;
 	}
+
 	//std::cout << parse_result << std::endl;
 
 	result = parse_result.get_node()->visit(global_context);
@@ -51,7 +52,7 @@ void run_file(std::string filename)
 
 		file.close();
 	}
-	RTResult result = run("<stdin>", script);
+	RTResult result = run(filename, script);
 	if (result.get_error())
 		std::cout << result << std::endl;
 }

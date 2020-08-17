@@ -21,12 +21,14 @@ class LexerResult
 private:
 	std::vector<Token*> tokens;
 	Error* error;
+
 public:
 	LexerResult (Error* err);
 	LexerResult (std::vector<Token*> toks);
+
 	void print (std::ostream& os) const;
-	std::vector<Token*>& get_tokens();
-	Error* get_error();
+	std::vector<Token*> get_tokens() const;
+	Error* get_error() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const LexerResult &lexres);
@@ -37,6 +39,7 @@ private:
 	Position pos;
 	char curr_char;
 	std::string text;
+	
 public:
 	Lexer(std::string fname, std::string ftext);
 

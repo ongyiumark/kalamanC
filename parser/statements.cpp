@@ -149,7 +149,6 @@ ParserResult Parser::statement()
 		return result;
 	}
 
-
 	// expr SEMICOLON
 	Node* express = result.register_node(expr());
 	if (result.get_error()) return result;
@@ -180,7 +179,7 @@ ParserResult Parser::if_stm()
 
 	if (!curr_token->matches(TokenType::KEYWORD, KT_IF))
 	{
-		result.failure(new IllegalSyntax("Expected IF", curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + KT_IF, curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 
@@ -268,7 +267,7 @@ ParserResult Parser::for_stm()
 
 	if (!curr_token->matches(TokenType::KEYWORD, KT_FOR))
 	{
-		result.failure(new IllegalSyntax("Expected FOR", curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + KT_FOR, curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 
@@ -334,7 +333,7 @@ ParserResult Parser::while_stm()
 	Position start = curr_token->get_start();
 	if (!curr_token->matches(TokenType::KEYWORD, KT_WHILE))
 	{
-		result.failure(new IllegalSyntax("Expected WHILE", curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + KT_WHILE, curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 
@@ -380,7 +379,7 @@ ParserResult Parser::funcdef_stm()
 
 	if (!curr_token->matches(TokenType::KEYWORD, KT_FUNCDEF))
 	{
-		result.failure(new IllegalSyntax("Expected "+KT_FUNCDEF, curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + KT_FUNCDEF, curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 
@@ -389,7 +388,8 @@ ParserResult Parser::funcdef_stm()
 
 	if (!curr_token->matches(TokenType::IDENTIFIER))
 	{
-		result.failure(new IllegalSyntax("Expected IDENTIFIER", curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + TOKENTYPES[TokenType::IDENTIFIER], 
+			curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 	
@@ -421,7 +421,8 @@ ParserResult Parser::funcdef_stm()
 
 	if (!curr_token->matches(TokenType::IDENTIFIER))
 	{
-		result.failure(new IllegalSyntax("Expected IDENTIFIER", curr_token->get_start(), curr_token->get_end()));
+		result.failure(new IllegalSyntax("Expected " + TOKENTYPES[TokenType::IDENTIFIER], 
+			curr_token->get_start(), curr_token->get_end()));
 		return result;
 	}
 	
@@ -436,7 +437,8 @@ ParserResult Parser::funcdef_stm()
 		result.register_advance();
 		if (!curr_token->matches(TokenType::IDENTIFIER))
 		{
-			result.failure(new IllegalSyntax("Expected IDENTIFIER", curr_token->get_start(), curr_token->get_end()));
+			result.failure(new IllegalSyntax("Expected " + TOKENTYPES[TokenType::IDENTIFIER], 
+				curr_token->get_start(), curr_token->get_end()));
 			return result;
 		}
 		

@@ -115,6 +115,7 @@ Value* Integer::power(const Value* other) const
 			long long ans = 1;
 			long long b = value;
 			long long e = other->get_int_value();
+			if (e < 0) return new Double(powl((long double)b, e));
 			while(e > 0)
 			{
 				if (e&1) ans*=b;
@@ -124,7 +125,7 @@ Value* Integer::power(const Value* other) const
 			return new Integer(ans);
 		}
 		case ValueType::DOUBLETYPE:
-			return new Double(pow(value,other->get_double_value()));
+			return new Double(powl(value,other->get_double_value()));
 		default:
 			return new Null();
 	}

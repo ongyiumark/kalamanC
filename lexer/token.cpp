@@ -13,7 +13,7 @@ Token::Token(TokenType t, Position s, std::string val)
 	}
 
 // Checks if token matches
-bool Token::matches(TokenType t, std::string val)
+bool Token::matches(const TokenType t, const std::string val) const
 {
 	if (!val.empty()) return (t==type)&&(val == value);
 	return t==type;
@@ -26,22 +26,22 @@ void Token::print(std::ostream& os) const
 }
 
 // Getters
-TokenType Token::get_type()
+TokenType Token::get_type() const
 {
 	return type;
 }
 
-Position Token::get_start()
+Position Token::get_start() const
 {
 	return start;
 }
 
-Position Token::get_end()
+Position Token::get_end() const
 {
 	return end;
 }
 
-std::string Token::get_value()
+std::string Token::get_value() const
 {
 	return value;
 }
@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& os, const Token &tok)
 	return os;
 }
 
-std::string Token::as_string()
+std::string Token::as_string() const
 {
 	std::string result;
 	if (!value.empty()) result += TOKENTYPES[type] + ":" + value;
