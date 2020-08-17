@@ -7,6 +7,11 @@ This is my second attempt at a programming language. You can find my first attem
 It's essentially the same project, but this is much more optimized.
 I still don't really know what I'm doing though.
 
+### Name origins
+I just asked a friend and they said *'kalamansi++'*. It was originally *'kalamansi++'*, but it felt too long so I shortened it. 
+
+*'kalamanC'* seemed was too punny.
+
 # Table of Contents
 - [Motivation](#motivation)
 - [Features](#features)
@@ -30,7 +35,7 @@ As for the syntax, the grammar of the language is summarized in [this](grammar.t
 
 I wanted to make an original language, but I'm not that great at language design. I picked this combination of syntax because I didn't like how whitespace mattered in *python*, and functions with definite return types in *C++* felt too restrictive. I'm open to ideas though.
 
-## Benchmark
+### Benchmark
 The following script runs in **2.733 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
 
 ```
@@ -43,24 +48,7 @@ That's about **20 times slower than python**, but that's a huge impovement over 
 <a name=code_example></a>
 # Code Example
 
-In English,
-
-```
-def make_list()
-{
-  list a = [];
-  for (int i = 0; i < 10; i = i + 1)
-  {
-    if (i == 4) continue;
-    a = a + i;
-  }
-  return a;
-}
-
-print(make_list())    // This will print [0,1,2,3,5,6,7,8,9]
-```
-
-In Filipino,
+### In Filipino
 
 ```
 aka make_list()
@@ -77,24 +65,41 @@ aka make_list()
 lathala(make_list())    // This will print [0,1,2,3,5,6,7,8,9]
 ```
 
-I'll be going over the syntax in more detail below.
+### In English
+
+```
+def make_list()
+{
+  list a = [];
+  for (int i = 0; i < 10; i = i + 1)
+  {
+    if (i == 4) continue;
+    a = a + i;
+  }
+  return a;
+}
+
+print(make_list())    // This will print [0,1,2,3,5,6,7,8,9]
+```
+
+I'll be going over the syntax in more detail below, but if you know *C++* and *python*, you can probably guess from the example above.
 
 <a name=installation></a>
 # Installation
 
-## Clone
+### Clone
 Clone this by to your local machine by running
 
 `$ git clone https://github.com/ongyiumark/kalamansi.git`
 
-## Compile
+### Compile
 I included a makefile so all you need to do is run 
 
 `$ make`
 
 Assuming you have a C++ compiler, you should now have a `kalman` file which you can run.
 
-## Run
+### Run
 You can run the file without any arguments to run a shell.
 
 `$ ./kalman`
@@ -107,9 +112,27 @@ I chose a `.kal` file extension but really, it can be anything as long as it con
 
 <a name=tutorial></a>
 # Language Tutorial
+### Data Types
+
+### Operators
+
+### Variables
+
+### Conditionals
+
+### Loops
+
+### Functions
 
 <a name=plans></a>
 # Future Plans
+- Add more built in functions
+- Add a mutable list/collection
+- Improve error messages
+- Improve runtime (not sure how to)
 
 <a name=acknowledgements></a>
 # Acknowledgments
+
+This was largely based on CodePulse's [Make YOUR OWN Programming Language](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) Series on YouTube.
+The series was written in *python* so I had to make a couple of adjustments. I also implemented my own syntax.
