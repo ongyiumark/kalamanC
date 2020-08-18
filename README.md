@@ -172,9 +172,9 @@ Note the following true values:
 
 ### Conditionals
 Conditionals in kalamansi work the same in C++. The keywords are:
-- kung (IF)
-- ehkung (ELSE IF)
-- kundi (ELSE)
+- kung (standard IF)
+- ehkung (standard ELIF)
+- kundi (standard ELSE)
 
 ```
 bilang x = 5;
@@ -210,8 +210,10 @@ ehkung (x > 3) lathala("Yes");
 
 ### Loops
 Loops in kalamansi work the same in C++. The keywords are:
-- habang (WHILE)
-- para (FOR)
+- habang (standard WHILE)
+- para (C++ FOR)
+- tuloy (standard CONTINUE)
+- hinto (standard BREAK)
 
 ```
 bilang i = 0;
@@ -224,9 +226,49 @@ habang(i < 10)
 para (bilang i = 0; i < 10; i = i + 1) lathala(i);
 ```
 
-These two loops do the same thing.
+These two loops do the same thing. The body of the loops have the same syntax as the body of the conditionals.
+
 
 ### Functions
+#### Builtin Functions
+##### lathala() 
+Arguments: Any literal or variable <br>
+Returns: NullType <br>
+Prints the value to the screen 
+
+##### input()
+Arguments: None <br>
+Returns: StringType <br>
+Reads input from user.
+
+##### to_int() (not yet implemented)
+##### to_double() (not yet implemented)
+##### to_string() (not yet implemented)
+##### to_list() (not yet implemented)
+##### type()  (not yet implemented)
+
+#### User-defined Functions
+This works very similar to python functions. The keywords are:
+- aka (python DEF)
+- ibalik (standard RETURN)
+
+```
+aka gcd(a,b)
+  kung (b == 0) ibalik a;
+  kundi ibalik gcd(b, a%b);
+  
+lathala(gcd(10,25))      // This prints 5
+```
+
+This is an implentation of a gcd function in Kalamansi. 
+Notice that I didn't need to enclose it in curly braces because the conditional is a single statement.
+
+You can also store functions into a variable
+
+```
+func f = gcd;
+lathala(f(10,25))      // This prints 5
+```
 
 <a name=plans></a>
 # Future Plans
