@@ -155,10 +155,10 @@ We have the following operators:
 
 ```
 (2+1)^2*2;   // Evaluates to 18
-1+1 > 32     // Evaluates to 0
-12 > 6 > 3   // Evaluates to 0
+1+1 > 32;     // Evaluates to 0
+12 > 6 > 3;   // Evaluates to 0
 
-13 at 0      // Evaluates to 0
+13 at 0;      // Evaluates to 0
 ```
 
 Boolean values are stored as integers with values of 0 or 1. The third example is false because it first evaluates (12 > 6) as true, 
