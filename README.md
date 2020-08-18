@@ -257,7 +257,7 @@ aka gcd(a,b)
   kung (b == 0) ibalik a;
   kundi ibalik gcd(b, a%b);
   
-lathala(gcd(10,25))      // This prints 5
+lathala(gcd(10,25));      // This prints 5
 ```
 
 This is an implentation of a gcd function in Kalamansi. 
@@ -267,7 +267,27 @@ You can also store functions into a variable
 
 ```
 func f = gcd;
-lathala(f(10,25))      // This prints 5
+lathala(f(10,25));      // This prints 5
+```
+
+### Indexing
+
+You can access elements of a list or a string with square brackets. They work similar to python where you can provide a negative index.
+
+```
+lista a = ["Yes", "No", 3, [3,1,3.5]];
+lathala(a[0][-1]);     // Prints "s"
+lathala(a[-1][-1]);     // Prints 3.5
+```
+
+### Comments
+Comments work the same as C++.
+
+```
+// This is a single line comment
+/* This
+is a multi
+line comment */
 ```
 
 <a name=plans></a>
