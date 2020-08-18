@@ -10,7 +10,7 @@ I still don't really know what I'm doing though.
 ### Name origins
 I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi++', but it felt too long so I shortened it. 
 
-'KalamanC' seemed was too punny.
+'KalamanC' seemed too punny.
 
 # Table of Contents
 - [Motivation](#motivation)
