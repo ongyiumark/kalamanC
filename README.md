@@ -274,7 +274,7 @@ lathala(f(10,25))      // This prints 5
 # Future Plans
 - Add more built in functions
 - Add a mutable list/collection
-- Improve error messages
+- Improve error messages (It's pretty hard to debug if you have the wrong syntax)
 - Improve runtime (not sure how to)
 
 <a name=acknowledgements></a>
