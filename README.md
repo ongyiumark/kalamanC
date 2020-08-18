@@ -280,6 +280,12 @@ lathala(a[0][-1]);     // Prints "s"
 lathala(a[-1][-1]);     // Prints 3.5
 ```
 
+Lists and strings are immutable, so you can't reassign their values like this.
+
+```
+a[0] = 3;   // This will incur a runtime error
+```
+
 ### Comments
 Comments work the same as C++.
 
