@@ -1,15 +1,8 @@
-int n = 1000000;
-
-int i = 0; 
-list a = [];
-while(i < n) 
+bilang i = 0;
+habang(i < 10)
 {
-	i = i + 1;
-	if (i == 4 or i == 6) continue;
-	else if (i == 15) break;
-	a = a + i;
+    lathala(i);
+    i = i + 1;
 }
 
-print(a);
-
-def div(a, b) return a/b;
+para (bilang i = 0; i < 10; i = i + 1) lathala(i);

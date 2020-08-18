@@ -32,35 +32,22 @@ ParserResult Parser::statements()
 	}
 
 	std::vector<Node*> nodes;
-	Node* stm = result.register_node(statement());
-	if (result.get_error()) return result;
-	nodes.push_back(stm);
-
-	while (curr_token->matches(TokenType::SEMICOLON))
+	while (curr_token->get_type() != TokenType::ENDFILE
+		&& curr_token->get_type() != TokenType::RCURLY)
 	{
-		advance();
-		result.register_advance();
-	}
-
-	while (1)
-	{
-		stm = result.try_register_node(statement());
-		if (!stm)
-		{
-			reverse_token(result.get_reverse_count());
-			result.success(new SequenceNode(nodes, start, curr_token->get_end()));
-			if (show_output) result.success(new ListNode(nodes, start, curr_token->get_end()));
-			return result;
-		}
+		Node* stm = result.register_node(statement());
 		if (result.get_error()) return result;
 		nodes.push_back(stm);
-
 		while (curr_token->matches(TokenType::SEMICOLON))
 		{
 			advance();
 			result.register_advance();
 		}
 	}
+
+	result.success(new SequenceNode(nodes, start, curr_token->get_end()));
+	if (show_output) result.success(new ListNode(nodes, start, curr_token->get_end()));
+	return result;
 }
 
 ParserResult Parser::statement()

@@ -98,7 +98,7 @@ const RTResult VarAccessNode::visit(const Context* context) const
 	if (val->get_type() == ValueType::NULLTYPE)
 	{
 		result.failure(new RuntimeError(
-			"Undeclared variable " + identifier->get_value(),
+			"Undeclared identifier " + identifier->get_value(),
 			get_start(), get_end(), context));
 		return result;
 	}

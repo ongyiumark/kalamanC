@@ -59,6 +59,11 @@ void run_file(std::string filename)
 
 void set_builtins()
 {
+	// Variables
+	global_context->get_table()->set_value(BUILTINNAMES[BuiltInName::V_TRUE], new Integer(1));
+	global_context->get_table()->set_value(BUILTINNAMES[BuiltInName::V_FALSE], new Integer(0));
+
+	// Functions
 	std::vector<std::string> args = {"value"};
 	global_context->get_table()->set_value(BUILTINNAMES[BuiltInName::PRINT], 
 		new BuiltInFunction(BuiltInName::PRINT, args));

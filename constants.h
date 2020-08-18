@@ -18,28 +18,28 @@ const int ERRORLIMIT = 70; // Limit of the error message
 ////////////////////////////////////
 // KEYWORDS
 ////////////////////////////////////
-const std::string KT_INT 		= "int";		// You may change these values
-const std::string KT_DOUBLE 	= "double";
-const std::string KT_STRING 	= "str";
-const std::string KT_LIST 		= "list";
+const std::string KT_INT 		= "bilang";		// You may change these values
+const std::string KT_DOUBLE 	= "doble";
+const std::string KT_STRING 	= "mgawords";
+const std::string KT_LIST 		= "lista";
 const std::string KT_FUNC 		= "func";
 
-const std::string KT_AND	 	= "and";
-const std::string KT_OR 		= "or";
-const std::string KT_NOT 		= "not";
-const std::string KT_XOR 		= "xor";
+const std::string KT_AND	 	= "at";
+const std::string KT_OR 		= "o";
+const std::string KT_NOT 		= "hindi";
+const std::string KT_XOR 		= "xo";
 
-const std::string KT_IF	 		= "if";
-const std::string KT_ELIF	 	= "elif";
-const std::string KT_ELSE	 	= "else";
+const std::string KT_IF	 		= "kung";
+const std::string KT_ELIF	 	= "ehkung";
+const std::string KT_ELSE	 	= "kundi";
 
-const std::string KT_FOR		= "for";
-const std::string KT_WHILE	 	= "while";
-const std::string KT_BREAK	 	= "break";
-const std::string KT_CONTINUE 	= "continue";
+const std::string KT_FOR		= "para";
+const std::string KT_WHILE	 	= "habang";
+const std::string KT_BREAK	 	= "hinto";
+const std::string KT_CONTINUE 	= "tuloy";
 
-const std::string KT_FUNCDEF 	= "def";
-const std::string KT_RETURN 	= "return";
+const std::string KT_FUNCDEF 	= "aka";
+const std::string KT_RETURN 	= "ibalik";
 
 
 const std::set<std::string> KEYWORDS = 		// Add the keywords here if you add keywords
@@ -56,6 +56,8 @@ const std::set<std::string> KEYWORDS = 		// Add the keywords here if you add key
 ////////////////////////////////////
 enum BuiltInName
 {
+	V_TRUE,
+	V_FALSE,
 	PRINT,
 	INPUTSTR,
 	INPUTINT,
@@ -64,7 +66,8 @@ enum BuiltInName
 
 const std::string BUILTINNAMES[] = 
 {
-	"print", "input", "intput"
+	"totoo", "mali",
+	"lathala", "input", "intput"
 };
 
 const std::set<std::string> RESERVED = 
