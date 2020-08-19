@@ -21,6 +21,10 @@ while-stm				: KEYWORD:WHILE LPAREN expr RPAREN body
 
 funcdef-stm				: KEYWORD:FUNCDEF IDENTIFIER LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN body
 
+body					: LCURLY statements RCURLY
+						: statement
+						: SEMICOLON
+
 expr 					: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
 						: KEYWORD:(INT|DOUBLE|STRING|LIST|FUNC) IDENTIFIER (EQUALS expr)?  
 						: IDENTIFIER EQUALS expr 
@@ -42,10 +46,7 @@ call					: atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
 
 atom					: INT|DOUBLE|STRING|IDENTIFIER
 						: LPAREN expr RPAREN
-						: list-expr
+						: list-lit
 
-list-expr				: LSQUARE (expr (COMMA expr)*)? RSQUARE
+list-lit				: LSQUARE (expr (COMMA expr)*)? RSQUARE
 
-body					: LCURLY statements RCURLY
-						: statement
-						: SEMICOLON
