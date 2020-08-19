@@ -1,11 +1,20 @@
-kalman : main.o test.o
-	g++ -std=c++11 -o kalman main.o test.o
+kalman : program.o code-analysis.o 
+	g++ -std=c++17 -o kalman program.o code-analysis.o 
 
-main.o: main.cpp
-	g++ -std=c++11 -c main.cpp
+program.o: program.cpp
+	g++ -std=c++17 -c program.cpp
 
-test.o: test.cpp
-	g++ -std=c++11 -c test.cpp
+code-analysis.o : syntax-token.o lexer.o helpers.o
+	ld -r -o code-analysis.o syntax-token.o lexer.o helpers.o
+
+syntax-token.o: CodeAnalysis/syntax-token.cpp
+	g++ -std=c++17 -c CodeAnalysis/syntax-token.cpp
+
+lexer.o: CodeAnalysis/lexer.cpp
+	g++ -std=c++17 -c CodeAnalysis/lexer.cpp
+
+helpers.o: CodeAnalysis/helpers.cpp
+	g++ -std=c++17 -c CodeAnalysis/helpers.cpp
 
 make clean:
 	rm *.o kalman
