@@ -1,4 +1,4 @@
-#include "code-analysis.h"
+#include "syntax.h"
 using namespace CodeAnalysis;
 
 Parser::Parser(const std::string& text) : _position(0)

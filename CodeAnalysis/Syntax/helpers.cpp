@@ -1,4 +1,4 @@
-#include "code-analysis.h"
+#include "syntax.h"
 
 bool CodeAnalysis::is_digit(char c)
 {
@@ -11,20 +11,20 @@ std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
 #define PROCESS_VAL(p) case(p): s = #p; break;
     switch(kind)
     {
-        PROCESS_VAL(NumberToken);
-        PROCESS_VAL(WhitespaceToken);
-        PROCESS_VAL(PlusToken);
-        PROCESS_VAL(MinusToken);
-        PROCESS_VAL(StarToken);
-        PROCESS_VAL(SlashToken);
-        PROCESS_VAL(LParenToken);
-        PROCESS_VAL(RParenToken);
-        PROCESS_VAL(BadToken);
-        PROCESS_VAL(EndOfFileToken);
-        PROCESS_VAL(LiteralExpression);
-        PROCESS_VAL(BinaryExpression);
-        PROCESS_VAL(UnaryExpression);
-        PROCESS_VAL(ParenExpression);
+        PROCESS_VAL(SyntaxKind::NumberToken);
+        PROCESS_VAL(SyntaxKind::WhitespaceToken);
+        PROCESS_VAL(SyntaxKind::PlusToken);
+        PROCESS_VAL(SyntaxKind::MinusToken);
+        PROCESS_VAL(SyntaxKind::StarToken);
+        PROCESS_VAL(SyntaxKind::SlashToken);
+        PROCESS_VAL(SyntaxKind::LParenToken);
+        PROCESS_VAL(SyntaxKind::RParenToken);
+        PROCESS_VAL(SyntaxKind::BadToken);
+        PROCESS_VAL(SyntaxKind::EndOfFileToken);
+        PROCESS_VAL(SyntaxKind::LiteralExpression);
+        PROCESS_VAL(SyntaxKind::BinaryExpression);
+        PROCESS_VAL(SyntaxKind::UnaryExpression);
+        PROCESS_VAL(SyntaxKind::ParenExpression);
     }
 #undef PROCESS_VAL
     return s;
