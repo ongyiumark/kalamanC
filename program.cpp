@@ -26,6 +26,7 @@ int main(int argc, char **argv)
             continue;
         }
 
+        /*
         Lexer lexer = Lexer(line);
         while(true)
         {
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
             if (token->get_kind() == SyntaxKind::EndOfFileToken)
                 break;
         
-            std::cout << token->get_kind() << " " << token->get_text();
+            std::cout << token->get_kind() << " '" << token->get_text() << "'";
             switch(token->get_kind())
             {
                 case SyntaxKind::NumberToken:
@@ -44,6 +45,11 @@ int main(int argc, char **argv)
                     std::cout << std::endl;
                     break;
             }
-        }
+        }*/
+
+        Parser parser = Parser(line);
+        SyntaxNode* expression = parser.parse();
+        pretty_print(expression);
+           
     }
 }

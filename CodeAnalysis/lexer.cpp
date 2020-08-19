@@ -4,7 +4,7 @@ using namespace CodeAnalysis;
 
 Lexer::Lexer(std::string text) : _text(text), _position(0) {}
 
-char Lexer::get_current()
+char Lexer::current() const
 {
     if (_position >= _text.size()) return '\0';
     return _text[_position];
@@ -22,12 +22,12 @@ SyntaxToken* Lexer::next_token()
 
     int start = _position;
 
-    switch(get_current())
+    switch(current())
     {
         case '0': case '1': case '2': case '3': case '4': case '5':
         case '6': case '7': case '8': case '9':
         {
-            while(is_digit(get_current()))
+            while(is_digit(current()))
                 next();
             
             int length = _position-start;
@@ -37,7 +37,7 @@ SyntaxToken* Lexer::next_token()
         }
         case ' ': case '\t': case '\n': case '\v': case '\f': case '\r':
         {
-            while (std::isspace(get_current()))
+            while (std::isspace(current()))
                 next();
             
             int length = _position-start;
