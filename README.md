@@ -1,3 +1,7 @@
+# Develop
+
+This is an attempt at making it more efficient with better coding practices.
+
 # Kalamansi
 Basically, it's an **interpreted programming language** written in C++. 
 
