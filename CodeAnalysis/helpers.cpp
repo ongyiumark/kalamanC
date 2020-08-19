@@ -21,8 +21,9 @@ std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
         PROCESS_VAL(RParenToken);
         PROCESS_VAL(BadToken);
         PROCESS_VAL(EndOfFileToken);
-        PROCESS_VAL(NumberExpression);
+        PROCESS_VAL(LiteralExpression);
         PROCESS_VAL(BinaryExpression);
+        PROCESS_VAL(UnaryExpression);
         PROCESS_VAL(ParenExpression);
     }
 #undef PROCESS_VAL

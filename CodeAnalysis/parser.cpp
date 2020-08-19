@@ -8,7 +8,7 @@ Parser::Parser(const std::string& text) : _position(0)
     SyntaxToken* token;
     do
     {
-        token = lexer.next_token();
+        token = lexer.lex();
         switch(token->get_kind())
         {
             case SyntaxKind::WhitespaceToken:
@@ -62,35 +62,28 @@ SyntaxTree* Parser::parse()
     return new SyntaxTree(_diagnostics, expression, endoffile_token);
 } 
 
-ExpressionSyntax* Parser::parse_expression()
+ExpressionSyntax* Parser::parse_expression(int parent_precedence)
 {
-    return parse_term();
-}
-
-ExpressionSyntax* Parser::parse_term()
-{
-    ExpressionSyntax* left = parse_factor();
-    while(current()->get_kind() == SyntaxKind::PlusToken 
-        || current()->get_kind() == SyntaxKind::MinusToken)
+    ExpressionSyntax* left;
+    int unary_precedence = SyntaxFacts::get_unaryop_precedence(current()->get_kind());
+    if (unary_precedence && unary_precedence >= parent_precedence)
     {
         SyntaxToken* op_token = next_token();
-        ExpressionSyntax* right = parse_factor();
+        ExpressionSyntax* operand = parse_expression(unary_precedence);
+        left = new UnaryExpressionSyntax(op_token, operand);
+    }
+    else left = parse_primary();
+    while(true)
+    {
+        int precedence = SyntaxFacts::get_binaryop_precedence(current()->get_kind());
+        if (!precedence || precedence <= parent_precedence)
+            break;
+
+        SyntaxToken* op_token = next_token();
+        ExpressionSyntax* right = parse_expression(precedence);
         left = new BinaryExpressionSyntax(left, op_token, right);
     }
     return left;
-}
-
-ExpressionSyntax* Parser::parse_factor()
-{
-    ExpressionSyntax* left = parse_primary();
-    while(current()->get_kind() == SyntaxKind::StarToken 
-        || current()->get_kind() == SyntaxKind::SlashToken)
-    {
-        SyntaxToken* op_token = next_token();
-        ExpressionSyntax* right = parse_primary();
-        left = new BinaryExpressionSyntax(left, op_token, right);
-    }
-    return left; 
 }
 
 ExpressionSyntax* Parser::parse_primary()

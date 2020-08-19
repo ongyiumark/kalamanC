@@ -14,10 +14,24 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
 {
     switch (node->get_kind())
     {
-        case SyntaxKind::NumberExpression:
+        case SyntaxKind::LiteralExpression:
         {
             SyntaxToken* number_token = ((LiteralExpressionSyntax*)node)->get_literal_token();
             return std::any_cast<int>(number_token->get_value());
+        }
+        case SyntaxKind::UnaryExpression:
+        {
+            UnaryExpressionSyntax* u = ((UnaryExpressionSyntax*)node);
+            int operand = evaluate_expression(u->get_operand());
+            switch(u->get_op_token()->get_kind())
+            {
+                case SyntaxKind::MinusToken:
+                    return -operand;
+                case SyntaxKind::PlusToken:
+                    return operand;
+                default:
+                    throw new std::exception(); // change in the future -> unknown operator
+            }
         }
         case SyntaxKind::BinaryExpression:
         {

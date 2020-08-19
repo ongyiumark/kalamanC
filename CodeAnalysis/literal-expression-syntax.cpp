@@ -15,5 +15,5 @@ SyntaxToken* LiteralExpressionSyntax::get_literal_token() const
 
 SyntaxKind LiteralExpressionSyntax::get_kind() const
 {
-    return SyntaxKind::NumberExpression;
+    return SyntaxKind::LiteralExpression;
 }

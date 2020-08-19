@@ -15,7 +15,7 @@ void Lexer::next()
     _position++;
 }
 
-SyntaxToken* Lexer::next_token()
+SyntaxToken* Lexer::lex()
 {
     if (_position >= _text.size())
         return new SyntaxToken(SyntaxKind::EndOfFileToken, _position, "\0", NULL);

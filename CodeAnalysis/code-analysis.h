@@ -26,8 +26,9 @@ namespace CodeAnalysis
         RParenToken,
 
         // Expressions
-        NumberExpression,
+        LiteralExpression,
         BinaryExpression,
+        UnaryExpression,
         ParenExpression
     };
 
@@ -74,7 +75,7 @@ namespace CodeAnalysis
 
     public:
         Lexer(const std::string& text);
-        SyntaxToken* next_token();
+        SyntaxToken* lex();
 
         int get_diagnostics_size() const;
         std::string get_diagnostic(int i) const;
@@ -112,6 +113,19 @@ namespace CodeAnalysis
         ExpressionSyntax* get_right() const;
     };
 
+    class UnaryExpressionSyntax final : public ExpressionSyntax
+    {
+    private:
+        SyntaxToken* _op_token;
+        ExpressionSyntax* _operand;
+    public:
+        UnaryExpressionSyntax( SyntaxToken* op_token, ExpressionSyntax* operand);
+        SyntaxKind get_kind() const;
+
+        SyntaxToken* get_op_token() const;
+        ExpressionSyntax* get_operand() const;
+    };
+
     class ParenExpressionSyntax final : public ExpressionSyntax
     {
         SyntaxToken* _lparen_token;
@@ -142,6 +156,13 @@ namespace CodeAnalysis
         static SyntaxTree* parse(const std::string& text);
     };
 
+    class SyntaxFacts
+    {
+    public:
+        static int get_binaryop_precedence(SyntaxKind kind);
+        static int get_unaryop_precedence(SyntaxKind kind);
+    };
+
     class Parser final
     {
     private:
@@ -154,9 +175,8 @@ namespace CodeAnalysis
         SyntaxToken* next_token();
         SyntaxToken* match_token(SyntaxKind kind);
 
-        ExpressionSyntax* parse_expression();
-        ExpressionSyntax* parse_term();
-        ExpressionSyntax* parse_factor();
+        ExpressionSyntax* parse_expression(int parent_precedence = 0);
+        
         ExpressionSyntax* parse_primary();
     public:
         Parser(const std::string& text);
