@@ -44,8 +44,13 @@ void CodeAnalysis::pretty_print(SyntaxNode* node, std::string indent, bool is_la
     switch(node->get_kind())
     {
         case SyntaxKind::NumberToken:
-            std::cout << " " << std::any_cast<int>(((SyntaxToken*)node)->get_value());
+        {
+            std::cout << " ";
+            SyntaxToken* token = (SyntaxToken*)node;
+            if (token->get_value().type().name()[0] == 'i')
+                std::cout << std::any_cast<int>(token->get_value());
             break;
+        }
     }
 
     std::cout << std::endl;

@@ -5,7 +5,7 @@ using namespace CodeAnalysis;
 
 int main(int argc, char **argv)
 {
-    bool showTree = false;
+    bool show_tree = true;
     
     while(true)
     {
@@ -15,8 +15,8 @@ int main(int argc, char **argv)
 
         if (line == "#showtree")
         {
-            showTree = !showTree;
-            std::cout << (showTree ? "Showing parse tree..." : "Not showing parse tree...") << std::endl;
+            show_tree = !show_tree;
+            std::cout << (show_tree ? "Showing parse tree..." : "Not showing parse tree...") << std::endl;
             continue;
         }
 
@@ -26,30 +26,20 @@ int main(int argc, char **argv)
             continue;
         }
 
-        /*
-        Lexer lexer = Lexer(line);
-        while(true)
-        {
-            SyntaxToken* token = lexer.next_token();
+        SyntaxTree* syntax_tree = SyntaxTree::parse(line);
 
-            if (token->get_kind() == SyntaxKind::EndOfFileToken)
-                break;
+        if (show_tree)
+            pretty_print(syntax_tree->get_root());
         
-            std::cout << token->get_kind() << " '" << token->get_text() << "'";
-            switch(token->get_kind())
-            {
-                case SyntaxKind::NumberToken:
-                    std::cout << " " << std::any_cast<int>(token->get_value()) << std::endl;
-                    break;
-                default:
-                    std::cout << std::endl;
-                    break;
-            }
-        }*/
+        int n = syntax_tree->get_diagnostics_size();
+        if (!n)
+        {
+            Evaluator e = Evaluator(syntax_tree->get_root());
+            int result = e.evaluate();
+            std::cout << result << std::endl;
+        }
 
-        Parser parser = Parser(line);
-        SyntaxNode* expression = parser.parse();
-        pretty_print(expression);
-           
+        for (int i = 0; i < n; i++)
+            std::cout << syntax_tree->get_diagnostic(i) << std::endl;
     }
 }

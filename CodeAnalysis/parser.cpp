@@ -1,7 +1,7 @@
 #include "code-analysis.h"
 using namespace CodeAnalysis;
 
-Parser::Parser(std::string text) : _position(0)
+Parser::Parser(const std::string& text) : _position(0)
 {
     std::vector<SyntaxToken*> tokens;
     Lexer lexer = Lexer(text);
@@ -19,6 +19,7 @@ Parser::Parser(std::string text) : _position(0)
         }
     } while (token->get_kind() != SyntaxKind::EndOfFileToken);
     _tokens = tokens;
+    _diagnostics = lexer.get_diagnostics();
 }
 
 SyntaxToken* Parser::peek(int offset) const
@@ -47,12 +48,18 @@ SyntaxToken* Parser::match(SyntaxKind kind)
     if (current()->get_kind() == kind)
         return next_token();
     
+    std::ostringstream os;
+    os << "ERROR: unexpected token <" << syntax_kind_to_string(current()->get_kind()) << ">";
+    os << ", expected <" << syntax_kind_to_string(kind) << ">";
+    _diagnostics.push_back(os.str());
     return new SyntaxToken(kind, current()->get_position(), "", NULL);
 }
 
-ExpressionSyntax* Parser::parse()
+SyntaxTree* Parser::parse()
 {
-    return parse_expression();
+    ExpressionSyntax* expression = parse_expression();
+    SyntaxToken* endoffile_token = match(SyntaxKind::EndOfFileToken);
+    return new SyntaxTree(_diagnostics, expression, endoffile_token);
 } 
 
 ExpressionSyntax* Parser::parse_expression()
@@ -88,6 +95,38 @@ ExpressionSyntax* Parser::parse_factor()
 
 ExpressionSyntax* Parser::parse_primary()
 {
-    SyntaxToken* number_token = match(SyntaxKind::NumberToken);
-    return new NumberExpressionSyntax(number_token);
+    switch(current()->get_kind())
+    {
+        case SyntaxKind::LParenToken:
+        {
+            SyntaxToken* left = next_token();
+            ExpressionSyntax* expression = parse_expression();
+            SyntaxToken* right = match(SyntaxKind::RParenToken);
+            return new ParenExpressionSyntax(left, expression, right);
+        }
+        default:
+        {
+            SyntaxToken* number_token = match(SyntaxKind::NumberToken);
+            return new NumberExpressionSyntax(number_token);
+        }
+    }
+}
+
+int Parser::get_diagnostics_size() const
+{
+    return _diagnostics.size();
+}
+
+std::string Parser::get_diagnostic(int i) const
+{
+    int n = _diagnostics.size();
+    if (n == 0) return NULL;
+    if (i < 0) return _diagnostics[0];
+    if (i >= n) return _diagnostics[n-1];
+    return _diagnostics[i];
+}
+
+std::vector<std::string> Parser::get_diagnostics() const
+{
+    return _diagnostics;
 }

@@ -4,6 +4,8 @@
 #include <string>
 #include <any>
 #include <vector>
+#include <sstream>
+#include <exception>
 
 namespace CodeAnalysis
 {
@@ -63,12 +65,18 @@ namespace CodeAnalysis
     private:
         const std::string _text;
         int _position;
+        std::vector<std::string> _diagnostics;
+
         char current() const;
         void next();
 
     public:
-        Lexer(std::string text);
+        Lexer(const std::string& text);
         SyntaxToken* next_token();
+
+        int get_diagnostics_size() const;
+        std::string get_diagnostic(int i) const;
+        std::vector<std::string> get_diagnostics() const;
     };
 
     class ExpressionSyntax : public SyntaxNode
@@ -104,8 +112,32 @@ namespace CodeAnalysis
 
     class ParenExpressionSyntax : public ExpressionSyntax
     {
+        SyntaxToken* _lparen_token;
+        ExpressionSyntax* _expression;
+        SyntaxToken* _rparen_token;
     public:
+        ParenExpressionSyntax(SyntaxToken* lparen_token, ExpressionSyntax* expression, SyntaxToken* rparen_token);
         SyntaxKind get_kind() const;
+
+        ExpressionSyntax* get_expression() const;
+    };
+
+    class SyntaxTree
+    {
+    private:
+        ExpressionSyntax* _root;
+        SyntaxToken* _endoffile_token;
+        const std::vector<std::string> _diagnostics;
+    public:
+        SyntaxTree(const std::vector<std::string>& diagnostics, ExpressionSyntax* root, SyntaxToken* endoffile_token);
+        ExpressionSyntax* get_root();
+        SyntaxToken* get_endoffile_token();
+
+        int get_diagnostics_size() const;
+        std::string get_diagnostic(int i) const;
+        std::vector<std::string> get_diagnostics() const;
+
+        static SyntaxTree* parse(const std::string& text);
     };
 
     class Parser
@@ -113,6 +145,7 @@ namespace CodeAnalysis
     private:
         std::vector<SyntaxToken*> _tokens;
         int _position;
+        std::vector<std::string> _diagnostics;
 
         SyntaxToken* peek(int offset) const;
         SyntaxToken* current() const;
@@ -124,9 +157,23 @@ namespace CodeAnalysis
         ExpressionSyntax* parse_factor();
         ExpressionSyntax* parse_primary();
     public:
-        Parser(std::string text);
-        ExpressionSyntax* parse();
+        Parser(const std::string& text);
+        SyntaxTree* parse();
+
+        int get_diagnostics_size() const;
+        std::string get_diagnostic(int i) const;
+        std::vector<std::string> get_diagnostics() const;
     };
 
     void pretty_print(SyntaxNode *node, std::string indent="", bool is_last = true);
+
+    class Evaluator
+    {
+    private:
+        const ExpressionSyntax* _root;
+        int evaluate_expression(const ExpressionSyntax* node) const;
+    public:
+        Evaluator(const ExpressionSyntax* root);
+        int evaluate() const;
+    };
 }
