@@ -16,7 +16,7 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
     {
         case SyntaxKind::NumberExpression:
         {
-            SyntaxToken* number_token = ((NumberExpressionSyntax*)node)->get_number_token();
+            SyntaxToken* number_token = ((LiteralExpressionSyntax*)node)->get_literal_token();
             return std::any_cast<int>(number_token->get_value());
         }
         case SyntaxKind::BinaryExpression:

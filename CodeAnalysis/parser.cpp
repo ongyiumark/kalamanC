@@ -43,7 +43,7 @@ SyntaxToken* Parser::next_token()
     return curr;
 }
 
-SyntaxToken* Parser::match(SyntaxKind kind)
+SyntaxToken* Parser::match_token(SyntaxKind kind)
 {
     if (current()->get_kind() == kind)
         return next_token();
@@ -58,7 +58,7 @@ SyntaxToken* Parser::match(SyntaxKind kind)
 SyntaxTree* Parser::parse()
 {
     ExpressionSyntax* expression = parse_expression();
-    SyntaxToken* endoffile_token = match(SyntaxKind::EndOfFileToken);
+    SyntaxToken* endoffile_token = match_token(SyntaxKind::EndOfFileToken);
     return new SyntaxTree(_diagnostics, expression, endoffile_token);
 } 
 
@@ -101,13 +101,13 @@ ExpressionSyntax* Parser::parse_primary()
         {
             SyntaxToken* left = next_token();
             ExpressionSyntax* expression = parse_expression();
-            SyntaxToken* right = match(SyntaxKind::RParenToken);
+            SyntaxToken* right = match_token(SyntaxKind::RParenToken);
             return new ParenExpressionSyntax(left, expression, right);
         }
         default:
         {
-            SyntaxToken* number_token = match(SyntaxKind::NumberToken);
-            return new NumberExpressionSyntax(number_token);
+            SyntaxToken* number_token = match_token(SyntaxKind::NumberToken);
+            return new LiteralExpressionSyntax(number_token);
         }
     }
 }

@@ -54,7 +54,7 @@ void CodeAnalysis::pretty_print(SyntaxNode* node, std::string indent, bool is_la
     }
 
     std::cout << std::endl;
-    indent += is_last ? "    " : "|   ";  
+    indent += is_last ? "   " : "|  ";  
 
     SyntaxNode* last_child = node;
     int n = node->get_children_size();

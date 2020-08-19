@@ -1,10 +1,19 @@
 #include "CodeAnalysis/code-analysis.h"
 #include <iostream>
+#include <windows.h>
 
 using namespace CodeAnalysis;
 
 int main(int argc, char **argv)
 {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    enum Color 
+    {
+        Grey = 8,
+        Red = 12,
+        White = 15
+    };
+
     bool show_tree = true;
     
     while(true)
@@ -16,7 +25,9 @@ int main(int argc, char **argv)
         if (line == "#showtree")
         {
             show_tree = !show_tree;
+            SetConsoleTextAttribute(hConsole, Color::Grey);
             std::cout << (show_tree ? "Showing parse tree..." : "Not showing parse tree...") << std::endl;
+            SetConsoleTextAttribute(hConsole, Color::White);
             continue;
         }
 
@@ -29,7 +40,11 @@ int main(int argc, char **argv)
         SyntaxTree* syntax_tree = SyntaxTree::parse(line);
 
         if (show_tree)
+        {
+            SetConsoleTextAttribute(hConsole, Color::Grey);
             pretty_print(syntax_tree->get_root());
+            SetConsoleTextAttribute(hConsole, Color::White);
+        }
         
         int n = syntax_tree->get_diagnostics_size();
         if (!n)
@@ -39,7 +54,9 @@ int main(int argc, char **argv)
             std::cout << result << std::endl;
         }
 
+        SetConsoleTextAttribute(hConsole, Color::Red);
         for (int i = 0; i < n; i++)
             std::cout << syntax_tree->get_diagnostic(i) << std::endl;
+        SetConsoleTextAttribute(hConsole, Color::White);
     }
 }

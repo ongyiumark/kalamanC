@@ -13,17 +13,19 @@ namespace CodeAnalysis
 
     enum SyntaxKind
     {
-        NumberToken,
+        // Tokens
+        BadToken,
+        EndOfFileToken,
         WhitespaceToken,
+        NumberToken,
         PlusToken,
         MinusToken,
         StarToken,
         SlashToken,
         LParenToken,
         RParenToken,
-        BadToken,
-        EndOfFileToken,
 
+        // Expressions
         NumberExpression,
         BinaryExpression,
         ParenExpression
@@ -42,7 +44,7 @@ namespace CodeAnalysis
         virtual SyntaxNode* get_child(int i) const;
     };
 
-    class SyntaxToken : public SyntaxNode
+    class SyntaxToken final : public SyntaxNode
     {
     private:
         SyntaxKind _kind;
@@ -60,7 +62,7 @@ namespace CodeAnalysis
         std::any get_value() const;
     };
 
-    class Lexer
+    class Lexer final
     {
     private:
         const std::string _text;
@@ -84,18 +86,18 @@ namespace CodeAnalysis
 
     };
 
-    class NumberExpressionSyntax : public ExpressionSyntax
+    class LiteralExpressionSyntax final : public ExpressionSyntax 
     {
     private:
-        SyntaxToken* _number_token;
+        SyntaxToken* _literal_token;
     public:
-        NumberExpressionSyntax(SyntaxToken* number_token);
+        LiteralExpressionSyntax(SyntaxToken* literal_token);
         SyntaxKind get_kind() const;
 
-        SyntaxToken* get_number_token() const;
+        SyntaxToken* get_literal_token() const;
     };
 
-    class BinaryExpressionSyntax : public ExpressionSyntax
+    class BinaryExpressionSyntax final : public ExpressionSyntax
     {
     private:
         ExpressionSyntax* _left;
@@ -110,7 +112,7 @@ namespace CodeAnalysis
         ExpressionSyntax* get_right() const;
     };
 
-    class ParenExpressionSyntax : public ExpressionSyntax
+    class ParenExpressionSyntax final : public ExpressionSyntax
     {
         SyntaxToken* _lparen_token;
         ExpressionSyntax* _expression;
@@ -122,7 +124,7 @@ namespace CodeAnalysis
         ExpressionSyntax* get_expression() const;
     };
 
-    class SyntaxTree
+    class SyntaxTree final
     {
     private:
         ExpressionSyntax* _root;
@@ -140,7 +142,7 @@ namespace CodeAnalysis
         static SyntaxTree* parse(const std::string& text);
     };
 
-    class Parser
+    class Parser final
     {
     private:
         std::vector<SyntaxToken*> _tokens;
@@ -150,7 +152,7 @@ namespace CodeAnalysis
         SyntaxToken* peek(int offset) const;
         SyntaxToken* current() const;
         SyntaxToken* next_token();
-        SyntaxToken* match(SyntaxKind kind);
+        SyntaxToken* match_token(SyntaxKind kind);
 
         ExpressionSyntax* parse_expression();
         ExpressionSyntax* parse_term();
@@ -167,7 +169,7 @@ namespace CodeAnalysis
 
     void pretty_print(SyntaxNode *node, std::string indent="", bool is_last = true);
 
-    class Evaluator
+    class Evaluator final
     {
     private:
         const ExpressionSyntax* _root;
