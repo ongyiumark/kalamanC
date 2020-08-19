@@ -12,7 +12,7 @@ int main(int argc, char **argv)
         std::string line;
         std::cout << "> ";
         getline(std::cin, line);
-        
+
         if (line == "#showtree")
         {
             showTree = !showTree;
@@ -34,7 +34,16 @@ int main(int argc, char **argv)
             if (token->get_kind() == SyntaxKind::EndOfFileToken)
                 break;
         
-            std::cout << token->get_text() << std::endl;
+            std::cout << token->get_kind() << " " << token->get_text();
+            switch(token->get_kind())
+            {
+                case SyntaxKind::NumberToken:
+                    std::cout << " " << std::any_cast<int>(token->get_value()) << std::endl;
+                    break;
+                default:
+                    std::cout << std::endl;
+                    break;
+            }
         }
     }
 }

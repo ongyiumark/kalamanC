@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <any>
 
@@ -10,9 +11,19 @@ namespace CodeAnalysis
     enum class SyntaxKind
     {
         NumberToken,
+        WhitespaceToken,
+        PlusToken,
+        MinusToken,
+        StarToken,
+        SlashToken,
+        LParenToken,
+        RParenToken,
         BadToken,
         EndOfFileToken
     };
+
+    std::string syntax_kind_to_string(const SyntaxKind& kind);
+    std::ostream& operator<<(std::ostream& os, const SyntaxKind& kind);
 
     class SyntaxToken
     {
