@@ -98,6 +98,13 @@ ExpressionSyntax* Parser::parse_primary()
             SyntaxToken* right = match_token(SyntaxKind::RParenToken);
             return new ParenExpressionSyntax(left, expression, right);
         }
+        case SyntaxKind::TrueKeyword:
+        case SyntaxKind::FalseKeyword:
+        {
+            SyntaxToken* keyword_token = next_token();
+            bool value = (keyword_token->get_kind() == SyntaxKind::TrueKeyword);
+            return new LiteralExpressionSyntax(keyword_token, value);
+        }
         default:
         {
             SyntaxToken* number_token = match_token(SyntaxKind::NumberToken);

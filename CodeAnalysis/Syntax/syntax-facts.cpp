@@ -1,4 +1,6 @@
 #include "syntax.h"
+#include "../../constants.h"
+
 using namespace CodeAnalysis;
 
 int SyntaxFacts::get_binaryop_precedence(SyntaxKind kind)
@@ -29,4 +31,14 @@ int SyntaxFacts::get_unaryop_precedence(SyntaxKind kind)
         default:
             return 0;
     }
+}
+
+SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
+{
+    if (text == KT_TRUE)
+        return SyntaxKind::TrueKeyword;
+    else if (text == KT_FALSE)
+        return SyntaxKind::FalseKeyword;
+    else
+        return SyntaxKind::IdentifierToken;
 }

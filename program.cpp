@@ -59,8 +59,15 @@ int main(int argc, char **argv)
             
             try
             {
-                int result = e.evaluate();
-                std::cout << result << std::endl;
+                std::any any_val = e.evaluate();
+                const std::type_info& type = any_val.type();
+                if (type == typeid(bool))
+                    std::cout << std::any_cast<bool>(any_val);
+                else if (type == typeid(int))
+                    std::cout << std::any_cast<int>(any_val);
+                else 
+                    std::cout << "Unknown type " << type.name();
+                std::cout << std::endl;
             }
             catch(std::string message)
             {

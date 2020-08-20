@@ -22,6 +22,17 @@ SyntaxToken* Lexer::lex()
 
     int start = _position;
     
+    if (is_letter(current()))
+    {
+        while (is_letter(current()))
+            next();
+        
+        int length = _position-start;
+        std::string text = _text.substr(start, length);
+        SyntaxKind kind = SyntaxFacts::get_keyword_kind(text);
+        return new SyntaxToken(kind, start, text, NULL);
+    }
+
     switch(current())
     {
         case '0': case '1': case '2': case '3': case '4': case '5':

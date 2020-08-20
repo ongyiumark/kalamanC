@@ -23,10 +23,11 @@ BoundExpression* Binder::bind_expression(ExpressionSyntax* syntax)
 
 BoundExpression* Binder::bind_literal_expression(LiteralExpressionSyntax* syntax)
 {
-    std::any any_val = syntax->get_literal_token()->get_value();
-    int * val_ptr = std::any_cast<int>(&any_val);
-    int value = (val_ptr ? *val_ptr : 0); 
-    return new BoundLiteralExpression(std::make_any<int>(value));
+    std::any any_val = syntax->get_value();
+    if (any_val.type() == typeid(NULL))
+        any_val = std::make_any<int>(0);      
+
+    return new BoundLiteralExpression(any_val);
 }
 
 BoundExpression* Binder::bind_unary_expression(UnaryExpressionSyntax* syntax)

@@ -5,6 +5,10 @@ bool CodeAnalysis::is_digit(char c)
     return '0' <= c && c <= '9';
 }
 
+bool CodeAnalysis::is_letter(char c){
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
 std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
 {
     const char* s = 0;
@@ -21,10 +25,13 @@ std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
         PROCESS_VAL(SyntaxKind::RParenToken);
         PROCESS_VAL(SyntaxKind::BadToken);
         PROCESS_VAL(SyntaxKind::EndOfFileToken);
+        PROCESS_VAL(SyntaxKind::IdentifierToken);
         PROCESS_VAL(SyntaxKind::LiteralExpression);
         PROCESS_VAL(SyntaxKind::BinaryExpression);
         PROCESS_VAL(SyntaxKind::UnaryExpression);
         PROCESS_VAL(SyntaxKind::ParenExpression);
+        PROCESS_VAL(SyntaxKind::TrueKeyword);
+        PROCESS_VAL(SyntaxKind::FalseKeyword);
     }
 #undef PROCESS_VAL
     return s;

@@ -8,9 +8,9 @@ namespace CodeAnalysis
     {
     private:
         const BoundExpression* _root;
-        int evaluate_expression(const BoundExpression* node) const;
+        std::any evaluate_expression(const BoundExpression* node) const;
     public:
         Evaluator(const BoundExpression* root);
-        int evaluate() const;
+        std::any evaluate() const;
     };
 }

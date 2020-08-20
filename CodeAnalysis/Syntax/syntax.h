@@ -9,6 +9,7 @@
 namespace CodeAnalysis
 {
     bool is_digit(char c);
+    bool is_letter(char c);
 
     enum class SyntaxKind
     {
@@ -23,12 +24,17 @@ namespace CodeAnalysis
         SlashToken,
         LParenToken,
         RParenToken,
+        IdentifierToken,
 
         // Expressions
         LiteralExpression,
         BinaryExpression,
         UnaryExpression,
-        ParenExpression
+        ParenExpression,
+
+        // Keywords
+        TrueKeyword,
+        FalseKeyword
     };
 
     std::string syntax_kind_to_string(const SyntaxKind& kind);
@@ -90,11 +96,14 @@ namespace CodeAnalysis
     {
     private:
         SyntaxToken* _literal_token;
+        std::any _value;
     public:
         LiteralExpressionSyntax(SyntaxToken* literal_token);
+        LiteralExpressionSyntax(SyntaxToken* literal_token, std::any value);
         SyntaxKind get_kind() const;
 
         SyntaxToken* get_literal_token() const;
+        std::any get_value() const;
     };
 
     class BinaryExpressionSyntax final : public ExpressionSyntax
@@ -160,6 +169,7 @@ namespace CodeAnalysis
     public:
         static int get_binaryop_precedence(SyntaxKind kind);
         static int get_unaryop_precedence(SyntaxKind kind);
+        static SyntaxKind get_keyword_kind(std::string text);
     };
 
     class Parser final
