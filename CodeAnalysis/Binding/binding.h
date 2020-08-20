@@ -11,6 +11,8 @@ namespace CodeAnalysis
         BinaryExpression
     };
 
+    std::string bound_node_kind_to_string(const BoundNodeKind& kind);
+
     class BoundNode
     {
     public:
@@ -38,8 +40,11 @@ namespace CodeAnalysis
     enum class BoundUnaryOpKind
     {
         Identity,
-        Negation
+        Negation,
+        Null
     };
+
+    std::string bound_unaryop_kind_to_string(const BoundUnaryOpKind& kind);
 
     class BoundUnaryExpression final : public BoundExpression
     {
@@ -60,8 +65,11 @@ namespace CodeAnalysis
         Addition,
         Subtraction,
         Multiplication,
-        Division
+        Division,
+        Null
     };
+
+    std::string bound_binaryop_kind_to_string(const BoundBinaryOpKind& kind);
 
     class BoundBinaryExpression final : public BoundExpression
     {
@@ -82,13 +90,19 @@ namespace CodeAnalysis
     class Binder final
     {
     private:
+        std::vector<std::string> _diagnostics;
+
         BoundExpression* bind_literal_expression(LiteralExpressionSyntax* syntax);
         BoundExpression* bind_unary_expression(UnaryExpressionSyntax* syntax);
         BoundExpression* bind_binary_expression(BinaryExpressionSyntax* syntax);
-        BoundUnaryOpKind bind_unary_operator_kind(SyntaxKind kind);
-        BoundBinaryOpKind bind_binary_operator_kind(SyntaxKind kind);
+        BoundUnaryOpKind bind_unary_operator_kind(SyntaxKind kind, const std::type_info& type);
+        BoundBinaryOpKind bind_binary_operator_kind(SyntaxKind kind, const std::type_info& l_type, const std::type_info& r_type);
     public:
         BoundExpression* bind_expression(ExpressionSyntax* syntax);
+
+        int get_diagnostics_size() const;
+        std::string get_diagnostic(int i) const;
+        std::vector<std::string> get_diagnostics() const;
     };
 
 }

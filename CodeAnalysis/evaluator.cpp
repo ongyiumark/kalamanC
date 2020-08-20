@@ -2,7 +2,7 @@
 
 using namespace CodeAnalysis;
 
-Evaluator::Evaluator(const ExpressionSyntax* root)
+Evaluator::Evaluator(const BoundExpression* root)
     : _root(root) {}
 
 int Evaluator::evaluate() const
@@ -10,50 +10,48 @@ int Evaluator::evaluate() const
     return evaluate_expression(_root);
 }
 
-int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
+int Evaluator::evaluate_expression(const BoundExpression* node) const
 {
     switch (node->get_kind())
     {
-        case SyntaxKind::LiteralExpression:
+        case BoundNodeKind::LiteralExpression:
         {
-            SyntaxToken* number_token = ((LiteralExpressionSyntax*)node)->get_literal_token();
-            std::any val = number_token->get_value();
-            return *std::any_cast<int>(&val);
-            
+            BoundLiteralExpression* l = ((BoundLiteralExpression*)node);
+            return std::any_cast<int>(l->get_value());
         }
-        case SyntaxKind::UnaryExpression:
+        case BoundNodeKind::UnaryExpression:
         {
-            UnaryExpressionSyntax* u = ((UnaryExpressionSyntax*)node);
+            BoundUnaryExpression* u = ((BoundUnaryExpression*)node);
             int operand = evaluate_expression(u->get_operand());
-            switch(u->get_op_token()->get_kind())
+            switch(u->get_op_kind())
             {
-                case SyntaxKind::MinusToken:
+                case BoundUnaryOpKind::Negation:
                     return -operand;
-                case SyntaxKind::PlusToken:
+                case BoundUnaryOpKind::Identity:
                     return operand;
                 default:
                 {
                     std::ostringstream os;
-                    os << "ERROR Unexpected unary operator: <" << syntax_kind_to_string(u->get_op_token()->get_kind()) << ">";
+                    os << "ERROR Unexpected unary operator: <" << bound_unaryop_kind_to_string(u->get_op_kind()) << ">";
                     throw os.str();
                 }
             }
         }
-        case SyntaxKind::BinaryExpression:
+        case BoundNodeKind::BinaryExpression:
         {
-            BinaryExpressionSyntax* b = ((BinaryExpressionSyntax*)node);
+            BoundBinaryExpression* b = ((BoundBinaryExpression*)node);
             int left = evaluate_expression(b->get_left());
             int right = evaluate_expression(b->get_right());
 
-            switch(b->get_op_token()->get_kind())
+            switch(b->get_op_kind())
             {
-                case SyntaxKind::PlusToken:
+                case BoundBinaryOpKind::Addition:
                     return left+right;
-                case SyntaxKind::MinusToken:
+                case BoundBinaryOpKind::Subtraction:
                     return left-right;
-                case SyntaxKind::StarToken:
+                case BoundBinaryOpKind::Multiplication:
                     return left*right;
-                case SyntaxKind::SlashToken:
+                case BoundBinaryOpKind::Division:
                     if (right == 0) 
                     {
                         std::string error = "ERROR: Division by zero";
@@ -63,20 +61,15 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
                 default:
                 {
                     std::ostringstream os;
-                    os << "ERROR: Unexpected binary operator: <" << syntax_kind_to_string(b->get_op_token()->get_kind()) << ">";
+                    os << "ERROR: Unexpected binary operator: <" << bound_binaryop_kind_to_string(b->get_op_kind()) << ">";
                     throw os.str();
                 }
             }
         }
-        case SyntaxKind::ParenExpression:
-        {
-            ParenExpressionSyntax* p = ((ParenExpressionSyntax*)node);
-            return evaluate_expression(p->get_expression());
-        }
         default:
         {
             std::ostringstream os;
-            os << "ERROR: Unexpected node: <" << syntax_kind_to_string(node->get_kind()) << ">";
+            os << "ERROR: Unexpected node: <" << bound_node_kind_to_string(node->get_kind()) << ">";
             throw os.str();
         }
     }

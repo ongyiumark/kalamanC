@@ -39,6 +39,11 @@ int main(int argc, char **argv)
         }
 
         SyntaxTree* syntax_tree = SyntaxTree::parse(line);
+        Binder* binder = new Binder();
+        BoundExpression* bound_expression = binder->bind_expression(syntax_tree->get_root());
+        std::vector<std::string> diagnostics = syntax_tree->get_diagnostics();
+        std::vector<std::string> binder_diagnostics = binder->get_diagnostics();
+        diagnostics.insert(diagnostics.end(), binder_diagnostics.begin(), binder_diagnostics.end());
 
         if (show_tree)
         {
@@ -47,11 +52,10 @@ int main(int argc, char **argv)
             SetConsoleTextAttribute(hConsole, Color::White);
         }
         
-        int n = syntax_tree->get_diagnostics_size();
+        int n = diagnostics.size(); 
         if (!n)
         {
-            Evaluator e = Evaluator(syntax_tree->get_root());
-            
+            Evaluator e = Evaluator(bound_expression);
             
             try
             {
@@ -74,7 +78,7 @@ int main(int argc, char **argv)
 
         SetConsoleTextAttribute(hConsole, Color::Red);
         for (int i = 0; i < n; i++)
-            std::cout << syntax_tree->get_diagnostic(i) << std::endl;
+            std::cout << diagnostics[i] << std::endl;
         SetConsoleTextAttribute(hConsole, Color::White);
     }
 }
