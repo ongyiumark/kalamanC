@@ -12,6 +12,8 @@ BoundExpression* Binder::bind_expression(ExpressionSyntax* syntax)
             return bind_unary_expression((UnaryExpressionSyntax*)syntax);
         case SyntaxKind::BinaryExpression:
             return bind_binary_expression((BinaryExpressionSyntax*)syntax);
+        case SyntaxKind::ParenExpression:
+            return bind_expression(((ParenExpressionSyntax*)syntax)->get_expression());
         default:
         {
             std::ostringstream os;
