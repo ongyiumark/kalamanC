@@ -5,6 +5,7 @@ Parser::Parser(const std::string& text) : _position(0)
 {
     std::vector<SyntaxToken*> tokens;
     Lexer lexer = Lexer(text);
+    
     SyntaxToken* token;
     do
     {

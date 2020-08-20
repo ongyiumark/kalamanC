@@ -33,18 +33,19 @@ SyntaxToken* Lexer::lex()
             int length = _position-start;
             std::string text = _text.substr(start, length);
             int value;
-            try 
-            {
-                value = stoi(text);
-            }
-            catch (std::exception& e)
+            
+            std::istringstream is(text);
+            if (is >> value)
+                return new SyntaxToken(SyntaxKind::NumberToken, start, text, std::make_any<int>(value));
+            else
             {
                 std::ostringstream os;
                 os << "The number " << text << " is not a valid int32";
                 _diagnostics.push_back(os.str());
+                return new SyntaxToken(SyntaxKind::NumberToken, start, text, NULL);
             }
-            
-            return new SyntaxToken(SyntaxKind::NumberToken, start, text, value);
+
+            return new SyntaxToken(SyntaxKind::NumberToken, start, text, std::make_any<int>(value));
         }
         case ' ': case '\t': case '\n': case '\v': case '\f': case '\r':
         {

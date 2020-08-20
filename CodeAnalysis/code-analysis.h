@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Syntax/syntax.h"
-#include <exception>
 
 namespace CodeAnalysis
 {

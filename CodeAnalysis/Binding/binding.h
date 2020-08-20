@@ -26,21 +26,19 @@ namespace CodeAnalysis
     class BoundLiteralExpression final : public BoundExpression
     {
     private:
-        std::any* _value;
+        std::any _value;
     public:
-        BoundLiteralExpression(std::any* value);
+        BoundLiteralExpression(std::any value);
 
-        std::any* get_value() const;
+        std::any get_value() const;
         const std::type_info& type() const;
         BoundNodeKind get_kind() const;
     };
 
     enum class BoundUnaryOpKind
     {
-        Addition,
-        Subtraction,
-        Multiplication,
-        Division
+        Identity,
+        Negation
     };
 
     class BoundUnaryExpression final : public BoundExpression
@@ -59,8 +57,10 @@ namespace CodeAnalysis
 
     enum class BoundBinaryOpKind
     {
-        Identity,
-        Negation
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division
     };
 
     class BoundBinaryExpression final : public BoundExpression
@@ -85,8 +85,10 @@ namespace CodeAnalysis
         BoundExpression* bind_literal_expression(LiteralExpressionSyntax* syntax);
         BoundExpression* bind_unary_expression(UnaryExpressionSyntax* syntax);
         BoundExpression* bind_binary_expression(BinaryExpressionSyntax* syntax);
+        BoundUnaryOpKind bind_unary_operator_kind(SyntaxKind kind);
+        BoundBinaryOpKind bind_binary_operator_kind(SyntaxKind kind);
     public:
-        BoundExpression* Bind(ExpressionSyntax* syntax);
+        BoundExpression* bind_expression(ExpressionSyntax* syntax);
     };
 
 }

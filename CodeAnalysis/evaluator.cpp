@@ -17,7 +17,9 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
         case SyntaxKind::LiteralExpression:
         {
             SyntaxToken* number_token = ((LiteralExpressionSyntax*)node)->get_literal_token();
-            return std::any_cast<int>(number_token->get_value());
+            std::any val = number_token->get_value();
+            return *std::any_cast<int>(&val);
+            
         }
         case SyntaxKind::UnaryExpression:
         {
@@ -30,7 +32,11 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
                 case SyntaxKind::PlusToken:
                     return operand;
                 default:
-                    throw new std::exception(); // change in the future -> unknown operator
+                {
+                    std::ostringstream os;
+                    os << "ERROR Unexpected unary operator: <" << syntax_kind_to_string(u->get_op_token()->get_kind()) << ">";
+                    throw os.str();
+                }
             }
         }
         case SyntaxKind::BinaryExpression:
@@ -48,11 +54,17 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
                 case SyntaxKind::StarToken:
                     return left*right;
                 case SyntaxKind::SlashToken:
-                    if (right == 0) throw new std::exception(); // change in the future -> division by zero
+                    if (right == 0) 
+                    {
+                        std::string error = "ERROR: Division by zero";
+                        throw error;
+                    }
                     return left/right;
                 default:
                 {
-                    throw new std::exception(); // change in the future -> unexpected operator
+                    std::ostringstream os;
+                    os << "ERROR: Unexpected binary operator: <" << syntax_kind_to_string(b->get_op_token()->get_kind()) << ">";
+                    throw os.str();
                 }
             }
         }
@@ -62,7 +74,10 @@ int Evaluator::evaluate_expression(const ExpressionSyntax* node) const
             return evaluate_expression(p->get_expression());
         }
         default:
-            throw new std::exception(); // change in the future -> unxpected node 
-            break;
+        {
+            std::ostringstream os;
+            os << "ERROR: Unexpected node: <" << syntax_kind_to_string(node->get_kind()) << ">";
+            throw os.str();
+        }
     }
 }

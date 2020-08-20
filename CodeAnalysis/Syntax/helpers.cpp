@@ -48,8 +48,9 @@ void CodeAnalysis::pretty_print(SyntaxNode* node, std::string indent, bool is_la
         {
             std::cout << " ";
             SyntaxToken* token = (SyntaxToken*)node;
-            if (token->get_value().type().name()[0] == 'i')
-                std::cout << std::any_cast<int>(token->get_value());
+            std::any val = token->get_value();
+            int* res = std::any_cast<int>(&val);
+            if (res) std::cout << *res;
             break;
         }
     }

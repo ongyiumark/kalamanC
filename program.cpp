@@ -1,6 +1,7 @@
 #include "CodeAnalysis/code-analysis.h"
 #include <iostream>
 #include <windows.h>
+#include <exception>
 
 using namespace CodeAnalysis;
 
@@ -50,8 +51,25 @@ int main(int argc, char **argv)
         if (!n)
         {
             Evaluator e = Evaluator(syntax_tree->get_root());
-            int result = e.evaluate();
-            std::cout << result << std::endl;
+            
+            
+            try
+            {
+                int result = e.evaluate();
+                std::cout << result << std::endl;
+            }
+            catch(std::string message)
+            {
+                SetConsoleTextAttribute(hConsole, Color::Red);
+                std::cout << message << std::endl;
+                SetConsoleTextAttribute(hConsole, Color::White);
+            }
+            catch(...)
+            {
+                SetConsoleTextAttribute(hConsole, Color::Red);
+                std::cout << "Unknown error has occured" << std::endl;
+                SetConsoleTextAttribute(hConsole, Color::White);
+            }
         }
 
         SetConsoleTextAttribute(hConsole, Color::Red);
