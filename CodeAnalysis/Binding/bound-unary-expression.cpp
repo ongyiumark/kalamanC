@@ -22,5 +22,5 @@ BoundNodeKind BoundUnaryExpression::get_kind() const
 
 const std::type_info& BoundUnaryExpression::type() const
 {
-    return _operand->type();
+    return _op->type();
 }

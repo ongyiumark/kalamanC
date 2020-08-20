@@ -22,12 +22,14 @@ namespace CodeAnalysis
         MinusToken,
         StarToken,
         SlashToken,
-        LParenToken,
-        RParenToken,
-        IdentifierToken,
         BangToken,
         DAmpersandToken,
         DPipeToken,
+        DEquals,
+        NEquals,
+        LParenToken,
+        RParenToken,
+        IdentifierToken,
 
         // Expressions
         LiteralExpression,

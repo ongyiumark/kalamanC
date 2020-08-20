@@ -35,6 +35,8 @@ std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
         PROCESS_VAL(SyntaxKind::DAmpersandToken);
         PROCESS_VAL(SyntaxKind::DPipeToken);
         PROCESS_VAL(SyntaxKind::BangToken);
+        PROCESS_VAL(SyntaxKind::DEquals);
+        PROCESS_VAL(SyntaxKind::NEquals);
     }
 #undef PROCESS_VAL
     return s;

@@ -63,7 +63,7 @@ namespace CodeAnalysis
         SyntaxKind get_syntax_kind() const;
         BoundUnaryOpKind get_kind() const;
         const std::type_info& get_operand_type() const;
-        const std::type_info& get_result_type() const;
+        const std::type_info& type() const;
     };
 
     std::string bound_unaryop_kind_to_string(const BoundUnaryOpKind& kind);
@@ -90,6 +90,8 @@ namespace CodeAnalysis
         Division,
         LogicalAnd,
         LogicalOr,
+        Equals,
+        NotEquals,
         Null
     };
 
@@ -104,6 +106,9 @@ namespace CodeAnalysis
 
         BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& type);
 
+        BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& type, 
+            const std::type_info& result_type);
+
         BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& left_type, 
                const std::type_info& right_type, const std::type_info& result_type);
 
@@ -115,7 +120,7 @@ namespace CodeAnalysis
         BoundBinaryOpKind get_kind() const;
         const std::type_info& get_left_type() const;
         const std::type_info& get_right_type() const;
-        const std::type_info& get_result_type() const;
+        const std::type_info& type() const;
     };
 
     std::string bound_binaryop_kind_to_string(const BoundBinaryOpKind& kind);
@@ -144,8 +149,6 @@ namespace CodeAnalysis
         BoundExpression* bind_literal_expression(LiteralExpressionSyntax* syntax);
         BoundExpression* bind_unary_expression(UnaryExpressionSyntax* syntax);
         BoundExpression* bind_binary_expression(BinaryExpressionSyntax* syntax);
-        BoundUnaryOpKind bind_unary_operator_kind(SyntaxKind kind, const std::type_info& type);
-        BoundBinaryOpKind bind_binary_operator_kind(SyntaxKind kind, const std::type_info& l_type, const std::type_info& r_type);
     public:
         BoundExpression* bind_expression(ExpressionSyntax* syntax);
 

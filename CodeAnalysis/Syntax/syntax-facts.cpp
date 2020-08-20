@@ -10,7 +10,7 @@ int SyntaxFacts::get_unaryop_precedence(SyntaxKind kind)
         case SyntaxKind::PlusToken:
         case SyntaxKind::MinusToken:
         case SyntaxKind::BangToken:
-            return 5;
+            return 6;
 
         default:
             return 0;
@@ -23,10 +23,14 @@ int SyntaxFacts::get_binaryop_precedence(SyntaxKind kind)
     {
         case SyntaxKind::StarToken:
         case SyntaxKind::SlashToken:
-            return 4;
+            return 5;
 
         case SyntaxKind::PlusToken:
         case SyntaxKind::MinusToken:
+            return 4;
+
+        case SyntaxKind::DEquals:
+        case SyntaxKind::NEquals:
             return 3;
 
         case SyntaxKind::DAmpersandToken:

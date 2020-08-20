@@ -27,5 +27,5 @@ BoundNodeKind BoundBinaryExpression::get_kind() const
 
 const std::type_info& BoundBinaryExpression::type() const
 {
-    return _left->type();
+    return _op->type();
 }

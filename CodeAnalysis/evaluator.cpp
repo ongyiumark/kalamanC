@@ -64,6 +64,22 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
                     return std::any_cast<bool>(left)&&std::any_cast<bool>(right);
                 case BoundBinaryOpKind::LogicalOr:
                     return std::any_cast<bool>(left)||std::any_cast<bool>(right);
+                case BoundBinaryOpKind::Equals:
+                {
+                    if (left.type() != right.type()) return false;
+                    if (left.type() == typeid(bool))
+                        return std::any_cast<bool>(left)==std::any_cast<bool>(right);
+                    else if (left.type() == typeid(int))
+                        return std::any_cast<int>(left)==std::any_cast<int>(right);
+                }
+                case BoundBinaryOpKind::NotEquals:
+                {
+                    if (left.type() != right.type()) return true;
+                    if (left.type() == typeid(bool))
+                        return std::any_cast<bool>(left)!=std::any_cast<bool>(right);
+                    else if (left.type() == typeid(int))
+                        return std::any_cast<int>(left)!=std::any_cast<int>(right);
+                }
                 default:
                 {
                     std::ostringstream os;

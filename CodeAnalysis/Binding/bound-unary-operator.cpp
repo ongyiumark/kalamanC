@@ -32,7 +32,7 @@ const std::type_info& BoundUnaryOp::get_operand_type() const
     return _operand_type;
 }
 
-const std::type_info& BoundUnaryOp::get_result_type() const
+const std::type_info& BoundUnaryOp::type() const
 {
     return _result_type;
 }

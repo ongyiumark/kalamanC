@@ -7,6 +7,11 @@ BoundBinaryOp::BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, con
         : _syntax_kind(syntax_kind), _kind(kind), _left_type(left_type),
             _right_type(right_type), _result_type(result_type) {}
 
+BoundBinaryOp::BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& type, 
+        const std::type_info& result_type)
+        : _syntax_kind(syntax_kind), _kind(kind), _left_type(type),
+            _right_type(type), _result_type(result_type) {}
+
 BoundBinaryOp::BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& type)
         : _syntax_kind(syntax_kind), _kind(kind), _left_type(type),
             _right_type(type), _result_type(type) {}
@@ -18,8 +23,14 @@ const std::vector<BoundBinaryOp*> BoundBinaryOp::_operators =
     new BoundBinaryOp(SyntaxKind::StarToken, BoundBinaryOpKind::Multiplication, typeid(int)),
     new BoundBinaryOp(SyntaxKind::SlashToken, BoundBinaryOpKind::Division, typeid(int)),
 
+    new BoundBinaryOp(SyntaxKind::DEquals, BoundBinaryOpKind::Equals, typeid(int), typeid(bool)),
+    new BoundBinaryOp(SyntaxKind::NEquals, BoundBinaryOpKind::NotEquals, typeid(int), typeid(bool)),
+    
+
     new BoundBinaryOp(SyntaxKind::DAmpersandToken, BoundBinaryOpKind::LogicalAnd, typeid(bool)),
-    new BoundBinaryOp(SyntaxKind::DPipeToken, BoundBinaryOpKind::LogicalOr, typeid(bool))
+    new BoundBinaryOp(SyntaxKind::DPipeToken, BoundBinaryOpKind::LogicalOr, typeid(bool)),
+    new BoundBinaryOp(SyntaxKind::DEquals, BoundBinaryOpKind::Equals, typeid(bool)),
+    new BoundBinaryOp(SyntaxKind::NEquals, BoundBinaryOpKind::NotEquals, typeid(bool))
 };
 
 SyntaxKind BoundBinaryOp::get_syntax_kind() const
@@ -42,7 +53,7 @@ const std::type_info& BoundBinaryOp::get_right_type() const
     return _right_type;
 }
 
-const std::type_info& BoundBinaryOp::get_result_type() const
+const std::type_info& BoundBinaryOp::type() const
 {
     return _result_type;
 }

@@ -91,13 +91,22 @@ SyntaxToken* Lexer::lex()
         case ')':
             return new SyntaxToken(SyntaxKind::RParenToken, _position++, ")", NULL);
         case '!':
+        {
+            if (look_ahead() == '=')
+            {
+                return new SyntaxToken(SyntaxKind::NEquals, _position+=2, "!=", NULL);
+            }     
             return new SyntaxToken(SyntaxKind::BangToken, _position++, "!", NULL);
+        }
         case '&':
             if (look_ahead() == '&')
                 return new SyntaxToken(SyntaxKind::DAmpersandToken, _position+=2, "&&", NULL);
         case '|':
             if (look_ahead() == '|')
-                return new SyntaxToken(SyntaxKind::DPipeToken, _position+=2, "&&", NULL);
+                return new SyntaxToken(SyntaxKind::DPipeToken, _position+=2, "||", NULL);
+        case '=':
+            if (look_ahead() == '=')
+                return new SyntaxToken(SyntaxKind::DEquals, _position+=2, "==", NULL);
         default:
         {
             std::ostringstream os;

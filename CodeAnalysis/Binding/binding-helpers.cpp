@@ -27,6 +27,8 @@ std::string CodeAnalysis::bound_binaryop_kind_to_string(const BoundBinaryOpKind&
         PROCESS_VAL(BoundBinaryOpKind::Division);
         PROCESS_VAL(BoundBinaryOpKind::LogicalAnd);
         PROCESS_VAL(BoundBinaryOpKind::LogicalOr);
+        PROCESS_VAL(BoundBinaryOpKind::Equals);
+        PROCESS_VAL(BoundBinaryOpKind::NotEquals);
         PROCESS_VAL(BoundBinaryOpKind::Null);
     }
 #undef PROCESS_VAL
