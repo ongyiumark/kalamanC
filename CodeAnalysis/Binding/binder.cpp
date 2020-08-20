@@ -33,8 +33,8 @@ BoundExpression* Binder::bind_literal_expression(LiteralExpressionSyntax* syntax
 BoundExpression* Binder::bind_unary_expression(UnaryExpressionSyntax* syntax)
 {
     BoundExpression* operand = bind_expression(syntax->get_operand());
-    BoundUnaryOpKind op_kind = bind_unary_operator_kind(syntax->get_op_token()->get_kind(), operand->type());
-    if (op_kind == BoundUnaryOpKind::Null)
+    BoundUnaryOp* op = BoundUnaryOp::bind(syntax->get_op_token()->get_kind(), operand->type());
+    if (op == NULL)
     {
         std::ostringstream os;
         os << "Unary operator '" << syntax->get_op_token()->get_text() << "' ";
@@ -42,15 +42,15 @@ BoundExpression* Binder::bind_unary_expression(UnaryExpressionSyntax* syntax)
         _diagnostics.push_back(os.str());
         return operand;
     }
-    return new BoundUnaryExpression(op_kind, operand);
+    return new BoundUnaryExpression(op, operand);
 }
 
 BoundExpression* Binder::bind_binary_expression(BinaryExpressionSyntax* syntax)
 {
     BoundExpression* left = bind_expression(syntax->get_left());
     BoundExpression* right = bind_expression(syntax->get_right());
-    BoundBinaryOpKind op_kind = bind_binary_operator_kind(syntax->get_op_token()->get_kind(), left->type(), right->type());
-    if (op_kind == BoundBinaryOpKind::Null)
+    BoundBinaryOp* op = BoundBinaryOp::bind(syntax->get_op_token()->get_kind(), left->type(), right->type());
+    if (op == NULL)
     {
         std::ostringstream os;
         os << "Binary operator '" << syntax->get_op_token()->get_text() << "' ";
@@ -58,7 +58,7 @@ BoundExpression* Binder::bind_binary_expression(BinaryExpressionSyntax* syntax)
         _diagnostics.push_back(os.str());
         return left;
     }
-    return new BoundBinaryExpression(left, op_kind, right);
+    return new BoundBinaryExpression(left, op, right);
 }
 
 BoundUnaryOpKind Binder::bind_unary_operator_kind(SyntaxKind kind, const std::type_info& type)

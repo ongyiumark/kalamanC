@@ -23,7 +23,7 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
         {
             BoundUnaryExpression* u = ((BoundUnaryExpression*)node);
             std::any operand = evaluate_expression(u->get_operand());
-            switch(u->get_op_kind())
+            switch(u->get_op()->get_kind())
             {
                 case BoundUnaryOpKind::Negation:
                     return -std::any_cast<int>(operand);
@@ -34,7 +34,7 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
                 default:
                 {
                     std::ostringstream os;
-                    os << "ERROR Unexpected unary operator: <" << bound_unaryop_kind_to_string(u->get_op_kind()) << ">";
+                    os << "ERROR Unexpected unary operator: <" << bound_unaryop_kind_to_string(u->get_op()->get_kind()) << ">";
                     throw os.str();
                 }
             }
@@ -45,7 +45,7 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
             std::any left = evaluate_expression(b->get_left());
             std::any right = evaluate_expression(b->get_right());
 
-            switch(b->get_op_kind())
+            switch(b->get_op()->get_kind())
             {
                 case BoundBinaryOpKind::Addition:
                     return std::any_cast<int>(left)+std::any_cast<int>(right);
@@ -67,7 +67,7 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
                 default:
                 {
                     std::ostringstream os;
-                    os << "ERROR: Unexpected binary operator: <" << bound_binaryop_kind_to_string(b->get_op_kind()) << ">";
+                    os << "ERROR: Unexpected binary operator: <" << bound_binaryop_kind_to_string(b->get_op()->get_kind()) << ">";
                     throw os.str();
                 }
             }

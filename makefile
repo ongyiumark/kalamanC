@@ -50,8 +50,10 @@ syntax-tree.o: CodeAnalysis/Syntax/syntax-tree.cpp
 syntax-facts.o: CodeAnalysis/Syntax/syntax-facts.cpp
 	g++ -std=c++17 -c CodeAnalysis/Syntax/syntax-facts.cpp
 
-binding.o : binder.o bound-binary-expression.o bound-literal-expression.o bound-unary-expression.o binding-helpers.o
-	ld -r -o binding.o binder.o bound-binary-expression.o bound-literal-expression.o bound-unary-expression.o binding-helpers.o
+binding.o : binder.o bound-binary-expression.o bound-literal-expression.o bound-unary-expression.o binding-helpers.o \
+		bound-unary-operator.o bound-binary-operator.o
+	ld -r -o binding.o binder.o bound-binary-expression.o bound-literal-expression.o bound-unary-expression.o \
+		binding-helpers.o bound-unary-operator.o bound-binary-operator.o
 
 binder.o : CodeAnalysis/Binding/binder.cpp
 	g++ -std=c++17 -c CodeAnalysis/Binding/binder.cpp
@@ -64,6 +66,12 @@ bound-literal-expression.o : CodeAnalysis/Binding/bound-literal-expression.cpp
 
 bound-unary-expression.o : CodeAnalysis/Binding/bound-unary-expression.cpp
 	g++ -std=c++17 -c CodeAnalysis/Binding/bound-unary-expression.cpp
+
+bound-unary-operator.o : CodeAnalysis/Binding/bound-unary-operator.cpp
+	g++ -std=c++17 -c CodeAnalysis/Binding/bound-unary-operator.cpp
+
+bound-binary-operator.o : CodeAnalysis/Binding/bound-binary-operator.cpp
+	g++ -std=c++17 -c CodeAnalysis/Binding/bound-binary-operator.cpp
 
 binding-helpers.o : CodeAnalysis/Binding/binding-helpers.cpp
 	g++ -std=c++17 -c CodeAnalysis/Binding/binding-helpers.cpp

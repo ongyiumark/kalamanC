@@ -2,12 +2,12 @@
 
 using namespace CodeAnalysis;
 
-BoundBinaryExpression::BoundBinaryExpression(BoundExpression* left, BoundBinaryOpKind op_kind, BoundExpression* right)
-    : _left(left), _op_kind(op_kind), _right(right) {}
+BoundBinaryExpression::BoundBinaryExpression(BoundExpression* left, BoundBinaryOp* op, BoundExpression* right)
+    : _left(left), _op(op), _right(right) {}
 
-BoundBinaryOpKind BoundBinaryExpression::get_op_kind() const
+BoundBinaryOp* BoundBinaryExpression::get_op() const
 {
-    return _op_kind;
+    return _op;
 }
 
 BoundExpression* BoundBinaryExpression::get_left() const

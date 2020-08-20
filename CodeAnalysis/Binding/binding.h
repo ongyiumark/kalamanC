@@ -45,17 +45,38 @@ namespace CodeAnalysis
         Null
     };
 
+    class BoundUnaryOp final 
+    {
+    private:
+        SyntaxKind _syntax_kind;
+        BoundUnaryOpKind _kind;
+        const std::type_info& _operand_type;
+        const std::type_info& _result_type;
+
+        BoundUnaryOp(SyntaxKind syntax_kind, BoundUnaryOpKind kind, const std::type_info& operand_type, 
+                const std::type_info& result_type);
+        BoundUnaryOp(SyntaxKind syntax_kind, BoundUnaryOpKind kind, const std::type_info& operand_type);
+        const static std::vector<BoundUnaryOp*> _operators;
+    
+    public:
+        static BoundUnaryOp* bind(SyntaxKind syntax_kind, const std::type_info& operand_type);
+        SyntaxKind get_syntax_kind() const;
+        BoundUnaryOpKind get_kind() const;
+        const std::type_info& get_operand_type() const;
+        const std::type_info& get_result_type() const;
+    };
+
     std::string bound_unaryop_kind_to_string(const BoundUnaryOpKind& kind);
 
     class BoundUnaryExpression final : public BoundExpression
     {
     private:
-        BoundUnaryOpKind _op_kind;
+        BoundUnaryOp* _op;
         BoundExpression* _operand;
     public:
-        BoundUnaryExpression(BoundUnaryOpKind op_kind, BoundExpression* operand);
+        BoundUnaryExpression(BoundUnaryOp* op, BoundExpression* operand);
 
-        BoundUnaryOpKind get_op_kind() const;
+        BoundUnaryOp* get_op() const;
         BoundExpression* get_operand() const;
         const std::type_info& type() const;
         BoundNodeKind get_kind() const;
@@ -72,18 +93,43 @@ namespace CodeAnalysis
         Null
     };
 
+    class BoundBinaryOp final 
+    {
+    private:
+        SyntaxKind _syntax_kind;
+        BoundBinaryOpKind _kind;
+        const std::type_info& _left_type;
+        const std::type_info& _right_type;
+        const std::type_info& _result_type;
+
+        BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& type);
+
+        BoundBinaryOp(SyntaxKind syntax_kind, BoundBinaryOpKind kind, const std::type_info& left_type, 
+               const std::type_info& right_type, const std::type_info& result_type);
+
+        const static std::vector<BoundBinaryOp*> _operators;
+    
+    public:
+        static BoundBinaryOp* bind(SyntaxKind syntax_kind, const std::type_info& left_type, const std::type_info& right_type );
+        SyntaxKind get_syntax_kind() const;
+        BoundBinaryOpKind get_kind() const;
+        const std::type_info& get_left_type() const;
+        const std::type_info& get_right_type() const;
+        const std::type_info& get_result_type() const;
+    };
+
     std::string bound_binaryop_kind_to_string(const BoundBinaryOpKind& kind);
 
     class BoundBinaryExpression final : public BoundExpression
     {
     private:
         BoundExpression* _left;
-        BoundBinaryOpKind _op_kind;
+        BoundBinaryOp* _op;
         BoundExpression* _right;
     public:
-        BoundBinaryExpression(BoundExpression* left, BoundBinaryOpKind op_kind, BoundExpression* right);
+        BoundBinaryExpression(BoundExpression* left, BoundBinaryOp* op, BoundExpression* right);
 
-        BoundBinaryOpKind get_op_kind() const;
+        BoundBinaryOp* get_op() const;
         BoundExpression* get_left() const;
         BoundExpression* get_right() const;
         const std::type_info& type() const;

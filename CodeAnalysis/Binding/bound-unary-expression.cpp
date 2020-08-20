@@ -2,12 +2,12 @@
 
 using namespace CodeAnalysis;
 
-BoundUnaryExpression::BoundUnaryExpression(BoundUnaryOpKind op_kind, BoundExpression* operand)
-    : _op_kind(op_kind), _operand(operand) {}
+BoundUnaryExpression::BoundUnaryExpression(BoundUnaryOp* op, BoundExpression* operand)
+    : _op(op), _operand(operand) {}
 
-BoundUnaryOpKind BoundUnaryExpression::get_op_kind() const
+BoundUnaryOp* BoundUnaryExpression::get_op() const
 {
-    return _op_kind;
+    return _op;
 }
 
 BoundExpression* BoundUnaryExpression::get_operand() const
