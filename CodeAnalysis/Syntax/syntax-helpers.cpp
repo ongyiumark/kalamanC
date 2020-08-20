@@ -32,6 +32,9 @@ std::string CodeAnalysis::syntax_kind_to_string(const SyntaxKind& kind)
         PROCESS_VAL(SyntaxKind::ParenExpression);
         PROCESS_VAL(SyntaxKind::TrueKeyword);
         PROCESS_VAL(SyntaxKind::FalseKeyword);
+        PROCESS_VAL(SyntaxKind::DAmpersandToken);
+        PROCESS_VAL(SyntaxKind::DPipeToken);
+        PROCESS_VAL(SyntaxKind::BangToken);
     }
 #undef PROCESS_VAL
     return s;

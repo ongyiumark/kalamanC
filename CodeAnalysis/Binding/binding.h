@@ -41,6 +41,7 @@ namespace CodeAnalysis
     {
         Identity,
         Negation,
+        LogicalNegation,
         Null
     };
 
@@ -66,6 +67,8 @@ namespace CodeAnalysis
         Subtraction,
         Multiplication,
         Division,
+        LogicalAnd,
+        LogicalOr,
         Null
     };
 

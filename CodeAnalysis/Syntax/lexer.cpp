@@ -4,10 +4,21 @@ using namespace CodeAnalysis;
 
 Lexer::Lexer(const std::string& text) : _text(text), _position(0) {}
 
+char Lexer::peek(int offset) const
+{
+    int index = _position+offset;
+    if (index >= _text.size()) return '\0';
+    return _text[index];
+}
+
 char Lexer::current() const
 {
-    if (_position >= _text.size()) return '\0';
-    return _text[_position];
+    return peek(0);
+}
+
+char Lexer::look_ahead() const
+{
+    return peek(1);
 }
 
 void Lexer::next()
@@ -51,7 +62,7 @@ SyntaxToken* Lexer::lex()
             else
             {
                 std::ostringstream os;
-                os << "The number " << text << " is not a valid int32";
+                os << "The number " << text << " is not a valid int";
                 _diagnostics.push_back(os.str());
                 return new SyntaxToken(SyntaxKind::NumberToken, start, text, NULL);
             }
@@ -79,6 +90,14 @@ SyntaxToken* Lexer::lex()
             return new SyntaxToken(SyntaxKind::LParenToken, _position++, "(", NULL);
         case ')':
             return new SyntaxToken(SyntaxKind::RParenToken, _position++, ")", NULL);
+        case '!':
+            return new SyntaxToken(SyntaxKind::BangToken, _position++, "!", NULL);
+        case '&':
+            if (look_ahead() == '&')
+                return new SyntaxToken(SyntaxKind::DAmpersandToken, _position+=2, "&&", NULL);
+        case '|':
+            if (look_ahead() == '|')
+                return new SyntaxToken(SyntaxKind::DPipeToken, _position+=2, "&&", NULL);
         default:
         {
             std::ostringstream os;

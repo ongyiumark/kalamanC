@@ -63,46 +63,58 @@ BoundExpression* Binder::bind_binary_expression(BinaryExpressionSyntax* syntax)
 
 BoundUnaryOpKind Binder::bind_unary_operator_kind(SyntaxKind kind, const std::type_info& type)
 {
-    if (type != typeid(int))
-        return BoundUnaryOpKind::Null;
-
-    switch(kind)
+    if (type == typeid(int))
     {
-        case SyntaxKind::PlusToken:
-            return BoundUnaryOpKind::Identity;
-        case SyntaxKind::MinusToken:
-            return BoundUnaryOpKind::Negation;
-        default:
+        switch(kind)
         {
-            std::ostringstream os;
-            os << "Unexpected unary operator " << syntax_kind_to_string(kind);
-            throw os.str();
+            case SyntaxKind::PlusToken:
+                return BoundUnaryOpKind::Identity;
+            case SyntaxKind::MinusToken:
+                return BoundUnaryOpKind::Negation;
         }
     }
+
+    if (type == typeid(bool))
+    {
+        switch(kind)
+        {
+            case SyntaxKind::BangToken:
+                return BoundUnaryOpKind::LogicalNegation;
+        }
+    }
+
+    return BoundUnaryOpKind::Null;
 }
 
 BoundBinaryOpKind Binder::bind_binary_operator_kind(SyntaxKind kind, const std::type_info& l_type, const std::type_info& r_type)
 {
-    if (l_type != typeid(int) || r_type != typeid(int))
-        return BoundBinaryOpKind::Null;
-
-    switch(kind)
+    if (l_type == typeid(int) && r_type == typeid(int))
     {
-        case SyntaxKind::PlusToken:
-            return BoundBinaryOpKind::Addition;
-        case SyntaxKind::MinusToken:
-            return BoundBinaryOpKind::Subtraction;
-        case SyntaxKind::StarToken:
-            return BoundBinaryOpKind::Multiplication;
-        case SyntaxKind::SlashToken:
-            return BoundBinaryOpKind::Division;
-        default:
+        switch(kind)
         {
-            std::ostringstream os;
-            os << "Unexpected binary operator " << syntax_kind_to_string(kind);
-            throw os.str();
+            case SyntaxKind::PlusToken:
+                return BoundBinaryOpKind::Addition;
+            case SyntaxKind::MinusToken:
+                return BoundBinaryOpKind::Subtraction;
+            case SyntaxKind::StarToken:
+                return BoundBinaryOpKind::Multiplication;
+            case SyntaxKind::SlashToken:
+                return BoundBinaryOpKind::Division;
         }
     }
+
+    if (l_type == typeid(bool) && r_type == typeid(bool))
+    {
+        switch(kind)
+        {
+            case SyntaxKind::DAmpersandToken:
+                return BoundBinaryOpKind::LogicalAnd;
+            case SyntaxKind::DPipeToken:
+                return BoundBinaryOpKind::LogicalOr;
+        }
+    }
+    
+    return BoundBinaryOpKind::Null;
 }
 
 int Binder::get_diagnostics_size() const

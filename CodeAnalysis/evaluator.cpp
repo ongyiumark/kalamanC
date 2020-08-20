@@ -22,13 +22,15 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
         case BoundNodeKind::UnaryExpression:
         {
             BoundUnaryExpression* u = ((BoundUnaryExpression*)node);
-            int operand = std::any_cast<int>(evaluate_expression(u->get_operand()));
+            std::any operand = evaluate_expression(u->get_operand());
             switch(u->get_op_kind())
             {
                 case BoundUnaryOpKind::Negation:
-                    return std::make_any<int>(-operand);
+                    return -std::any_cast<int>(operand);
                 case BoundUnaryOpKind::Identity:
-                    return std::make_any<int>(operand);
+                    return std::any_cast<int>(operand);
+                case BoundUnaryOpKind::LogicalNegation:
+                    return !std::any_cast<bool>(operand);
                 default:
                 {
                     std::ostringstream os;
@@ -40,24 +42,28 @@ std::any Evaluator::evaluate_expression(const BoundExpression* node) const
         case BoundNodeKind::BinaryExpression:
         {
             BoundBinaryExpression* b = ((BoundBinaryExpression*)node);
-            int left = std::any_cast<int>(evaluate_expression(b->get_left()));
-            int right = std::any_cast<int>(evaluate_expression(b->get_right()));
+            std::any left = evaluate_expression(b->get_left());
+            std::any right = evaluate_expression(b->get_right());
 
             switch(b->get_op_kind())
             {
                 case BoundBinaryOpKind::Addition:
-                    return std::make_any<int>(left+right);
+                    return std::any_cast<int>(left)+std::any_cast<int>(right);
                 case BoundBinaryOpKind::Subtraction:
-                    return std::make_any<int>(left-right);
+                    return std::any_cast<int>(left)-std::any_cast<int>(right);
                 case BoundBinaryOpKind::Multiplication:
-                    return std::make_any<int>(left*right);
+                    return std::any_cast<int>(left)*std::any_cast<int>(right);
                 case BoundBinaryOpKind::Division:
-                    if (right == 0) 
+                    if (std::any_cast<int>(right) == 0) 
                     {
                         std::string error = "ERROR: Division by zero";
                         throw error;
                     }
-                    return std::make_any<int>(left/right);
+                    return std::any_cast<int>(left)/std::any_cast<int>(right);
+                case BoundBinaryOpKind::LogicalAnd:
+                    return std::any_cast<bool>(left)&&std::any_cast<bool>(right);
+                case BoundBinaryOpKind::LogicalOr:
+                    return std::any_cast<bool>(left)||std::any_cast<bool>(right);
                 default:
                 {
                     std::ostringstream os;

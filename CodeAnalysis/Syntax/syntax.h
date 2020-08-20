@@ -25,6 +25,9 @@ namespace CodeAnalysis
         LParenToken,
         RParenToken,
         IdentifierToken,
+        BangToken,
+        DAmpersandToken,
+        DPipeToken,
 
         // Expressions
         LiteralExpression,
@@ -75,7 +78,9 @@ namespace CodeAnalysis
         int _position;
         std::vector<std::string> _diagnostics;
 
+        char peek(int offset) const;
         char current() const;
+        char look_ahead() const;
         void next();
 
     public:

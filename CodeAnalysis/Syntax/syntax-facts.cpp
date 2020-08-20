@@ -3,16 +3,36 @@
 
 using namespace CodeAnalysis;
 
+int SyntaxFacts::get_unaryop_precedence(SyntaxKind kind)
+{
+    switch(kind)
+    {
+        case SyntaxKind::PlusToken:
+        case SyntaxKind::MinusToken:
+        case SyntaxKind::BangToken:
+            return 5;
+
+        default:
+            return 0;
+    }
+}
+
 int SyntaxFacts::get_binaryop_precedence(SyntaxKind kind)
 {
     switch(kind)
     {
         case SyntaxKind::StarToken:
         case SyntaxKind::SlashToken:
-            return 2;
+            return 4;
 
         case SyntaxKind::PlusToken:
         case SyntaxKind::MinusToken:
+            return 3;
+
+        case SyntaxKind::DAmpersandToken:
+            return 2;
+
+        case SyntaxKind::DPipeToken:
             return 1;
 
         default:
@@ -20,18 +40,7 @@ int SyntaxFacts::get_binaryop_precedence(SyntaxKind kind)
     }
 }
 
-int SyntaxFacts::get_unaryop_precedence(SyntaxKind kind)
-{
-    switch(kind)
-    {
-        case SyntaxKind::PlusToken:
-        case SyntaxKind::MinusToken:
-            return 3;
 
-        default:
-            return 0;
-    }
-}
 
 SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
 {

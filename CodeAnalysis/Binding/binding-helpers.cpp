@@ -8,6 +8,7 @@ std::string CodeAnalysis::bound_unaryop_kind_to_string(const BoundUnaryOpKind& k
     {
         PROCESS_VAL(BoundUnaryOpKind::Identity);
         PROCESS_VAL(BoundUnaryOpKind::Negation);
+        PROCESS_VAL(BoundUnaryOpKind::LogicalNegation);
         PROCESS_VAL(BoundUnaryOpKind::Null);
     }
 #undef PROCESS_VAL
@@ -24,6 +25,8 @@ std::string CodeAnalysis::bound_binaryop_kind_to_string(const BoundBinaryOpKind&
         PROCESS_VAL(BoundBinaryOpKind::Subtraction);
         PROCESS_VAL(BoundBinaryOpKind::Multiplication);
         PROCESS_VAL(BoundBinaryOpKind::Division);
+        PROCESS_VAL(BoundBinaryOpKind::LogicalAnd);
+        PROCESS_VAL(BoundBinaryOpKind::LogicalOr);
         PROCESS_VAL(BoundBinaryOpKind::Null);
     }
 #undef PROCESS_VAL
