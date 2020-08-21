@@ -34,5 +34,6 @@ namespace Diagnostics
         void report_bad_character(Position pos, char c);
         void report_invalid_type(Position pos, Objects::Type type);
         void report_expected_character(Position pos, char c);
+        void report_unexpected_token(Position pos, std::string actual, std::string expected);
     };
 }

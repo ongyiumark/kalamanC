@@ -19,3 +19,4 @@ const std::string KT_FOR        = "for";
 const std::string KT_AND        = "and";
 const std::string KT_OR         = "or";
 const std::string KT_XOR        = "xor";
+const std::string KT_NOT        = "not";

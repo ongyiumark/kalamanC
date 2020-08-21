@@ -67,3 +67,10 @@ void DiagnosticBag::report_expected_character(Position pos, char c)
     report(pos, os.str());
 }
 
+void DiagnosticBag::report_unexpected_token(Position pos, std::string actual, std::string expected)
+{
+    std::ostringstream os;
+    os << "ERROR: unexpected token <" << actual << ">, ";
+    os << "expected <" << expected << ">";
+    report(pos, os.str());
+}

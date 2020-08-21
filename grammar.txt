@@ -1,0 +1,32 @@
+
+expression              : expression '^' expression     %prec 7 
+                        : '!' expression                %prec 6
+                        : '-' expression    
+                        : '+' expression   
+                        : expression '*' expression     %prec 5
+                        : expression '/' expression    
+                        : expression '%' expression
+                        : expression '+' expression     %prec 4
+                        : expression '-' expression     
+                        : expression '==' expression    %prec 3
+                        : expression '!=' expression
+                        : expression '<=' expression
+                        : expression '>=' expression
+                        : expression '<' expression
+                        : expression '>' expression
+                        : expression '&&' expression    %prec 2
+                        : expression AND expression
+                        : expression '||' expression    %prec 1
+                        : expression XOR expression
+                        : expression OR expression
+                        : atom
+
+
+
+atom:                   : STRING
+                        : INTEGER
+                        : BOOLEAN
+                        : DOUBLE
+                        : IDENTIFIER
+                        : '(' expression ')'
+                        : '[' (expression (COMMA expression)*)? ']'

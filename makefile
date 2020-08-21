@@ -51,11 +51,16 @@ diagnostic.o: Diagnostics/diagnostic.cpp
 diagnostic_bag.o: Diagnostics/diagnostic_bag.cpp
 	g++ -g -std=c++17 -c Diagnostics/diagnostic_bag.cpp
 
-syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o
-	ld -r -o syntax.o lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o
+syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o syntax-expressions.o \
+			parser.o
+	ld -r -o syntax.o lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o \
+			syntax-expressions.o parser.o
 
 lexer.o: Syntax/lexer.cpp
 	g++ -g -std=c++17 -c Syntax/lexer.cpp
+
+parser.o: Syntax/parser.cpp
+	g++ -g -std=c++17 -c Syntax/parser.cpp
 
 syntax-facts.o: Syntax/syntax-facts.cpp
 	g++ -g -std=c++17 -c Syntax/syntax-facts.cpp
@@ -68,6 +73,52 @@ syntax-node.o: Syntax/syntax-node.cpp
 
 syntax-token.o: Syntax/syntax-token.cpp
 	g++ -g -std=c++17 -c Syntax/syntax-token.cpp
+
+syntax-expressions.o: binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
+			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
+			var-declare-syntax.o while-syntax.o index-syntax.o
+	ld -r -o syntax-expressions.o binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
+			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
+			var-declare-syntax.o while-syntax.o index-syntax.o
+
+binary-syntax.o: Syntax/Expressions/binary-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/binary-syntax.cpp
+
+call-syntax.o: Syntax/Expressions/call-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/call-syntax.cpp
+
+deffunc-syntax.o: Syntax/Expressions/deffunc-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/deffunc-syntax.cpp
+
+for-syntax.o: Syntax/Expressions/for-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/for-syntax.cpp
+
+if-syntax.o: Syntax/Expressions/if-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/if-syntax.cpp
+
+literal-syntax.o: Syntax/Expressions/literal-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/literal-syntax.cpp
+
+sequence-syntax.o: Syntax/Expressions/sequence-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/sequence-syntax.cpp
+
+unary-syntax.o: Syntax/Expressions/unary-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/unary-syntax.cpp
+
+var-access-syntax.o: Syntax/Expressions/var-access-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/var-access-syntax.cpp
+
+var-assign-syntax.o: Syntax/Expressions/var-assign-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/var-assign-syntax.cpp
+
+var-declare-syntax.o: Syntax/Expressions/var-declare-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/var-declare-syntax.cpp
+
+while-syntax.o: Syntax/Expressions/while-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/while-syntax.cpp
+
+index-syntax.o: Syntax/Expressions/index-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/index-syntax.cpp
 
 make clean:
 	rm *.o 

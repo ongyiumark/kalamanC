@@ -101,6 +101,10 @@ SyntaxToken* Lexer::lex()
             return new SyntaxToken(SyntaxKind::StarToken, _position++, "*", NULL);
         case '/':
             return new SyntaxToken(SyntaxKind::SlashToken, _position++, "/", NULL);
+        case '%':
+            return new SyntaxToken(SyntaxKind::ModuloToken, _position++, "%", NULL);
+        case '^':
+            return new SyntaxToken(SyntaxKind::PowerToken, _position++, "^", NULL);
         case '=':
         {
             if (look_ahead() == '=') 

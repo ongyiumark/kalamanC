@@ -22,6 +22,8 @@ namespace Syntax
         MinusToken,
         StarToken,
         SlashToken,
+        PowerToken,
+        ModuloToken,
         EqualsToken,
         BangToken,
         DAmpersandToken,
@@ -60,12 +62,12 @@ namespace Syntax
         AndKeyword,
         OrKeyword,
         XorKeyword,
+        NotKeyword,
 
         // Expressions
         LiteralExpression,
-        UnaryExpressions,
+        UnaryExpression,
         BinaryExpression,
-        ParenExpression,
         VarDeclareExpression,
         VarAssignExpression,
         VarAccessExpression,
@@ -75,8 +77,7 @@ namespace Syntax
         WhileExpression,
         ForExpression,
         DefineExpression,
-        CallExpression,
-        IndexExpression
+        CallExpression
     };
 
     std::string kind_to_string(SyntaxKind kind);
@@ -90,6 +91,8 @@ namespace Syntax
         virtual int children_size() const;
         virtual SyntaxNode* child(int i) const;
     };
+
+    void pretty_print(SyntaxNode* node, std::string indent="", bool is_last=true);
 
     class SyntaxToken final : public SyntaxNode
     {
@@ -127,5 +130,7 @@ namespace Syntax
     {
     public:
         static SyntaxKind get_keyword_kind(std::string text);
+        static int get_binary_precedence(SyntaxKind kind);
+        static int get_unary_precedence(SyntaxKind kind);
     };
 }
