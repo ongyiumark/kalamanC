@@ -1,32 +1,46 @@
+program                 : 
 
-expression              : expression '^' expression     %prec 7 
-                        : '!' expression                %prec 6
-                        : '-' expression    
-                        : '+' expression   
-                        : expression '*' expression     %prec 5
-                        : expression '/' expression    
-                        : expression '%' expression
-                        : expression '+' expression     %prec 4
-                        : expression '-' expression     
+statement               :  '{' program '}'
+                        : IF '(' expression ')' statement (ELIF '(' expression ')' statement )* (ELSE statement)?
+                        : WHILE '(' expression ')' statement
+                        : FOR '(' expression ';' expression ';' expression ')' statement
+                        : DEF IDENTIFIER '( (IDENTIFIER (',' IDENTIFIER)*)? ')' statement
+                        : expression ';'
+                        : ';'
+
+expression              : expression '||' expression    %prec 1
+                        : expression XOR expression
+                        : expression OR expression
+                        : expression '&&' expression    %prec 2
+                        : expression AND expression
                         : expression '==' expression    %prec 3
                         : expression '!=' expression
                         : expression '<=' expression
                         : expression '>=' expression
                         : expression '<' expression
                         : expression '>' expression
-                        : expression '&&' expression    %prec 2
-                        : expression AND expression
-                        : expression '||' expression    %prec 1
-                        : expression XOR expression
-                        : expression OR expression
+                        : expression '+' expression     %prec 4
+                        : expression '-' expression  
+                        : expression '*' expression     %prec 5
+                        : expression '/' expression    
+                        : expression '%' expression  
+                        : '!' expression                %prec 6
+                        : '-' expression    
+                        : '+' expression 
+                        : expression '^' expression     %prec 7
+                        : VARKEYWORD IDENTIFIER 
+                        : VARKEYWORD IDENTIFIER '=' expression
+                        : IDENTIFIER = expression
+                        : molecule
+
+molecule                : atom (('[' expression ']')*)
                         : atom
-
-
 
 atom:                   : STRING
                         : INTEGER
                         : BOOLEAN
                         : DOUBLE
                         : IDENTIFIER
+                        : IDENTIFIER '(' (expression (',' expression)*)?  ')' 
                         : '(' expression ')'
                         : '[' (expression (COMMA expression)*)? ']'

@@ -90,7 +90,7 @@ namespace Syntax
         Objects::Type _type;
         SyntaxToken* _identifier;
     public:
-        VarDeclareExpressionSyntax(Objects::Type type, SyntaxToken* identifier);
+        VarDeclareExpressionSyntax(SyntaxToken* var_keyword, SyntaxToken* identifier);
         SyntaxKind kind() const;
         Objects::Type get_type() const;
         SyntaxToken* get_identifier() const;
@@ -122,19 +122,19 @@ namespace Syntax
     {
     private:
         std::vector<SyntaxNode*> _conditions;
-        std::vector<SyntaxNode*> _expressions;
-        SyntaxNode* _else_expression;
+        std::vector<SyntaxNode*> _bodies;
+        SyntaxNode* _else_body;
     public:
-        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& expressions, SyntaxNode* else_expression);
+        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body);
         SyntaxKind kind() const;
-        SyntaxNode* get_else_expression() const;
+        SyntaxNode* get_else_body() const;
         
         int get_size() const;
         SyntaxNode* get_condition(int i) const;
         SyntaxNode* get_expression(int i) const;
 
         std::vector<SyntaxNode*> get_conditions() const;
-        std::vector<SyntaxNode*> get_expressions() const;
+        std::vector<SyntaxNode*> get_bodies() const;
     };
 
     class DefFuncExpressionSyntax final : public SyntaxNode
@@ -154,7 +154,7 @@ namespace Syntax
         SyntaxNode* get_body() const;
     };
 
-    class CallExpressionSyntax final : SyntaxNode
+    class CallExpressionSyntax final : public SyntaxNode
     {
     private:
         SyntaxToken* _identifier;
@@ -168,7 +168,7 @@ namespace Syntax
         std::vector<SyntaxNode*> get_args() const;
     }; 
 
-    class IndexExpressionSyntax final : SyntaxNode
+    class IndexExpressionSyntax final : public SyntaxNode
     {
     private:
         SyntaxNode* _to_access;
@@ -178,6 +178,15 @@ namespace Syntax
         SyntaxKind kind() const;
         SyntaxNode* get_to_access() const;
         SyntaxNode* get_indexer() const;
+    };
+
+    class NoneExpressionSyntax final : public SyntaxNode
+    {
+    private:
+        SyntaxToken* _semicolon_token;
+    public:
+        NoneExpressionSyntax(SyntaxToken* semicolon_token);
+        SyntaxKind kind() const;
     };
 
     class Parser final
@@ -194,7 +203,9 @@ namespace Syntax
         SyntaxToken* match_token(SyntaxKind kind);
 
         SyntaxNode* parse_atom();
-        SyntaxNode* parse_expressions(int precedence = 0);
+        SyntaxNode* parse_molecule();
+        SyntaxNode* parse_expression(int precedence = 0);
+        SyntaxNode* parse_statement();
     public:
         Parser(std::string& text);
         SyntaxNode* parse();

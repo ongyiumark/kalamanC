@@ -10,7 +10,7 @@ SyntaxKind SyntaxToken::kind() const
     return _kind;
 }
 
-int SyntaxToken::get_postion() const
+int SyntaxToken::get_position() const
 {
     return _position;
 }

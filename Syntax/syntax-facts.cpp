@@ -22,7 +22,7 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
     else if (text == KT_DEFINE)
         return SyntaxKind::DefineKeyword;
     else if (text == KT_IF)
-        return SyntaxKind::IFKeyword;
+        return SyntaxKind::IfKeyword;
     else if (text == KT_ELIF)
         return SyntaxKind::ElifKeyword;
     else if (text == KT_ELSE)
@@ -43,6 +43,26 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::IdentifierToken;
 }
 
+Objects::Type SyntaxFacts::get_keyword_type(SyntaxKind kind)
+{
+    switch (kind)
+    {
+        case SyntaxKind::IntegerKeyword:
+            return Objects::Type::INTEGER;
+        case SyntaxKind::DoubleKeyword:
+            return Objects::Type::DOUBLE;
+        case SyntaxKind::BooleanKeyword:
+            return Objects::Type::BOOLEAN;
+        case SyntaxKind::ListKeyword:
+            return Objects::Type::LIST;
+        case SyntaxKind::FunctionKeyword:
+            return Objects::Type::FUNCTION;
+        case SyntaxKind::StringKeyword:
+            return Objects::Type::STRING;
+        default:
+            return Objects::Type::NONE;
+    }
+}
 int SyntaxFacts::get_unary_precedence(SyntaxKind kind)
 {
     switch(kind)

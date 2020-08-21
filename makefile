@@ -76,10 +76,10 @@ syntax-token.o: Syntax/syntax-token.cpp
 
 syntax-expressions.o: binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
 			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
-			var-declare-syntax.o while-syntax.o index-syntax.o
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o
 	ld -r -o syntax-expressions.o binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
 			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
-			var-declare-syntax.o while-syntax.o index-syntax.o
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o
 
 binary-syntax.o: Syntax/Expressions/binary-syntax.cpp
 	g++ -g -std=c++17 -c Syntax/Expressions/binary-syntax.cpp
@@ -119,6 +119,9 @@ while-syntax.o: Syntax/Expressions/while-syntax.cpp
 
 index-syntax.o: Syntax/Expressions/index-syntax.cpp
 	g++ -g -std=c++17 -c Syntax/Expressions/index-syntax.cpp
+
+none-syntax.o: Syntax/Expressions/none-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/none-syntax.cpp
 
 make clean:
 	rm *.o 

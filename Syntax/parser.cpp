@@ -51,27 +51,162 @@ SyntaxToken* Parser::match_token(SyntaxKind kind)
     if (current()->kind() == kind)
         return next_token();
 
-    _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_postion()), 
+    _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_position()), 
         kind_to_string(current()->kind()), kind_to_string(kind));
-    return new SyntaxToken(kind, current()->get_postion(), "\0", NULL);
+    return new SyntaxToken(kind, current()->get_position(), "\0", NULL);
 }
 
 SyntaxNode* Parser::parse()
 {
-    return parse_expressions();
+    return parse_statement();
 }
 
-SyntaxNode* Parser::parse_expressions(int precedence)
+SyntaxNode* Parser::parse_statement()
+{
+    switch(current()->kind())
+    {
+        case SyntaxKind::IfKeyword:
+        {
+            std::vector<SyntaxNode*> conditions;
+            std::vector<SyntaxNode*> bodies;
+            SyntaxNode* else_body = NULL;
+            next_token();
+            match_token(SyntaxKind::LParenToken);
+            SyntaxNode* condition = parse_expression();
+            match_token(SyntaxKind::RParenToken);
+            SyntaxNode* body = parse_statement();
+
+            conditions.push_back(condition);
+            bodies.push_back(body);
+
+            while(current()->kind() == SyntaxKind::ElifKeyword)
+            {
+                next_token();
+                match_token(SyntaxKind::LParenToken);
+                condition = parse_expression();
+                match_token(SyntaxKind::RParenToken);
+                body = parse_statement();
+
+                conditions.push_back(condition);
+                bodies.push_back(body);
+            }
+
+            if (current()->kind() == SyntaxKind::ElseKeyword)
+            {
+                next_token();
+                else_body = parse_statement();
+            }
+            return new IfExpressionSyntax(conditions, bodies, else_body);
+        }
+        case SyntaxKind::WhileKeyword:
+        {
+            next_token();
+            match_token(SyntaxKind::LParenToken);
+            SyntaxNode* condition = parse_expression();
+            match_token(SyntaxKind::RParenToken);
+
+            SyntaxNode* body = parse_statement();
+            return new WhileExpressionSyntax(condition, body);
+        }
+        case SyntaxKind::ForKeyword:
+        {
+            next_token();
+            match_token(SyntaxKind::LParenToken);
+            SyntaxNode* init = parse_expression();
+            match_token(SyntaxKind::SemicolonToken);
+            SyntaxNode* condition = parse_expression();
+            match_token(SyntaxKind::SemicolonToken);
+            SyntaxNode* update = parse_expression();
+            match_token(SyntaxKind::RParenToken);
+
+            SyntaxNode* body = parse_statement();
+            return new ForExpressionSyntax(init, condition, update, body);
+        }
+        case SyntaxKind::DefineKeyword:
+        {
+            next_token();
+            SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
+            match_token(SyntaxKind::LParenToken);
+            std::vector<std::string> arg_names;
+
+            if (current()->kind() != SyntaxKind::RParenToken)
+            {
+                SyntaxToken* arg_name = match_token(SyntaxKind::IdentifierToken);
+                arg_names.push_back(arg_name->get_text());
+                while(current()->kind() == SyntaxKind::CommaToken)
+                {
+                    next_token();
+                    arg_name = match_token(SyntaxKind::IdentifierToken);
+                    arg_names.push_back(arg_name->get_text());
+                }
+            }
+            
+            match_token(SyntaxKind::RParenToken);
+            SyntaxNode* body = parse_statement();
+            return new DefFuncExpressionSyntax(identifier, arg_names, body);
+        }
+        case SyntaxKind::SemicolonToken:
+        {
+            SyntaxToken* semicolon_token = next_token();
+            return new NoneExpressionSyntax(semicolon_token);
+        }
+        default:
+        {
+            SyntaxNode* expression = parse_expression();
+            match_token(SyntaxKind::SemicolonToken);
+            return expression;
+            break;
+        }
+    }
+}
+
+SyntaxNode* Parser::parse_expression(int precedence)
 {
     SyntaxNode* left;
     int unary_precedence = SyntaxFacts::get_unary_precedence(current()->kind());
     if (unary_precedence && unary_precedence >= precedence)
     {
         SyntaxToken* op_token = next_token();
-        SyntaxNode* expression = parse_expressions(unary_precedence);
+        SyntaxNode* expression = parse_expression(unary_precedence);
         left = new UnaryExpressionSyntax(op_token, expression);
     }
-    else left = parse_atom();
+    else 
+    {
+        switch(current()->kind())
+        {
+            case SyntaxKind::IntegerKeyword:
+            case SyntaxKind::DoubleKeyword:
+            case SyntaxKind::BooleanKeyword:
+            case SyntaxKind::ListKeyword:
+            case SyntaxKind::FunctionKeyword:
+            case SyntaxKind::StringKeyword:
+            {
+                SyntaxToken* var_keyword = next_token();
+                SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
+                SyntaxNode* var_decl = new VarDeclareExpressionSyntax(var_keyword, identifier);
+                if (current()->kind() == SyntaxKind::SemicolonToken)
+                    return var_decl;
+                
+                match_token(SyntaxKind::EqualsToken);
+                SyntaxNode* expression = parse_expression(precedence);
+                SyntaxNode* var_ass = new VarAssignExpressionSyntax(identifier, expression);
+                std::vector<SyntaxNode*> seq = {var_decl, var_ass};
+                return new SequenceExpressionSyntax(seq);
+            }
+            case SyntaxKind::IdentifierToken:
+            {
+                if (look_ahead()->kind() == SyntaxKind::EqualsToken)
+                {
+                    SyntaxToken* identifier = next_token();
+                    next_token();
+                    SyntaxNode* expression = parse_expression(precedence);
+                    return new VarAssignExpressionSyntax(identifier, expression);
+                }
+            }
+            default:
+                left = parse_molecule();
+        }
+    }
 
     while(true)
     {
@@ -80,10 +215,30 @@ SyntaxNode* Parser::parse_expressions(int precedence)
             break;
         
         SyntaxToken* op_token = next_token();
-        SyntaxNode* right = parse_expressions(binary_precedence);
+        SyntaxNode* right = parse_expression(binary_precedence);
         left = new BinaryExpressionSyntax(left, op_token, right);
     }
     return left;
+}
+
+SyntaxNode* Parser::parse_molecule()
+{
+    SyntaxNode* left = parse_atom();
+    switch(current()->kind())
+    {
+        case SyntaxKind::LSquareToken:
+        {
+            while(current()->kind() == SyntaxKind::LSquareToken)
+            {
+                next_token();
+                SyntaxNode* right = parse_expression();
+                match_token(SyntaxKind::RSquareToken);
+                left = new IndexExpressionSyntax(left, right);
+            }
+        }
+        default:
+            return left;        
+    }
 }
 
 SyntaxNode* Parser::parse_atom()
@@ -107,7 +262,7 @@ SyntaxNode* Parser::parse_atom()
         case SyntaxKind::LParenToken:
         {
             next_token();
-            SyntaxNode* expression = parse_expressions();
+            SyntaxNode* expression = parse_expression();
             match_token(SyntaxKind::RParenToken);
             return expression;
         }
@@ -121,13 +276,13 @@ SyntaxNode* Parser::parse_atom()
                 return new SequenceExpressionSyntax(elements, true);
             }
 
-            SyntaxNode* expression = parse_expressions();
+            SyntaxNode* expression = parse_expression();
             elements.push_back(expression);
 
             while(current()->kind() == SyntaxKind::CommaToken)
             {
                 next_token();
-                SyntaxNode* expression = parse_expressions();
+                SyntaxNode* expression = parse_expression();
                 elements.push_back(expression);
             }
             match_token(SyntaxKind::RSquareToken);
@@ -136,6 +291,28 @@ SyntaxNode* Parser::parse_atom()
         default:
         {
             SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
+            if (current()->kind() == SyntaxKind::LParenToken)
+            {
+                next_token();
+                std::vector<SyntaxNode*> args;
+                if (current()->kind() == SyntaxKind::RParenToken)
+                {
+                    next_token();
+                    return new CallExpressionSyntax(identifier, args);
+                }
+
+                SyntaxNode* expression = parse_expression();
+                args.push_back(expression);
+
+                while(current()->kind() == SyntaxKind::CommaToken)
+                {
+                    next_token();
+                    SyntaxNode* expression = parse_expression();
+                    args.push_back(expression);
+                }
+                match_token(SyntaxKind::RParenToken);
+                return new CallExpressionSyntax(identifier, args);
+            }
             return new VarAccessExpressionSyntax(identifier);
         }
     }

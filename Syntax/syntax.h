@@ -8,7 +8,7 @@ namespace Syntax
     bool is_digit(char c);
     bool is_letter(char c);
     bool is_valid_identifier(char c);
-
+    
     enum class SyntaxKind
     {
         // Tokens
@@ -54,7 +54,7 @@ namespace Syntax
         ListKeyword,
         FunctionKeyword,
         DefineKeyword,
-        IFKeyword,
+        IfKeyword,
         ElifKeyword,
         ElseKeyword,
         ForKeyword,
@@ -77,7 +77,9 @@ namespace Syntax
         WhileExpression,
         ForExpression,
         DefineExpression,
-        CallExpression
+        CallExpression,
+        IndexExpression,
+        NoneExpression
     };
 
     std::string kind_to_string(SyntaxKind kind);
@@ -105,7 +107,7 @@ namespace Syntax
         SyntaxToken(SyntaxKind kind, int position, std::string text, Objects::Object* value);
 
         SyntaxKind kind() const;
-        int get_postion() const;
+        int get_position() const;
         std::string get_text() const;
         Objects::Object* get_object() const;
     };
@@ -132,5 +134,6 @@ namespace Syntax
         static SyntaxKind get_keyword_kind(std::string text);
         static int get_binary_precedence(SyntaxKind kind);
         static int get_unary_precedence(SyntaxKind kind);
+        static Objects::Type get_keyword_type(SyntaxKind kind);
     };
 }

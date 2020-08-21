@@ -64,7 +64,7 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::ListKeyword);
         PROCESS_VAL(SyntaxKind::FunctionKeyword);
         PROCESS_VAL(SyntaxKind::DefineKeyword);
-        PROCESS_VAL(SyntaxKind::IFKeyword);
+        PROCESS_VAL(SyntaxKind::IfKeyword);
         PROCESS_VAL(SyntaxKind::ElifKeyword);
         PROCESS_VAL(SyntaxKind::ElseKeyword);
         PROCESS_VAL(SyntaxKind::WhileKeyword);
@@ -88,6 +88,8 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::ForExpression);
         PROCESS_VAL(SyntaxKind::DefineExpression);
         PROCESS_VAL(SyntaxKind::CallExpression);
+        PROCESS_VAL(SyntaxKind::IndexExpression);
+        PROCESS_VAL(SyntaxKind::NoneExpression);
     }
 #undef PROCESS_VAL
     return s;
@@ -111,6 +113,13 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
             std::cout << " ";
             SyntaxToken* token = (SyntaxToken*)node;
             if (token->get_object()) std::cout << token->get_object()->to_string();
+            break;
+        }
+        case SyntaxKind::IdentifierToken:
+        {
+            std::cout << " ";
+            SyntaxToken* token = (SyntaxToken*)node;
+            std::cout << token->get_text();
             break;
         }
     }
