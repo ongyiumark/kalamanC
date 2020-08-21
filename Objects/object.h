@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace Objects
 {
@@ -13,6 +14,7 @@ namespace Objects
         STRING,
         LIST,
         FUNCTION,
+        NONE
     };
 
     std::string type_to_string(Type type);
@@ -21,6 +23,7 @@ namespace Objects
     {
     public:
         virtual Type get_type() const = 0;
+        virtual std::string to_string() const = 0;
     };
 
     class Boolean final : public Object
@@ -30,6 +33,7 @@ namespace Objects
     public:
         Boolean(bool* value);
         Type get_type() const;
+        std::string to_string() const;
         bool* get_value() const;
     };
 
@@ -40,6 +44,7 @@ namespace Objects
     public:
         Integer(int* value);
         Type get_type() const;
+        std::string to_string() const;
         int* get_value() const;
     };
 
@@ -50,6 +55,7 @@ namespace Objects
     public:
         Double(double* value);
         Type get_type() const;
+        std::string to_string() const;
         double* get_value() const;
     };
 
@@ -61,6 +67,7 @@ namespace Objects
         String(std::string* value);
         
         Type get_type() const;
+        std::string to_string() const;
         
         std::string* get_value() const;
         int get_size() const;
@@ -74,6 +81,7 @@ namespace Objects
         List(std::vector<Object*>& values);
         
         Type get_type() const;
+        std::string to_string() const;
 
         int get_size() const;
         Object* get_value(int i) const;
@@ -92,6 +100,7 @@ namespace Objects
         Function(std::string* name, std::vector<std::string*>& argument_names, BoundExpression* body);
         
         Type get_type() const;
+        std::string to_string() const;
 
         std::string* get_name() const;
 
@@ -99,6 +108,14 @@ namespace Objects
         std::string* get_argument_name(int i) const;
         std::vector<std::string*> get_argument_names() const;
         BoundExpression* get_body() const;
+    };
+
+    class None final : public Object
+    {
+    public:
+        None();
+        Type get_type() const;
+        std::string to_string() const;
     };
 }
 

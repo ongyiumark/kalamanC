@@ -34,3 +34,10 @@ BoundExpression* Function::get_body() const
 {
     return _body;
 }
+
+std::string Function::to_string() const
+{
+    std::ostringstream os;
+    os << "<function:" << _name << ">";
+    return os.str();
+}

@@ -19,3 +19,10 @@ std::string* String::get_value() const
     return _value;
 } 
 
+std::string String::to_string() const
+{
+    std::ostringstream os;
+    os << _value;
+    return os.str();
+}
+

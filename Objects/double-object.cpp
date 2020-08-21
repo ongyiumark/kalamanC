@@ -14,3 +14,9 @@ double* Double::get_value() const
     return _value;
 }
 
+std::string Double::to_string() const
+{
+    std::ostringstream os;
+    os << _value;
+    return os.str();
+}

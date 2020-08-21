@@ -13,3 +13,10 @@ int* Integer::get_value() const
 {
     return _value;
 }
+
+std::string Integer::to_string() const
+{
+    std::ostringstream os;
+    os << _value;
+    return os.str();
+}

@@ -12,6 +12,7 @@ std::string Objects::type_to_string(Type type)
         PROCESS_VAL(Type::STRING);
         PROCESS_VAL(Type::LIST);
         PROCESS_VAL(Type::FUNCTION);
+        PROCESS_VAL(Type::NONE);
     }
 #undef PROCESS_VALs
     return s;
