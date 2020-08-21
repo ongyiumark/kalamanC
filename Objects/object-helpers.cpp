@@ -14,6 +14,6 @@ std::string Objects::type_to_string(Type type)
         PROCESS_VAL(Type::FUNCTION);
         PROCESS_VAL(Type::NONE);
     }
-#undef PROCESS_VALs
+#undef PROCESS_VAL
     return s;
 }

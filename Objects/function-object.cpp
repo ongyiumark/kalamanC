@@ -2,15 +2,15 @@
 
 using namespace Objects;
 
-Function::Function(std::string* name, std::vector<std::string*>& argument_names, BoundExpression* body)
+Function::Function(std::string name, std::vector<std::string>& argument_names, BoundExpression* body)
     : _name(name), _argument_names(argument_names), _body(body) {}
 
-Type Function::get_type() const
+Type Function::type() const
 {
     return Type::FUNCTION;
 }
 
-std::string* Function::get_name() const
+std::string Function::get_name() const
 {
     return _name;
 }
@@ -20,12 +20,12 @@ int Function::get_argument_size() const
     return _argument_names.size();
 }
 
-std::string* Function::get_argument_name(int i) const
+std::string Function::get_argument_name(int i) const
 {
     return _argument_names[i];
 }
 
-std::vector<std::string*> Function::get_argument_names() const
+std::vector<std::string> Function::get_argument_names() const
 {
     return _argument_names;
 }

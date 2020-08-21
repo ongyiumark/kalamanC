@@ -2,14 +2,14 @@
 
 using namespace Objects;
 
-Integer::Integer(int* value) : _value(value) {}
+Integer::Integer(int value) : _value(value) {}
 
-Type Integer::get_type() const
+Type Integer::type() const
 {
     return Type::INTEGER;
 }
 
-int* Integer::get_value() const
+int Integer::get_value() const
 {
     return _value;
 }

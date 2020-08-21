@@ -1,5 +1,5 @@
-kalman: program.o objects.o diagnostics.o
-	g++ -g -std=c++17 -o kalman program.o objects.o diagnostics.o
+kalman: program.o objects.o diagnostics.o syntax.o
+	g++ -g -std=c++17 -o kalman program.o objects.o diagnostics.o syntax.o
 
 program.o: program.cpp 
 	g++ -g -std=c++17 -c program.cpp 
@@ -50,6 +50,24 @@ diagnostic.o: Diagnostics/diagnostic.cpp
 
 diagnostic_bag.o: Diagnostics/diagnostic_bag.cpp
 	g++ -g -std=c++17 -c Diagnostics/diagnostic_bag.cpp
+
+syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o
+	ld -r -o syntax.o lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o
+
+lexer.o: Syntax/lexer.cpp
+	g++ -g -std=c++17 -c Syntax/lexer.cpp
+
+syntax-facts.o: Syntax/syntax-facts.cpp
+	g++ -g -std=c++17 -c Syntax/syntax-facts.cpp
+
+syntax-helpers.o: Syntax/syntax-helpers.cpp
+	g++ -g -std=c++17 -c Syntax/syntax-helpers.cpp
+
+syntax-node.o: Syntax/syntax-node.cpp
+	g++ -g -std=c++17 -c Syntax/syntax-node.cpp
+
+syntax-token.o: Syntax/syntax-token.cpp
+	g++ -g -std=c++17 -c Syntax/syntax-token.cpp
 
 make clean:
 	rm *.o 

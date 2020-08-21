@@ -2,6 +2,7 @@
 
 #include "position.h"
 #include "context.h"
+#include "../Objects/object.h"
 
 #include <vector>
 
@@ -29,6 +30,9 @@ namespace Diagnostics
         static Diagnostic diagnostic(int i);
         static std::vector<Diagnostic> diagnostics();
         static void print();
+        static void clear();
         void report_bad_character(Position pos, char c);
+        void report_invalid_type(Position pos, Objects::Type type);
+        void report_expected_character(Position pos, char c);
     };
 }

@@ -2,14 +2,14 @@
 
 using namespace Objects;
 
-Boolean::Boolean(bool* value) : _value(value) {}
+Boolean::Boolean(bool value) : _value(value) {}
 
-Type Boolean::get_type() const
+Type Boolean::type() const
 {
     return Type::BOOLEAN;
 }
 
-bool* Boolean::get_value() const
+bool Boolean::get_value() const
 {
     return _value;
 }

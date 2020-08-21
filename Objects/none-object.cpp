@@ -4,7 +4,7 @@ using namespace Objects;
 
 None::None() {}
 
-Type None::get_type() const
+Type None::type() const
 {
     return Type::NONE;
 }

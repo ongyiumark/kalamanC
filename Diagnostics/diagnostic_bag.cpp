@@ -34,11 +34,16 @@ void DiagnosticBag::print()
     int n = _diagnostics.size();
     for (int i = 0; i < n; i++)
     {
-        std::cout << "In line " << _diagnostics[i].get_pos().position << ", ";
-        std::cout << _diagnostics[i].get_message() << "\n\n";
-        std::cout << _diagnostics[i].get_pos().text;
+        std::cout << "In position " << _diagnostics[i].get_pos().position << ", ";
+        std::cout << _diagnostics[i].get_message();
+        //std::cout << _diagnostics[i].get_pos().text;
         std::cout << std::endl;
     }
+}
+
+void DiagnosticBag::clear()
+{
+    _diagnostics.clear();
 }
 
 void DiagnosticBag::report_bad_character(Position pos, char c)
@@ -48,5 +53,17 @@ void DiagnosticBag::report_bad_character(Position pos, char c)
     report(pos, os.str());
 }
 
+void DiagnosticBag::report_invalid_type(Position pos, Objects::Type type)
+{
+    std::ostringstream os;
+    os << "ERROR: '" << pos.text << "' is not a valid " << Objects::type_to_string(type);
+    report(pos, os.str());
+}
 
+void DiagnosticBag::report_expected_character(Position pos, char c)
+{
+    std::ostringstream os;
+    os << "ERROR: expected character '" << c << "'";
+    report(pos, os.str());
+}
 

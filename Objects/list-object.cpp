@@ -4,7 +4,7 @@ using namespace Objects;
 
 List::List(std::vector<Object*>& values) : _values(values) {}
 
-Type List::get_type() const
+Type List::type() const
 {
     return Type::LIST;
 }
