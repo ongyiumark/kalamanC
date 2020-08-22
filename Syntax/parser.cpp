@@ -58,18 +58,63 @@ SyntaxToken* Parser::match_token(SyntaxKind kind)
 
 SyntaxNode* Parser::parse()
 {
-    return parse_statement();
+    return parse_program();
+}
+
+SyntaxNode* Parser::parse_program(bool sub_program)
+{
+    std::vector<SyntaxNode*> program_seq;
+    if (sub_program)
+    {
+        while(current()->kind() != SyntaxKind::RCurlyToken)
+        {
+            program_seq.push_back(parse_statement());
+            if (current()->kind() == SyntaxKind::EndOfFileToken)
+            {
+                match_token(SyntaxKind::RCurlyToken);
+                return new SequenceExpressionSyntax(program_seq); 
+            }
+        }
+        next_token();
+        return new SequenceExpressionSyntax(program_seq); 
+    }
+
+    while(current()->kind() != SyntaxKind::EndOfFileToken)
+    {
+        switch(current()->kind())
+        {
+            case SyntaxKind::RParenToken:
+            case SyntaxKind::RSquareToken:
+            case SyntaxKind::RCurlyToken:
+            case SyntaxKind::CommaToken:
+            {
+                _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_position()), 
+                    kind_to_string(current()->kind()), kind_to_string(SyntaxKind::EndOfFileToken));
+                next_token();
+            }
+        }
+        program_seq.push_back(parse_statement());
+    }
+        
+    return new SequenceExpressionSyntax(program_seq);
 }
 
 SyntaxNode* Parser::parse_statement()
 {
     switch(current()->kind())
     {
+        case SyntaxKind::LCurlyToken:
+        {
+            next_token();
+            SyntaxNode* sub_program = parse_program(true);
+            return sub_program;
+        }
         case SyntaxKind::IfKeyword:
         {
             std::vector<SyntaxNode*> conditions;
             std::vector<SyntaxNode*> bodies;
             SyntaxNode* else_body = NULL;
+
             next_token();
             match_token(SyntaxKind::LParenToken);
             SyntaxNode* condition = parse_expression();
@@ -82,6 +127,7 @@ SyntaxNode* Parser::parse_statement()
             while(current()->kind() == SyntaxKind::ElifKeyword)
             {
                 next_token();
+
                 match_token(SyntaxKind::LParenToken);
                 condition = parse_expression();
                 match_token(SyntaxKind::RParenToken);
@@ -96,6 +142,7 @@ SyntaxNode* Parser::parse_statement()
                 next_token();
                 else_body = parse_statement();
             }
+
             return new IfExpressionSyntax(conditions, bodies, else_body);
         }
         case SyntaxKind::WhileKeyword:
@@ -127,17 +174,17 @@ SyntaxNode* Parser::parse_statement()
             next_token();
             SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
             match_token(SyntaxKind::LParenToken);
-            std::vector<std::string> arg_names;
+            std::vector<SyntaxToken*> arg_names;
 
             if (current()->kind() != SyntaxKind::RParenToken)
             {
                 SyntaxToken* arg_name = match_token(SyntaxKind::IdentifierToken);
-                arg_names.push_back(arg_name->get_text());
+                arg_names.push_back(arg_name);
                 while(current()->kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
                     arg_name = match_token(SyntaxKind::IdentifierToken);
-                    arg_names.push_back(arg_name->get_text());
+                    arg_names.push_back(arg_name);
                 }
             }
             
@@ -147,8 +194,8 @@ SyntaxNode* Parser::parse_statement()
         }
         case SyntaxKind::SemicolonToken:
         {
-            SyntaxToken* semicolon_token = next_token();
-            return new NoneExpressionSyntax(semicolon_token);
+            next_token();
+            return new NoneExpressionSyntax();
         }
         default:
         {
@@ -202,10 +249,9 @@ SyntaxNode* Parser::parse_expression(int precedence)
                     SyntaxNode* expression = parse_expression(precedence);
                     return new VarAssignExpressionSyntax(identifier, expression);
                 }
-            }
-            default:
-                left = parse_molecule();
+            }        
         }
+        left = parse_molecule();
     }
 
     while(true)

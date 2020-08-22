@@ -8,10 +8,14 @@ IfExpressionSyntax::IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std
 {
     int n = conditions.size();
     std::cout << n << std::endl;
+    
+    SyntaxToken* if_keyword = new SyntaxToken(SyntaxKind::IfKeyword, -1, "\0", NULL);
+    SyntaxToken* elif_keyword = new SyntaxToken(SyntaxKind::ElifKeyword, -1, "\0", NULL);
+    
     for (int i = 0; i < n; i++)
     {
-        if (i == 0) _children.push_back(new SyntaxToken(SyntaxKind::IfKeyword, -1, "\0", NULL));
-        else _children.push_back(new SyntaxToken(SyntaxKind::ElifKeyword, -1, "\0", NULL));
+        if (i == 0) _children.push_back(if_keyword);
+        else _children.push_back(elif_keyword);
         _children.push_back(conditions[i]);
         _children.push_back(bodies[i]);
     }

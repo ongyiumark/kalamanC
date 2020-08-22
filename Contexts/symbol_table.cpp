@@ -1,6 +1,6 @@
 #include "context.h"
 
-using namespace Diagnostics;
+using namespace Contexts;
 
 SymbolTable::SymbolTable(SymbolTable* parent) : _parent(parent) {}
 

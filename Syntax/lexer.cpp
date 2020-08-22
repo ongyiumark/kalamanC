@@ -66,7 +66,7 @@ SyntaxToken* Lexer::lex()
             if (is >> x)
                 return new SyntaxToken(SyntaxKind::IntegerToken, start, text, new Objects::Integer(x));
 
-            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::Type::INTEGER);
+            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::type_to_string(Objects::Type::INTEGER));
             return new SyntaxToken(SyntaxKind::IntegerToken, start, text, NULL);            
         }
         else
@@ -76,7 +76,7 @@ SyntaxToken* Lexer::lex()
             if (is >> x)
                 return new SyntaxToken(SyntaxKind::DoubleToken, start, text, new Objects::Double(x));
     
-            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::Type::DOUBLE);
+            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::type_to_string(Objects::Type::DOUBLE));
             return new SyntaxToken(SyntaxKind::DoubleToken, start, text, NULL);    
         }
     }

@@ -1,6 +1,6 @@
 #include "context.h"
 
-using namespace Diagnostics;
+using namespace Contexts;
 
 Context::Context(std::string name, Context* parent, int parent_pos, SymbolTable* symbol_table)
     : _name(name), _parent(parent), _parent_pos(parent_pos), _symbol_table(symbol_table) {}

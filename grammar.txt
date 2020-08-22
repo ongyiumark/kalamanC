@@ -1,4 +1,4 @@
-program                 : 
+program                 : statement*
 
 statement               :  '{' program '}'
                         : IF '(' expression ')' statement (ELIF '(' expression ')' statement )* (ELSE statement)?

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "position.h"
-#include "context.h"
-#include "../Objects/object.h"
 
 #include <vector>
 
@@ -14,7 +12,7 @@ namespace Diagnostics
         Position _pos;
         std::string _message;
     public:
-        Diagnostic(Position pos, std::string message);
+        Diagnostic(Position pos, std::string& message);
         std::string get_message() const;
         Position get_pos() const;
     };
@@ -32,7 +30,7 @@ namespace Diagnostics
         static void print();
         static void clear();
         void report_bad_character(Position pos, char c);
-        void report_invalid_type(Position pos, Objects::Type type);
+        void report_invalid_type(Position pos, std::string type);
         void report_expected_character(Position pos, char c);
         void report_unexpected_token(Position pos, std::string actual, std::string expected);
     };

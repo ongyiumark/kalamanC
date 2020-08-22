@@ -3,7 +3,7 @@
 #include "../Objects/object.h"
 #include <map>
 
-namespace Diagnostics
+namespace Contexts
 {
     class SymbolTable final
     {

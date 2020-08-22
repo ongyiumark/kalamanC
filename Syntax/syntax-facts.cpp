@@ -63,6 +63,7 @@ Objects::Type SyntaxFacts::get_keyword_type(SyntaxKind kind)
             return Objects::Type::NONE;
     }
 }
+
 int SyntaxFacts::get_unary_precedence(SyntaxKind kind)
 {
     switch(kind)

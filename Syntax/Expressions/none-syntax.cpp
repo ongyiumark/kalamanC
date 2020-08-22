@@ -2,11 +2,7 @@
 
 using namespace Syntax;
 
-NoneExpressionSyntax::NoneExpressionSyntax(SyntaxToken* semicolon_token)
-    : _semicolon_token(semicolon_token)
-{
-    _children = {semicolon_token};
-}
+NoneExpressionSyntax::NoneExpressionSyntax() {}
 
 SyntaxKind NoneExpressionSyntax::kind() const
 {

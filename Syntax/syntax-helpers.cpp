@@ -126,7 +126,7 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 
     std::cout << std::endl;
 
-    SyntaxNode* last_child = node;
+    SyntaxNode* last_child = NULL;
     int n = node->children_size();
     if (n) last_child = node->child(n-1);
 

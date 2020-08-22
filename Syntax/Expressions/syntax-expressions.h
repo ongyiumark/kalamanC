@@ -87,12 +87,12 @@ namespace Syntax
     class VarDeclareExpressionSyntax final : public SyntaxNode
     {
     private:
-        Objects::Type _type;
+        SyntaxToken* _var_keyword;
         SyntaxToken* _identifier;
     public:
         VarDeclareExpressionSyntax(SyntaxToken* var_keyword, SyntaxToken* identifier);
         SyntaxKind kind() const;
-        Objects::Type get_type() const;
+        SyntaxToken* get_var_keyword() const;
         SyntaxToken* get_identifier() const;
     };
 
@@ -100,12 +100,12 @@ namespace Syntax
     {
     private:
         SyntaxToken* _identifier;
-        SyntaxNode* _node;
+        SyntaxNode* _value;
     public:
-        VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* node);
+        VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value);
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
-        SyntaxNode* get_node() const;
+        SyntaxNode* get_value() const;
     };
 
     class VarAccessExpressionSyntax final : public SyntaxNode
@@ -141,16 +141,16 @@ namespace Syntax
     {
     private:
         SyntaxToken* _identifier;
-        std::vector<std::string> _arg_names;
+        std::vector<SyntaxToken*> _arg_names;
         SyntaxNode* _body;
     public:
-        DefFuncExpressionSyntax(SyntaxToken* identifier, std::vector<std::string>& arg_names, SyntaxNode* body);
+        DefFuncExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body);
 
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
         int get_arg_size() const;
-        std::string get_arg_name(int i) const;
-        std::vector<std::string> get_arg_names() const;
+        SyntaxToken* get_arg_name(int i) const;
+        std::vector<SyntaxToken*> get_arg_names() const;
         SyntaxNode* get_body() const;
     };
 
@@ -182,10 +182,8 @@ namespace Syntax
 
     class NoneExpressionSyntax final : public SyntaxNode
     {
-    private:
-        SyntaxToken* _semicolon_token;
     public:
-        NoneExpressionSyntax(SyntaxToken* semicolon_token);
+        NoneExpressionSyntax();
         SyntaxKind kind() const;
     };
 
@@ -206,6 +204,7 @@ namespace Syntax
         SyntaxNode* parse_molecule();
         SyntaxNode* parse_expression(int precedence = 0);
         SyntaxNode* parse_statement();
+        SyntaxNode* parse_program(bool sub_program=false);
     public:
         Parser(std::string& text);
         SyntaxNode* parse();

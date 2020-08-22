@@ -53,10 +53,10 @@ void DiagnosticBag::report_bad_character(Position pos, char c)
     report(pos, os.str());
 }
 
-void DiagnosticBag::report_invalid_type(Position pos, Objects::Type type)
+void DiagnosticBag::report_invalid_type(Position pos, std::string type)
 {
     std::ostringstream os;
-    os << "ERROR: '" << pos.text << "' is not a valid " << Objects::type_to_string(type);
+    os << "ERROR: '" << pos.text << "' is not a valid " << type;
     report(pos, os.str());
 }
 

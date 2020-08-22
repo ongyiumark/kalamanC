@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 VarDeclareExpressionSyntax::VarDeclareExpressionSyntax(SyntaxToken* var_keyword, SyntaxToken* identifier)
-    :_type(SyntaxFacts::get_keyword_type(var_keyword->kind())), _identifier(identifier) 
+    : _var_keyword(var_keyword), _identifier(identifier) 
 {
     _children= {var_keyword, identifier};
 }
@@ -13,9 +13,9 @@ SyntaxKind VarDeclareExpressionSyntax::kind() const
     return SyntaxKind::VarDeclareExpression;
 }
 
-Objects::Type VarDeclareExpressionSyntax::get_type() const
+SyntaxToken* VarDeclareExpressionSyntax::get_var_keyword() const
 {
-    return _type;
+    return _var_keyword;
 }
 
 SyntaxToken* VarDeclareExpressionSyntax::get_identifier() const

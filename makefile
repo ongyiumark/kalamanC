@@ -1,5 +1,5 @@
-kalman: program.o objects.o diagnostics.o syntax.o
-	g++ -g -std=c++17 -o kalman program.o objects.o diagnostics.o syntax.o
+kalman: program.o objects.o contexts.o diagnostics.o syntax.o
+	g++ -g -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o
 
 program.o: program.cpp 
 	g++ -g -std=c++17 -c program.cpp 
@@ -33,14 +33,17 @@ none-object.o: Objects/none-object.cpp
 object-helpers.o: Objects/object-helpers.cpp
 	g++ -g -std=c++17 -c Objects/object-helpers.cpp
 
-diagnostics.o: context.o symbol_table.o position.o diagnostic.o diagnostic_bag.o
-	ld -r -o diagnostics.o context.o symbol_table.o position.o diagnostic.o diagnostic_bag.o
+contexts.o: context.o symbol_table.o 
+	ld -r -o contexts.o context.o symbol_table.o 
 
-context.o: Diagnostics/context.cpp
-	g++ -g -std=c++17 -c Diagnostics/context.cpp
+context.o: Contexts/context.cpp
+	g++ -g -std=c++17 -c Contexts/context.cpp
 
-symbol_table.o: Diagnostics/symbol_table.cpp
-	g++ -g -std=c++17 -c Diagnostics/symbol_table.cpp
+symbol_table.o: Contexts/symbol_table.cpp
+	g++ -g -std=c++17 -c Contexts/symbol_table.cpp
+
+diagnostics.o: position.o diagnostic.o diagnostic_bag.o
+	ld -r -o diagnostics.o position.o diagnostic.o diagnostic_bag.o
 
 position.o: Diagnostics/position.cpp
 	g++ -g -std=c++17 -c Diagnostics/position.cpp
