@@ -4,11 +4,22 @@
 #include "Objects/object.h"
 #include "Evaluator/evaluator.h"
 #include "Contexts/context.h"
+#include "constants.h"
+
+Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
+Contexts::Context* context = new Contexts::Context("<program>", NULL, global_symbol_table);
+
+void initialize()
+{
+    std::vector<std::string> arg_names = {};
+    context->get_symbol_table()->set_object(BI_INPUT, new Objects::Function(BI_INPUT, arg_names, NULL, true));
+    arg_names = {"value"};
+    context->get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
+}
 
 int main(int argc, char ** argv)
 {
-    Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
-    Contexts::Context* context = new Contexts::Context("<program>", NULL, -1, global_symbol_table);
+    initialize();
     if (argc == 1)
     {
         while(true)
@@ -21,8 +32,6 @@ int main(int argc, char ** argv)
             Syntax::SyntaxNode* root = parser->parse();
 
             Syntax::pretty_print(root);
-
-
             std::cout << Evaluator::evaluate(context, root)->to_string() << std::endl;
             
             

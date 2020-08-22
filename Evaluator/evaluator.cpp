@@ -1,4 +1,7 @@
 #include "evaluator.h"
+#include "builtin-functions.h"
+
+#include <iostream>
 
 using namespace Syntax;
 using namespace Contexts;
@@ -39,10 +42,10 @@ Object* Evaluator::evaluate(Context* context, const SyntaxNode* node)
             return evaluate_if(context, (IfExpressionSyntax*)node);
         case SyntaxKind::ForExpression:
             return evaluate_for(context, (ForExpressionSyntax*)node);
-        case SyntaxKind::DefineExpression:
-            return evaluate_function_define(context, (DefFuncExpressionSyntax*)node);
-        case SyntaxKind::CallExpression:  
-            return evaluate_function_call(context, (CallExpressionSyntax*)node);        
+        case SyntaxKind::FuncDefineExpression:
+            return evaluate_function_define(context, (FuncDefineExpressionSyntax*)node);
+        case SyntaxKind::FuncCallExpression:  
+            return evaluate_function_call(context, (FuncCallExpressionSyntax*)node);        
     }
 
     _diagnostics->report_unknown_syntax(kind_to_string(node->kind()));
@@ -246,7 +249,7 @@ Object* Evaluator::evaluate_var_access(Context* context, const VarAccessExpressi
     Object* result = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_undeclared_variable(node->get_identifier()->get_text());
+        _diagnostics->report_undeclared_identifier(node->get_identifier()->get_text());
         return result;
     }
 
@@ -263,7 +266,7 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
         
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_expected_type(type_to_string(Type::BOOLEAN), type_to_string(condition->type()));
+            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
         if (!((Boolean*)condition)->get_value())
@@ -297,7 +300,7 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_expected_type(type_to_string(Type::BOOLEAN), type_to_string(condition->type()));
+            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
@@ -331,7 +334,7 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_expected_type(type_to_string(Type::BOOLEAN), type_to_string(condition->type()));
+            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
@@ -354,7 +357,7 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
     return result;
 }
 
-Object* Evaluator::evaluate_function_define(Context* context, const DefFuncExpressionSyntax* node)
+Object* Evaluator::evaluate_function_define(Context* context, const FuncDefineExpressionSyntax* node)
 {
     std::string name = node->get_identifier()->get_text();
     std::vector<std::string> arg_names; 
@@ -367,19 +370,19 @@ Object* Evaluator::evaluate_function_define(Context* context, const DefFuncExpre
     return val;
 }
 
-Object* Evaluator::evaluate_function_call(Context* context, const CallExpressionSyntax* node)
+Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpressionSyntax* node)
 {
     Object* result = new None();
     Object* obj = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
     if (obj->type() != Type::FUNCTION)
     {
-        _diagnostics->report_expected_type(type_to_string(Type::FUNCTION), type_to_string(obj->type()));
+        _diagnostics->report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
         return result;
     }
     Function* func = (Function*)obj;
 
     // Generate context
-    Context* exec_ctx = new Context(func->get_name(), context, -1, new SymbolTable(context->get_symbol_table()));
+    Context* exec_ctx = new Context(func->get_name(), context, new SymbolTable(context->get_symbol_table()));
 
     // Check arguments
     int n = func->get_argument_size();
@@ -412,6 +415,14 @@ Object* Evaluator::evaluate_function_call(Context* context, const CallExpression
             DiagnosticBag::return_value = NULL;
         }
         return result;
+    }
+
+    switch (SyntaxFacts::get_keyword_kind(func->get_name()))
+    {
+        case SyntaxKind::PrintFunction:
+            return BuiltInFunctions::BI_PRINT(exec_ctx);
+        case SyntaxKind::InputFunction:
+            return BuiltInFunctions::BI_INPUT(exec_ctx);
     }
 
     return result;

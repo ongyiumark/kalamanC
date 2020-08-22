@@ -23,8 +23,8 @@ private:
     static Objects::Object* evaluate_return(Contexts::Context* context, const Syntax::ReturnExpressionSyntax* node);
     static Objects::Object* evaluate_continue(Contexts::Context* context, const Syntax::ContinueExpressionSyntax* node);
     static Objects::Object* evaluate_break(Contexts::Context* context, const Syntax::BreakExpressionSyntax* node);
-    static Objects::Object* evaluate_function_define(Contexts::Context* context, const Syntax::DefFuncExpressionSyntax* node);
-    static Objects::Object* evaluate_function_call(Contexts::Context* context, const Syntax::CallExpressionSyntax* node);
+    static Objects::Object* evaluate_function_define(Contexts::Context* context, const Syntax::FuncDefineExpressionSyntax* node);
+    static Objects::Object* evaluate_function_call(Contexts::Context* context, const Syntax::FuncCallExpressionSyntax* node);
 public:
     static Objects::Object* evaluate(Contexts::Context* context, const Syntax::SyntaxNode* node);
 };

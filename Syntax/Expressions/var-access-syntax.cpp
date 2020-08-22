@@ -2,12 +2,10 @@
 
 using namespace Syntax;
 
+// Accesses an existing variable.
 VarAccessExpressionSyntax::VarAccessExpressionSyntax(SyntaxToken* identifier)
-    : _identifier(identifier)
-{
-    _children = {identifier};
-}
-
+    : _identifier(identifier) {}
+    
 SyntaxKind VarAccessExpressionSyntax::kind() const
 {
     return SyntaxKind::VarAccessExpression;

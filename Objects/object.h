@@ -6,6 +6,7 @@
 
 namespace Objects
 {
+    // Enum class of the data types in KalamanC.
     enum class Type
     {
         BOOLEAN,
@@ -17,11 +18,14 @@ namespace Objects
         NONE
     };
 
+    // Refer to object-helpers.cpp.
     std::string type_to_string(Type type);
 
+    // Refer to base-object.cpp.
     class Object
     {
     public:
+        static Object* none_result;
         virtual Type type() const = 0;
         virtual std::string to_string() const = 0;
 
@@ -44,6 +48,7 @@ namespace Objects
         virtual Object* xor_with(Object* other) const;
     };
 
+    // Refer to boolean-object.cpp.
     class Boolean final : public Object
     {
     private:
@@ -61,6 +66,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to integer-object.cpp.
     class Integer final : public Object
     {
     private:
@@ -82,6 +88,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to double-object.cpp.
     class Double final : public Object
     {
     private:
@@ -102,6 +109,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to string-object.cpp.
     class String final : public Object
     {
     private:
@@ -123,6 +131,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to list-object.cpp.
     class List final : public Object
     {
     private:
@@ -142,6 +151,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to function-object.cpp.
     class Function final : public Object
     {
     private:
@@ -166,6 +176,7 @@ namespace Objects
         Object* equals(Object* other) const;
     };
 
+    // Refer to none-object.cpp.
     class None final : public Object
     {
     public:

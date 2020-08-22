@@ -2,13 +2,15 @@
 #include <iostream>
 
 using namespace Syntax;
+using namespace Objects;
 
+// This tokenizes the input.
 Lexer::Lexer(const std::string& text) : _text(text), _position(0) {}
 
 char Lexer::peek(int offset) const
 {
     int index = _position+offset;
-    if (index > _text.size()) return '\0';
+    if (index >= _text.size()) return '\0';
     return _text[index];
 }
 
@@ -29,6 +31,7 @@ void Lexer::next()
 
 SyntaxToken* Lexer::lex()
 {
+    // Inserts an end of file token at the end.
     if (_position >= _text.size())
         return new SyntaxToken(SyntaxKind::EndOfFileToken, _position, "\0", NULL);
     
@@ -64,9 +67,9 @@ SyntaxToken* Lexer::lex()
             int x;
             std::istringstream is(text);
             if (is >> x)
-                return new SyntaxToken(SyntaxKind::IntegerToken, start, text, new Objects::Integer(x));
+                return new SyntaxToken(SyntaxKind::IntegerToken, start, text, new Integer(x));
 
-            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::type_to_string(Objects::Type::INTEGER));
+            _diagnostics->report_invalid_type(text, type_to_string(Type::INTEGER));
             return new SyntaxToken(SyntaxKind::IntegerToken, start, text, NULL);            
         }
         else
@@ -74,9 +77,9 @@ SyntaxToken* Lexer::lex()
             double x;
             std::istringstream is(text);
             if (is >> x)
-                return new SyntaxToken(SyntaxKind::DoubleToken, start, text, new Objects::Double(x));
+                return new SyntaxToken(SyntaxKind::DoubleToken, start, text, new Double(x));
     
-            _diagnostics->report_invalid_type(Diagnostics::Position(text, start), Objects::type_to_string(Objects::Type::DOUBLE));
+            _diagnostics->report_invalid_type(text, type_to_string(Type::DOUBLE));
             return new SyntaxToken(SyntaxKind::DoubleToken, start, text, NULL);    
         }
     }
@@ -185,17 +188,18 @@ SyntaxToken* Lexer::lex()
             std::string text = _text.substr(start+1, length-1);
             if (current() != '"')
             {
-                _diagnostics->report_expected_character(Diagnostics::Position(_text.substr(start,length), _position), '"');
+                _diagnostics->report_expected_character('"');
                 return new SyntaxToken(SyntaxKind::StringToken, start, text, NULL);
             }
             next();
                        
-            return new SyntaxToken(SyntaxKind::StringToken, start, text, new Objects::String(text));
+            return new SyntaxToken(SyntaxKind::StringToken, start, text, new String(text));
         }
     }
 
+    // Report and return a bad character.
     std::string text = _text.substr(start, 1);
-    _diagnostics->report_bad_character(Diagnostics::Position(text, _position), current());
+    _diagnostics->report_bad_character(current());
     return new SyntaxToken(SyntaxKind::BadToken, _position++, text, NULL);
 }
 

@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// Assigns a value to an existing variable.
 VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value)
-    : _identifier(identifier), _value(value) 
-{
-    _children = {identifier, value};
-}
+    : _identifier(identifier), _value(value) {}
 
 SyntaxKind VarAssignExpressionSyntax::kind() const
 {

@@ -1,5 +1,6 @@
 #include "object.h"
 #include <math.h>
+#include <iomanip>
 
 using namespace Objects;
 
@@ -15,10 +16,11 @@ double Double::get_value() const
     return _value;
 }
 
+// Prints up to 15 digits of precision, which is the precision limit of a double.
 std::string Double::to_string() const
 {
     std::ostringstream os;
-    os << _value;
+    os << std::setprecision(15) << _value;
     return os.str();
 }
 
@@ -31,7 +33,7 @@ Object* Double::added_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value+((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::subtracted_by(Object* other) const
@@ -43,7 +45,7 @@ Object* Double::subtracted_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value-((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::multiplied_by(Object* other) const
@@ -55,7 +57,7 @@ Object* Double::multiplied_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value*((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::divided_by(Object* other) const
@@ -65,17 +67,17 @@ Object* Double::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
+            if (other_int->get_value() == 0) return none_result;
             return new Double(_value/other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
-            if (other_double->get_value() == 0) return new None();
+            if (other_double->get_value() == 0) return none_result;
             return new Double(_value/other_double->get_value());            
         }
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::powered_by(Object* other) const
@@ -87,9 +89,10 @@ Object* Double::powered_by(Object* other) const
         case Type::DOUBLE:
             return new Double(pow(_value, ((Double*)other)->get_value()));            
     }
-    return new None();
+    return none_result;
 }
 
+// Returns the respective booleans.
 Object* Double::less_than(Object* other) const
 {
     switch (other->type())
@@ -99,7 +102,7 @@ Object* Double::less_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value<((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::greater_than(Object* other) const
@@ -111,7 +114,7 @@ Object* Double::greater_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value>((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Double::equals(Object* other) const

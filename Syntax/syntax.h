@@ -53,7 +53,7 @@ namespace Syntax
         StringKeyword,
         ListKeyword,
         FunctionKeyword,
-        DefineKeyword,
+        DefineFunctionKeyword,
         IfKeyword,
         ElifKeyword,
         ElseKeyword,
@@ -78,17 +78,22 @@ namespace Syntax
         IfExpression,
         WhileExpression,
         ForExpression,
-        DefineExpression,
-        CallExpression,
+        FuncDefineExpression,
+        FuncCallExpression,
         IndexExpression,
         ReturnExpression,
         BreakExpression,
         ContinueExpression,
-        NoneExpression
+        NoneExpression,
+
+        // Builtin Functions
+        PrintFunction,
+        InputFunction
     };
 
     std::string kind_to_string(SyntaxKind kind);
 
+    // Refer to syntax-node.cpp.
     class SyntaxNode
     {
     protected:
@@ -101,6 +106,7 @@ namespace Syntax
 
     void pretty_print(SyntaxNode* node, std::string indent="", bool is_last=true);
 
+    // Refer to syntax-token.cpp.
     class SyntaxToken final : public SyntaxNode
     {
     private:
@@ -117,6 +123,7 @@ namespace Syntax
         Objects::Object* get_object() const;
     };
 
+    // Refer to lexer.cpp.
     class Lexer final
     {
     private:
@@ -133,7 +140,8 @@ namespace Syntax
         SyntaxToken* lex();
     };
 
-    class SyntaxFacts
+    // Refer to syntax-facts.cpp.
+    class SyntaxFacts final
     {
     public:
         static SyntaxKind get_keyword_kind(std::string text);

@@ -45,5 +45,6 @@ atom:                   : STRING
                         : DOUBLE
                         : IDENTIFIER
                         : IDENTIFIER '(' (expression (',' expression)*)?  ')' 
+                        : BUILTIN-FUNCTION '(' (expression (',' expression)*)?  ')' 
                         : '(' expression ')'
                         : '[' (expression (COMMA expression)*)? ']'

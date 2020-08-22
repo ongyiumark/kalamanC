@@ -2,29 +2,12 @@
 #include <iostream>
 using namespace Syntax;
 
+// This is for conditional statements. Just your standard C-style conditional statements.
+// The assignment of children here is probably incredibly inefficient, 
+// but I'm keeping for now because I need it for pretty print.
+// I don't actually need it for anything other than pretty print.
 IfExpressionSyntax::IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std::vector<SyntaxNode*>& bodies, 
-    SyntaxNode* else_body)
-    : _conditions(conditions), _bodies(bodies), _else_body(else_body)
-{
-    int n = conditions.size();
-    std::cout << n << std::endl;
-    
-    SyntaxToken* if_keyword = new SyntaxToken(SyntaxKind::IfKeyword, -1, "\0", NULL);
-    SyntaxToken* elif_keyword = new SyntaxToken(SyntaxKind::ElifKeyword, -1, "\0", NULL);
-    
-    for (int i = 0; i < n; i++)
-    {
-        if (i == 0) _children.push_back(if_keyword);
-        else _children.push_back(elif_keyword);
-        _children.push_back(conditions[i]);
-        _children.push_back(bodies[i]);
-    }
-    if (else_body) 
-    {
-        _children.push_back(new SyntaxToken(SyntaxKind::ElseKeyword, -1, "\0", NULL));
-        _children.push_back(else_body);
-    }
-}
+    SyntaxNode* else_body) : _conditions(conditions), _bodies(bodies), _else_body(else_body) {}
 
 SyntaxKind IfExpressionSyntax::kind() const
 {
@@ -55,6 +38,7 @@ std::vector<SyntaxNode*> IfExpressionSyntax::get_conditions() const
 {
     return _conditions;
 }
+
 std::vector<SyntaxNode*> IfExpressionSyntax::get_bodies() const
 {
     return _bodies;

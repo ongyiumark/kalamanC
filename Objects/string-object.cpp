@@ -26,6 +26,7 @@ std::string String::to_string() const
     return os.str();
 }
 
+// Concatinates the string.
 Object* String::added_by(Object* other) const
 {
     switch (other->type())
@@ -33,9 +34,10 @@ Object* String::added_by(Object* other) const
         case Type::STRING:
             return new String(_value + ((String*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
+// Binary multiplication here again. Refer to integer-object.cpp.
 Object* String::multiplied_by(Object* other) const
 {
     switch (other->type())
@@ -43,7 +45,7 @@ Object* String::multiplied_by(Object* other) const
         case Type::INTEGER:
         {
             int e = ((Integer*)other)->get_value();
-            if (e < 0) return new None();
+            if (e < 0) return none_result;
             std::string result;
             std::string base = _value;
             while (e > 0)
@@ -55,9 +57,10 @@ Object* String::multiplied_by(Object* other) const
             return new String(result);
         }
     }
-    return new None();
+    return none_result;
 }
 
+// Returns a substring of length 1 because I didn't implement a character data type.
 Object* String::accessed_by(Object* other) const
 {
     switch (other->type())
@@ -67,13 +70,14 @@ Object* String::accessed_by(Object* other) const
             int i = ((Integer*)other)->get_value();
             int n = _value.size();
             if (i < 0) i += n;
-            if (i < 0 || i >= n) return new None();
+            if (i < 0 || i >= n) return none_result;
             return new String(_value.substr(i, 1));
         }
     }
-    return new None();
+    return none_result;
 }
 
+// Returns the respective booleans.
 Object* String::less_than(Object* other) const
 {
     switch (other->type())
@@ -81,7 +85,7 @@ Object* String::less_than(Object* other) const
         case Type::STRING:
             return new Boolean(_value<((String*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* String::greater_than(Object* other) const
@@ -91,7 +95,7 @@ Object* String::greater_than(Object* other) const
         case Type::STRING:
             return new Boolean(_value>((String*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* String::equals(Object* other) const
@@ -101,5 +105,5 @@ Object* String::equals(Object* other) const
         case Type::STRING:
             return new Boolean(_value==((String*)other)->get_value());
     }
-    return new None();
+    return new Boolean(false);
 }

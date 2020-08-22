@@ -15,6 +15,7 @@ bool Boolean::get_value() const
     return _value;
 }
 
+// I decided to use the keyword used for the boolean values. Refer to constants.h.
 std::string Boolean::to_string() const
 {
     std::ostringstream os;
@@ -22,6 +23,7 @@ std::string Boolean::to_string() const
     return os.str();
 }
 
+// Boolean operations. These are self explanatory.
 Object* Boolean::notted() const
 {
     return new Boolean(!_value);
@@ -34,9 +36,8 @@ Object* Boolean::and_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value && ((Boolean*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
-
 
 Object* Boolean::or_with(Object* other) const
 {
@@ -45,9 +46,8 @@ Object* Boolean::or_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value || ((Boolean*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
-
 
 Object* Boolean::xor_with(Object* other) const
 {
@@ -56,9 +56,8 @@ Object* Boolean::xor_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value ^ ((Boolean*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
-
 
 Object* Boolean::equals(Object* other) const
 {

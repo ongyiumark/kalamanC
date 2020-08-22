@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// This is for binary operations.
 BinaryExpressionSyntax::BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken* op_token, SyntaxNode* right)
-    : _left(left), _op_token(op_token), _right(right) 
-{
-    _children = {left, op_token, right};
-}
+    : _left(left), _op_token(op_token), _right(right) {}
 
 SyntaxKind BinaryExpressionSyntax::kind() const
 {
@@ -17,7 +15,6 @@ SyntaxNode* BinaryExpressionSyntax::get_left() const
 {
     return _left;
 }
-
 
 SyntaxToken* BinaryExpressionSyntax::get_op_token() const
 {

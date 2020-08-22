@@ -22,6 +22,7 @@ std::string Integer::to_string() const
     return os.str();
 }
 
+// The result becomes a double when the other operand is a double.
 Object* Integer::added_by(Object* other) const
 {
     switch (other->type())
@@ -31,7 +32,7 @@ Object* Integer::added_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value+((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Integer::subtracted_by(Object* other) const
@@ -43,9 +44,11 @@ Object* Integer::subtracted_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value-((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
+// Multiplying an integer to a string duplicates the string to that integer number to times.
+// I used binary multiplication (derived from binary exponentiation).
 Object* Integer::multiplied_by(Object* other) const
 {
     switch (other->type())
@@ -56,7 +59,7 @@ Object* Integer::multiplied_by(Object* other) const
             return new Double(_value*((Double*)other)->get_value());
         case Type::STRING:
         {
-            if (_value < 0) return new None();
+            if (_value < 0) return none_result;
             int e = _value;
             std::string result;
             std::string base = ((String*)other)->get_value();
@@ -69,9 +72,10 @@ Object* Integer::multiplied_by(Object* other) const
             return new String(result);
         }
     }
-    return new None();
+    return none_result;
 }
 
+// Returns none when division by zero occurs.
 Object* Integer::divided_by(Object* other) const
 {
     switch (other->type())
@@ -79,17 +83,17 @@ Object* Integer::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
+            if (other_int->get_value() == 0) return none_result;
             return new Integer(_value/other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
-            if (other_double->get_value() == 0) return new None();
+            if (other_double->get_value() == 0) return none_result;
             return new Double(_value/other_double->get_value());            
         }
     }
-    return new None();
+    return none_result;
 }
 
 Object* Integer::modded_by(Object* other) const
@@ -99,13 +103,14 @@ Object* Integer::modded_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
+            if (other_int->get_value() == 0) return none_result;
             return new Integer(_value%other_int->get_value());
         }
     }
-    return new None();
+    return none_result;
 }
 
+// I used binary exponentiaion here if the exponent is a non-negative integer.
 Object* Integer::powered_by(Object* other) const
 {
     switch (other->type())
@@ -114,8 +119,8 @@ Object* Integer::powered_by(Object* other) const
         {
             int b = _value;
             int e = ((Integer*)other)->get_value();
-            if (e < 0)
-                return new Double(pow(b,e));
+            if (e < 0) return new Double(pow(b,e));
+
             int ans = 1;
             while (e > 0)
             {
@@ -128,9 +133,10 @@ Object* Integer::powered_by(Object* other) const
         case Type::DOUBLE:
             return new Double(pow(_value, ((Double*)other)->get_value()));            
     }
-    return new None();
+    return none_result;
 }
 
+// Returns the respective booleans.
 Object* Integer::less_than(Object* other) const
 {
     switch (other->type())
@@ -140,7 +146,7 @@ Object* Integer::less_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value<((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Integer::greater_than(Object* other) const
@@ -152,7 +158,7 @@ Object* Integer::greater_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value>((Double*)other)->get_value());
     }
-    return new None();
+    return none_result;
 }
 
 Object* Integer::equals(Object* other) const

@@ -1,20 +1,25 @@
 #include "syntax.h"
 #include <iostream>
+
+// Checks if a character is a digit. 
 bool Syntax::is_digit(char c)
 {
     return '0' <= c && c <= '9';
 }
 
+// Check if a character is a letter.
 bool Syntax::is_letter(char c)
 {
     return ('a' <= c && c <= 'z')||('A' <= c && c <='Z');
 }
 
+// Check if a character is a letter, digit, or underscore.
 bool Syntax::is_valid_identifier(char c)
 {
     return is_digit(c) || is_letter(c) || c == '_';
 }
 
+// Helper function to convert the kind to a string.
 std::string Syntax::kind_to_string(SyntaxKind kind)
 {
     const char* s = 0;
@@ -63,7 +68,7 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::StringKeyword);
         PROCESS_VAL(SyntaxKind::ListKeyword);
         PROCESS_VAL(SyntaxKind::FunctionKeyword);
-        PROCESS_VAL(SyntaxKind::DefineKeyword);
+        PROCESS_VAL(SyntaxKind::DefineFunctionKeyword);
         PROCESS_VAL(SyntaxKind::IfKeyword);
         PROCESS_VAL(SyntaxKind::ElifKeyword);
         PROCESS_VAL(SyntaxKind::ElseKeyword);
@@ -85,18 +90,23 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::IfExpression);
         PROCESS_VAL(SyntaxKind::WhileExpression);
         PROCESS_VAL(SyntaxKind::ForExpression);
-        PROCESS_VAL(SyntaxKind::DefineExpression);
-        PROCESS_VAL(SyntaxKind::CallExpression);
+        PROCESS_VAL(SyntaxKind::FuncDefineExpression);
+        PROCESS_VAL(SyntaxKind::FuncCallExpression);
         PROCESS_VAL(SyntaxKind::IndexExpression);
         PROCESS_VAL(SyntaxKind::ReturnExpression);
         PROCESS_VAL(SyntaxKind::BreakExpression);
         PROCESS_VAL(SyntaxKind::ContinueExpression);
-        PROCESS_VAL(SyntaxKind::NoneExpression);
+        PROCESS_VAL(SyntaxKind::NoneExpression);  
+
+        // Builtin Functions   
+        PROCESS_VAL(SyntaxKind::PrintFunction);  
+        PROCESS_VAL(SyntaxKind::InputFunction);  
     }
 #undef PROCESS_VAL
     return s;
 }
 
+// Prints the parse tree in a pretty way. This is purely for debugging purposes.
 void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 {
     std::string marker = is_last ? "|--" : "|--";

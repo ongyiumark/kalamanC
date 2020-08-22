@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// This is for literals such at booleans, integers, doubles, and strings.
 LiteralExpressionSyntax::LiteralExpressionSyntax(SyntaxToken* literal_token, Objects::Object* value)
-    : _literal_token(literal_token), _value(value) 
-{
-    _children = {literal_token};
-}
+    : _literal_token(literal_token), _value(value) {}
 
 LiteralExpressionSyntax::LiteralExpressionSyntax(SyntaxToken* literal_token)
     : _literal_token(literal_token), _value(literal_token->get_object()) 

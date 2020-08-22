@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// This is for for-loops. Just your standard C-style for-loop.
 ForExpressionSyntax::ForExpressionSyntax(SyntaxNode *init, SyntaxNode* condition, SyntaxNode *update, SyntaxNode* body)
-    : _init(init), _condition(condition), _update(update), _body(body) 
-{
-    _children = {init, condition, update, body};
-}
+    : _init(init), _condition(condition), _update(update), _body(body) {}
 
 SyntaxKind ForExpressionSyntax::kind() const
 {

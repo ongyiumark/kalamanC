@@ -9,6 +9,7 @@ Type None::type() const
     return Type::NONE;
 }
 
+// Prints '<none>'
 std::string None::to_string() const
 {
     std::ostringstream os;

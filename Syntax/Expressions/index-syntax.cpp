@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// This indexes a string or a list.
 IndexExpressionSyntax::IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer)
-    : _to_access(to_access), _indexer(indexer) 
-{
-    _children = {to_access, indexer};
-}
+    : _to_access(to_access), _indexer(indexer)  {}
 
 SyntaxKind IndexExpressionSyntax::kind() const
 {

@@ -2,6 +2,7 @@
 
 using namespace Contexts;
 
+// This basically compartmentalizes variables to allow for local variables within functions.
 SymbolTable::SymbolTable(SymbolTable* parent) : _parent(parent) {}
 
 Objects::Object* SymbolTable::get_object(const std::string name) const

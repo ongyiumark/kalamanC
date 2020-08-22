@@ -51,8 +51,7 @@ SyntaxToken* Parser::match_token(SyntaxKind kind)
     if (current()->kind() == kind)
         return next_token();
 
-    _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_position()), 
-        kind_to_string(current()->kind()), kind_to_string(kind));
+    _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(kind));
     return new SyntaxToken(kind, current()->get_position(), "\0", NULL);
 }
 
@@ -77,8 +76,7 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                 case SyntaxKind::RSquareToken:
                 case SyntaxKind::CommaToken:
                 {
-                    _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_position()), 
-                        kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                    _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
                     next_token();
                 }
                 case SyntaxKind::EndOfFileToken:
@@ -102,8 +100,7 @@ SyntaxNode* Parser::parse_program(bool sub_program)
             case SyntaxKind::RCurlyToken:
             case SyntaxKind::CommaToken:
             {
-                _diagnostics->report_unexpected_token(Diagnostics::Position(current()->get_text(), current()->get_position()), 
-                    kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
                 next_token();
             }
         }
@@ -182,7 +179,7 @@ SyntaxNode* Parser::parse_statement()
             SyntaxNode* body = parse_statement();
             return new ForExpressionSyntax(init, condition, update, body);
         }
-        case SyntaxKind::DefineKeyword:
+        case SyntaxKind::DefineFunctionKeyword:
         {
             next_token();
             SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
@@ -203,7 +200,7 @@ SyntaxNode* Parser::parse_statement()
             
             match_token(SyntaxKind::RParenToken);
             SyntaxNode* body = parse_statement();
-            return new DefFuncExpressionSyntax(identifier, arg_names, body);
+            return new FuncDefineExpressionSyntax(identifier, arg_names, body);
         }
         case SyntaxKind::ReturnKeyword:
         {
@@ -372,6 +369,30 @@ SyntaxNode* Parser::parse_atom()
             match_token(SyntaxKind::RSquareToken);
             return new SequenceExpressionSyntax(elements, true);
         }
+        case SyntaxKind::PrintFunction:
+        case SyntaxKind::InputFunction:
+        {
+            SyntaxToken* identifier = next_token();
+            match_token(SyntaxKind::LParenToken);
+            std::vector<SyntaxNode*> args;
+            if (current()->kind() == SyntaxKind::RParenToken)
+            {
+                next_token();
+                return new FuncCallExpressionSyntax(identifier, args);
+            }
+
+            SyntaxNode* expression = parse_expression();
+            args.push_back(expression);
+
+            while(current()->kind() == SyntaxKind::CommaToken)
+            {
+                next_token();
+                SyntaxNode* expression = parse_expression();
+                args.push_back(expression);
+            }
+            match_token(SyntaxKind::RParenToken);
+            return new FuncCallExpressionSyntax(identifier, args);
+        }
         default:
         {
             SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
@@ -382,7 +403,7 @@ SyntaxNode* Parser::parse_atom()
                 if (current()->kind() == SyntaxKind::RParenToken)
                 {
                     next_token();
-                    return new CallExpressionSyntax(identifier, args);
+                    return new FuncCallExpressionSyntax(identifier, args);
                 }
 
                 SyntaxNode* expression = parse_expression();
@@ -395,7 +416,7 @@ SyntaxNode* Parser::parse_atom()
                     args.push_back(expression);
                 }
                 match_token(SyntaxKind::RParenToken);
-                return new CallExpressionSyntax(identifier, args);
+                return new FuncCallExpressionSyntax(identifier, args);
             }
             return new VarAccessExpressionSyntax(identifier);
         }

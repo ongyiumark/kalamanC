@@ -23,3 +23,6 @@ const std::string KT_NOT        = "not";
 const std::string KT_RETURN     = "return";
 const std::string KT_BREAK      = "break";
 const std::string KT_CONTINUE   = "continue";
+
+const std::string BI_PRINT      = "print";
+const std::string BI_INPUT      = "input";

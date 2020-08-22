@@ -1,8 +1,11 @@
 #include "syntax.h"
 
 using namespace Syntax;
+using namespace Objects;
 
-SyntaxToken::SyntaxToken(SyntaxKind kind, int position, std::string text, Objects::Object* value)
+// These are the tokens that the lexer tokenizes with.
+// Literals such as booleans, integers, doubles, and strings are converted and stored here.
+SyntaxToken::SyntaxToken(SyntaxKind kind, int position, std::string text, Object* value)
     : _kind(kind), _position(position), _text(text), _value(value) {}
 
 SyntaxKind SyntaxToken::kind() const
@@ -20,7 +23,7 @@ std::string SyntaxToken::get_text() const
     return _text;
 }
 
-Objects::Object* SyntaxToken::get_object() const
+Object* SyntaxToken::get_object() const
 {
     return _value;
 }

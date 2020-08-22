@@ -2,8 +2,9 @@
 
 using namespace Contexts;
 
-Context::Context(std::string name, Context* parent, int parent_pos, SymbolTable* symbol_table)
-    : _name(name), _parent(parent), _parent_pos(parent_pos), _symbol_table(symbol_table) {}
+// This helps if I want to have detailed tracebacks of errors in the future.
+Context::Context(std::string name, Context* parent, SymbolTable* symbol_table)
+    : _name(name), _parent(parent), _symbol_table(symbol_table) {}
 
 std::string Context::get_name() const
 {
@@ -13,11 +14,6 @@ std::string Context::get_name() const
 Context* Context::get_parent() const
 {
     return _parent;
-}
-
-int Context::get_parent_pos() const
-{
-    return _parent_pos;
 }
 
 SymbolTable* Context::get_symbol_table() const

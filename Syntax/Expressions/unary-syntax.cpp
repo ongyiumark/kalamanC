@@ -2,12 +2,10 @@
 
 using namespace Syntax;
 
+// This is for unary operations.
 UnaryExpressionSyntax::UnaryExpressionSyntax(SyntaxToken* op_token, SyntaxNode* operand)
-    : _op_token(op_token), _operand(operand)
-{
-    _children = {op_token, operand};
-}
-
+    : _op_token(op_token), _operand(operand) {}
+    
 SyntaxKind UnaryExpressionSyntax::kind() const
 {
     return SyntaxKind::UnaryExpression;

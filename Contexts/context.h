@@ -5,6 +5,7 @@
 
 namespace Contexts
 {
+    // Refer to symbol-table.cpp.
     class SymbolTable final
     {
     private:
@@ -19,19 +20,18 @@ namespace Contexts
         SymbolTable* get_parent() const;
     };
 
+    // Refer to context.cpp.
     class Context final
     {
     private:
         std::string _name;
-        int _parent_pos;
         Context* _parent;
         SymbolTable* _symbol_table;
     public:
-        Context(std::string name, Context* parent, int parent_pos, SymbolTable* symbol_table);
+        Context(std::string name, Context* parent, SymbolTable* symbol_table);
 
         std::string get_name() const;
         Context* get_parent() const;
-        int get_parent_pos() const;
         SymbolTable* get_symbol_table() const;
     };
 }

@@ -2,12 +2,9 @@
 
 using namespace Diagnostics;
 
-Diagnostic::Diagnostic(Position pos, std::string& message) : _pos(pos), _message(message) {}
-
-Position Diagnostic::get_pos() const
-{
-    return _pos;
-}
+// Yes, this is basically just a string, but I might add other values in the future. 
+// For example, position, text, etc.
+Diagnostic::Diagnostic(std::string& message) : _message(message) {}
 
 std::string Diagnostic::get_message() const
 {

@@ -4,6 +4,7 @@
 
 namespace Syntax
 {
+    // Refer to literal-syntax.cpp.
     class LiteralExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -17,6 +18,7 @@ namespace Syntax
         Objects::Object* get_object() const;
     };
 
+    // Refer to unary-syntax.cpp.
     class UnaryExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -30,6 +32,7 @@ namespace Syntax
         SyntaxNode* get_operand() const;
     };
 
+    // Refer to binary-syntax.cpp.
     class BinaryExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -44,6 +47,7 @@ namespace Syntax
         SyntaxNode* get_right() const;
     };
 
+    // Refer to sequence-syntax.cpp.
     class SequenceExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -59,6 +63,7 @@ namespace Syntax
         bool get_to_return() const;
     };
 
+    // Refer to while-syntax.cpp.
     class WhileExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -72,6 +77,7 @@ namespace Syntax
         SyntaxNode* get_body() const;
     };
 
+    // Refer to for-syntax.cpp.
     class ForExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -85,6 +91,7 @@ namespace Syntax
         SyntaxNode* get_body() const;            
     };
 
+    // Refer to var-declare-syntax.cpp.
     class VarDeclareExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -97,6 +104,7 @@ namespace Syntax
         SyntaxToken* get_identifier() const;
     };
 
+    // Refer to var-assign-syntax.cpp.
     class VarAssignExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -109,6 +117,7 @@ namespace Syntax
         SyntaxNode* get_value() const;
     };
 
+    // Refer to var-access-syntax.cpp.
     class VarAccessExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -119,6 +128,7 @@ namespace Syntax
         SyntaxToken* get_identifier() const;
     };
 
+    // Refer to if-syntax.cpp.
     class IfExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -138,14 +148,15 @@ namespace Syntax
         std::vector<SyntaxNode*> get_bodies() const;
     };
 
-    class DefFuncExpressionSyntax final : public SyntaxNode
+    // Refer to func-define-syntax.cpp.
+    class FuncDefineExpressionSyntax final : public SyntaxNode
     {
     private:
         SyntaxToken* _identifier;
         std::vector<SyntaxToken*> _arg_names;
         SyntaxNode* _body;
     public:
-        DefFuncExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body);
+        FuncDefineExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body);
 
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
@@ -155,13 +166,14 @@ namespace Syntax
         SyntaxNode* get_body() const;
     };
 
-    class CallExpressionSyntax final : public SyntaxNode
+    // Refer to func-call-syntax.cpp.
+    class FuncCallExpressionSyntax final : public SyntaxNode
     {
     private:
         SyntaxToken* _identifier;
         std::vector<SyntaxNode*> _args;
     public:
-        CallExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxNode*>& args);
+        FuncCallExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxNode*>& args);
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
         int get_arg_size() const;
@@ -169,6 +181,7 @@ namespace Syntax
         std::vector<SyntaxNode*> get_args() const;
     }; 
 
+    // Refer to index-syntax.cpp.
     class IndexExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -181,13 +194,7 @@ namespace Syntax
         SyntaxNode* get_indexer() const;
     };
 
-    class NoneExpressionSyntax final : public SyntaxNode
-    {
-    public:
-        NoneExpressionSyntax();
-        SyntaxKind kind() const;
-    };
-
+    // Refer to return-syntax.cpp.
     class ReturnExpressionSyntax final : public SyntaxNode
     {
     private:
@@ -198,6 +205,7 @@ namespace Syntax
         SyntaxNode* get_to_return() const;
     };
 
+    // Refer to continue-syntax.cpp.
     class ContinueExpressionSyntax final : public SyntaxNode
     {
     public:
@@ -205,6 +213,7 @@ namespace Syntax
         SyntaxKind kind() const;
     };
 
+    // Refer to break-syntax.cpp.
     class BreakExpressionSyntax final : public SyntaxNode
     {
     public:
@@ -212,6 +221,15 @@ namespace Syntax
         SyntaxKind kind() const;
     };
 
+    // Refer to none-syntax.cpp.
+    class NoneExpressionSyntax final : public SyntaxNode
+    {
+    public:
+        NoneExpressionSyntax();
+        SyntaxKind kind() const;
+    };
+
+    // Refer to parser.cpp.
     class Parser final
     {
     private:

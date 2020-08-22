@@ -3,6 +3,8 @@
 
 using namespace Syntax;
 
+// Yes, I'm using an if statements here. Switches only work for integers, so I'm out of options.
+// I'm just hoping that the C++ compiler optimizes this.
 SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
 {
     if (text == KT_TRUE)
@@ -22,7 +24,7 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
     else if (text == KT_FUNCTION)
         return SyntaxKind::FunctionKeyword;
     else if (text == KT_DEFINE)
-        return SyntaxKind::DefineKeyword;
+        return SyntaxKind::DefineFunctionKeyword;
     else if (text == KT_IF)
         return SyntaxKind::IfKeyword;
     else if (text == KT_ELIF)
@@ -47,6 +49,10 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::BreakKeyword;
     else if (text == KT_CONTINUE)
         return SyntaxKind::ContinueKeyword;
+    else if (text == BI_PRINT)
+        return SyntaxKind::PrintFunction;
+    else if (text == BI_INPUT)
+        return SyntaxKind::InputFunction;
     else
         return SyntaxKind::IdentifierToken;
 }
@@ -72,6 +78,7 @@ Objects::Type SyntaxFacts::get_keyword_type(SyntaxKind kind)
     }
 }
 
+// Operator precedences.
 int SyntaxFacts::get_unary_precedence(SyntaxKind kind)
 {
     switch(kind)

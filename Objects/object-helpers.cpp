@@ -1,5 +1,6 @@
 #include "object.h"
 
+// Helper function to convert the type to string.
 std::string Objects::type_to_string(Type type)
 {
     const char* s = 0;

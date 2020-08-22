@@ -24,6 +24,7 @@ std::vector<Object*> List::get_values() const
     return _values;
 }
 
+// Comma delimited values, enclose in square brackets.
 std::string List::to_string() const
 {
     std::ostringstream os;
@@ -38,6 +39,8 @@ std::string List::to_string() const
     return os.str();
 }
 
+// Concatinate the two lists.
+// If the other operand is not a list, it appends it to the list.
 Object* List::added_by(Object* other) const
 {
     switch (other->type())
@@ -59,6 +62,7 @@ Object* List::added_by(Object* other) const
     return new List(result);
 }
 
+// Returns the object at the index.
 Object* List::accessed_by(Object* other) const
 {
     switch (other->type())
@@ -68,13 +72,14 @@ Object* List::accessed_by(Object* other) const
             int i = ((Integer*)other)->get_value();
             int n = _values.size();
             if (i < 0) i += n;
-            if (i < 0 || i >= n) return new None();
+            if (i < 0 || i >= n) return none_result;
             return _values[i];
         }
     }
-    return new None();
+    return none_result;
 }
 
+// Returns true when all the values in the lists are equal.
 Object* List::equals(Object* other) const
 {
     switch (other->type())

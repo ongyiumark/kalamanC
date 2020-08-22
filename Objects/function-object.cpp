@@ -2,6 +2,9 @@
 
 using namespace Objects;
 
+//  I used a void* here because I can't declare SyntaxNode here since 'syntax.h' needs to includes 'object.h'.
+//  I could move the declaration of SyntaxNode here, but that would mess up my organization.
+//  It should be fine since I'm not going to cast it into anything but SyntaxNode... I think.
 Function::Function(std::string name, std::vector<std::string>& argument_names, void* body, bool built_in)
     : _name(name), _argument_names(argument_names), _body(body), _built_in(built_in) {}
 
@@ -40,6 +43,7 @@ bool Function::is_built_in() const
     return _built_in;
 }
 
+// Prints the name of the function in a special format.
 std::string Function::to_string() const
 {
     std::ostringstream os;
@@ -47,6 +51,7 @@ std::string Function::to_string() const
     return os.str();
 }
 
+// Checks if the two functions are actually the same function by comparing their address.
 Object* Function::equals(Object* other) const
 {
     switch (other->type())

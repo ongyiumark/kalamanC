@@ -2,6 +2,7 @@
 
 using namespace Syntax;
 
+// This does nothing.
 NoneExpressionSyntax::NoneExpressionSyntax() {}
 
 SyntaxKind NoneExpressionSyntax::kind() const

@@ -2,11 +2,9 @@
 
 using namespace Syntax;
 
+// Declares a variable. Pushes a value into the symbol table.
 VarDeclareExpressionSyntax::VarDeclareExpressionSyntax(SyntaxToken* var_keyword, SyntaxToken* identifier)
-    : _var_keyword(var_keyword), _identifier(identifier) 
-{
-    _children= {var_keyword, identifier};
-}
+    : _var_keyword(var_keyword), _identifier(identifier) {}
 
 SyntaxKind VarDeclareExpressionSyntax::kind() const
 {
