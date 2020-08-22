@@ -27,3 +27,8 @@ std::vector<SyntaxNode*> SequenceExpressionSyntax::get_nodes() const
 {
     return _nodes;
 }
+
+bool SequenceExpressionSyntax::get_to_return() const
+{
+    return _to_return;
+}

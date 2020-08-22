@@ -36,7 +36,7 @@ SyntaxNode* IfExpressionSyntax::get_condition(int i) const
     return _conditions[i];
 }
 
-SyntaxNode* IfExpressionSyntax::get_expression(int i) const
+SyntaxNode* IfExpressionSyntax::get_body(int i) const
 {
     return _bodies[i];
 }

@@ -20,3 +20,6 @@ const std::string KT_AND        = "and";
 const std::string KT_OR         = "or";
 const std::string KT_XOR        = "xor";
 const std::string KT_NOT        = "not";
+const std::string KT_RETURN     = "return";
+const std::string KT_BREAK      = "break";
+const std::string KT_CONTINUE   = "continue";

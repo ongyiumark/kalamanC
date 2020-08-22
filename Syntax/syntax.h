@@ -63,6 +63,9 @@ namespace Syntax
         OrKeyword,
         XorKeyword,
         NotKeyword,
+        ReturnKeyword,
+        BreakKeyword,
+        ContinueKeyword,
 
         // Expressions
         LiteralExpression,
@@ -71,7 +74,6 @@ namespace Syntax
         VarDeclareExpression,
         VarAssignExpression,
         VarAccessExpression,
-        ListExpression,
         SequenceExpression,
         IfExpression,
         WhileExpression,
@@ -79,6 +81,9 @@ namespace Syntax
         DefineExpression,
         CallExpression,
         IndexExpression,
+        ReturnExpression,
+        BreakExpression,
+        ContinueExpression,
         NoneExpression
     };
 

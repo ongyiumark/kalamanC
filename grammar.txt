@@ -6,6 +6,9 @@ statement               :  '{' program '}'
                         : FOR '(' expression ';' expression ';' expression ')' statement
                         : DEF IDENTIFIER '( (IDENTIFIER (',' IDENTIFIER)*)? ')' statement
                         : expression ';'
+                        : RETURN expression? ';'
+                        : CONTINUE ';'
+                        : BREAK ';'
                         : ';'
 
 expression              : expression '||' expression    %prec 1

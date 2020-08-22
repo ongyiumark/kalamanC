@@ -56,6 +56,7 @@ namespace Syntax
         int get_nodes_size() const;
         SyntaxNode* get_node(int i) const;
         std::vector<SyntaxNode*> get_nodes() const;
+        bool get_to_return() const;
     };
 
     class WhileExpressionSyntax final : public SyntaxNode
@@ -131,7 +132,7 @@ namespace Syntax
         
         int get_size() const;
         SyntaxNode* get_condition(int i) const;
-        SyntaxNode* get_expression(int i) const;
+        SyntaxNode* get_body(int i) const;
 
         std::vector<SyntaxNode*> get_conditions() const;
         std::vector<SyntaxNode*> get_bodies() const;
@@ -184,6 +185,30 @@ namespace Syntax
     {
     public:
         NoneExpressionSyntax();
+        SyntaxKind kind() const;
+    };
+
+    class ReturnExpressionSyntax final : public SyntaxNode
+    {
+    private:
+        SyntaxNode* _to_return;
+    public:
+        ReturnExpressionSyntax(SyntaxNode* to_return);
+        SyntaxKind kind() const;
+        SyntaxNode* get_to_return() const;
+    };
+
+    class ContinueExpressionSyntax final : public SyntaxNode
+    {
+    public:
+        ContinueExpressionSyntax();
+        SyntaxKind kind() const;
+    };
+
+    class BreakExpressionSyntax final : public SyntaxNode
+    {
+    public:
+        BreakExpressionSyntax();
         SyntaxKind kind() const;
     };
 

@@ -17,6 +17,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::DoubleKeyword;
     else if (text == KT_LIST)
         return SyntaxKind::ListKeyword;
+    else if (text == KT_STRING)
+        return SyntaxKind::StringKeyword;
     else if (text == KT_FUNCTION)
         return SyntaxKind::FunctionKeyword;
     else if (text == KT_DEFINE)
@@ -39,6 +41,12 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::XorKeyword;
     else if (text == KT_NOT)
         return SyntaxKind::NotKeyword;
+    else if (text == KT_RETURN)
+        return SyntaxKind::ReturnKeyword;
+    else if (text == KT_BREAK)
+        return SyntaxKind::BreakKeyword;
+    else if (text == KT_CONTINUE)
+        return SyntaxKind::ContinueKeyword;
     else
         return SyntaxKind::IdentifierToken;
 }

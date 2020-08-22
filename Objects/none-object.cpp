@@ -15,3 +15,13 @@ std::string None::to_string() const
     os << "<none>";
     return os.str();
 }
+
+Object* None::equals(Object* other) const
+{
+    switch (other->type())
+    {
+        case Type::NONE:
+            return new Boolean(true);
+    }
+    return new Boolean(false);
+}

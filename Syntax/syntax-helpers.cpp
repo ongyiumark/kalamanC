@@ -81,7 +81,6 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::VarDeclareExpression);
         PROCESS_VAL(SyntaxKind::VarAssignExpression);
         PROCESS_VAL(SyntaxKind::VarAccessExpression);
-        PROCESS_VAL(SyntaxKind::ListExpression);
         PROCESS_VAL(SyntaxKind::SequenceExpression);
         PROCESS_VAL(SyntaxKind::IfExpression);
         PROCESS_VAL(SyntaxKind::WhileExpression);
@@ -89,6 +88,9 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::DefineExpression);
         PROCESS_VAL(SyntaxKind::CallExpression);
         PROCESS_VAL(SyntaxKind::IndexExpression);
+        PROCESS_VAL(SyntaxKind::ReturnExpression);
+        PROCESS_VAL(SyntaxKind::BreakExpression);
+        PROCESS_VAL(SyntaxKind::ContinueExpression);
         PROCESS_VAL(SyntaxKind::NoneExpression);
     }
 #undef PROCESS_VAL

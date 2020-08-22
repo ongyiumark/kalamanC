@@ -1,13 +1,18 @@
-kalman: program.o objects.o contexts.o diagnostics.o syntax.o
-	g++ -g -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o
+kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o
+	g++ -g -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o
 
 program.o: program.cpp 
 	g++ -g -std=c++17 -c program.cpp 
 
 objects.o: boolean-object.o integer-object.o double-object.o \
-		string-object.o list-object.o function-object.o none-object.o object-helpers.o
+		string-object.o list-object.o function-object.o none-object.o object-helpers.o \
+		base-object.o
 	ld -r -o objects.o boolean-object.o integer-object.o double-object.o \
-		string-object.o list-object.o function-object.o none-object.o object-helpers.o 
+		string-object.o list-object.o function-object.o none-object.o object-helpers.o \
+		base-object.o
+
+base-object.o: Objects/base-object.cpp
+	g++ -g -std=c++17 -c Objects/base-object.cpp
 
 boolean-object.o: Objects/boolean-object.cpp
 	g++ -g -std=c++17 -c Objects/boolean-object.cpp
@@ -79,10 +84,12 @@ syntax-token.o: Syntax/syntax-token.cpp
 
 syntax-expressions.o: binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
 			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
-			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o \
+			return-syntax.o continue-syntax.o break-syntax.o
 	ld -r -o syntax-expressions.o binary-syntax.o call-syntax.o deffunc-syntax.o for-syntax.o if-syntax.o \
 			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
-			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o \
+			return-syntax.o continue-syntax.o break-syntax.o
 
 binary-syntax.o: Syntax/Expressions/binary-syntax.cpp
 	g++ -g -std=c++17 -c Syntax/Expressions/binary-syntax.cpp
@@ -125,6 +132,18 @@ index-syntax.o: Syntax/Expressions/index-syntax.cpp
 
 none-syntax.o: Syntax/Expressions/none-syntax.cpp
 	g++ -g -std=c++17 -c Syntax/Expressions/none-syntax.cpp
+
+return-syntax.o: Syntax/Expressions/return-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/return-syntax.cpp
+
+continue-syntax.o: Syntax/Expressions/continue-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/continue-syntax.cpp
+
+break-syntax.o: Syntax/Expressions/break-syntax.cpp
+	g++ -g -std=c++17 -c Syntax/Expressions/break-syntax.cpp
+
+evaluator.o: Evaluator/evaluator.cpp
+	g++ -g -std=c++17 -c Evaluator/evaluator.cpp
 
 make clean:
 	rm *.o 
