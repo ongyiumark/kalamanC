@@ -5,6 +5,7 @@
 #include "../Contexts/context.h"
 #include "../Diagnostics/diagnostic.h"
 
+// Refer to evaluator.cpp.
 class Evaluator final
 {
 private:

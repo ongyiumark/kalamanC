@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 // This is for sequences and lists.
-// Retruns a list when '_to_return' is set to true.
+// Retruns a python-style list when '_to_return' is set to true.
 SequenceExpressionSyntax::SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, bool to_return)
     : _nodes(nodes), _to_return(to_return) {}
 

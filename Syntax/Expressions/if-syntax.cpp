@@ -3,9 +3,6 @@
 using namespace Syntax;
 
 // This is for conditional statements. Just your standard C-style conditional statements.
-// The assignment of children here is probably incredibly inefficient, 
-// but I'm keeping for now because I need it for pretty print.
-// I don't actually need it for anything other than pretty print.
 IfExpressionSyntax::IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std::vector<SyntaxNode*>& bodies, 
     SyntaxNode* else_body) : _conditions(conditions), _bodies(bodies), _else_body(else_body) {}
 

@@ -2,6 +2,7 @@
 
 using namespace Syntax;
 
+// This turns the tokens into a tree of syntax. 
 Parser::Parser(std::string& text) : _position(0)
 {
     Syntax::Lexer* lexer = new Syntax::Lexer(text);
@@ -46,6 +47,7 @@ SyntaxToken* Parser::next_token()
     return curr;
 }
 
+// Inserts the relevant token, but reports an error.
 SyntaxToken* Parser::match_token(SyntaxKind kind)
 {
     if (current()->kind() == kind)
@@ -55,6 +57,7 @@ SyntaxToken* Parser::match_token(SyntaxKind kind)
     return new SyntaxToken(kind, current()->get_position(), "\0", NULL);
 }
 
+// Refer to grammar.txt for the full summary of syntax.
 SyntaxNode* Parser::parse()
 {
     SyntaxNode* program = parse_program();
@@ -65,6 +68,8 @@ SyntaxNode* Parser::parse()
 SyntaxNode* Parser::parse_program(bool sub_program)
 {
     std::vector<SyntaxNode*> program_seq;
+
+    // It's a sub-program when it's enclosed in curly braces.
     if (sub_program)
     {
         while(current()->kind() != SyntaxKind::RCurlyToken)
@@ -237,7 +242,6 @@ SyntaxNode* Parser::parse_statement()
             SyntaxNode* expression = parse_expression();
             match_token(SyntaxKind::SemicolonToken);
             return expression;
-            break;
         }
     }
 }
@@ -316,10 +320,9 @@ SyntaxNode* Parser::parse_molecule()
                 match_token(SyntaxKind::RSquareToken);
                 left = new IndexExpressionSyntax(left, right);
             }
-        }
-        default:
-            return left;        
+        }     
     }
+    return left;   
 }
 
 SyntaxNode* Parser::parse_atom()

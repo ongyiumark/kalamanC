@@ -78,6 +78,9 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::OrKeyword);
         PROCESS_VAL(SyntaxKind::XorKeyword);
         PROCESS_VAL(SyntaxKind::NotKeyword);
+        PROCESS_VAL(SyntaxKind::ReturnKeyword);
+        PROCESS_VAL(SyntaxKind::BreakKeyword);
+        PROCESS_VAL(SyntaxKind::ContinueKeyword);
         
         // Expressions
         PROCESS_VAL(SyntaxKind::LiteralExpression);

@@ -4,6 +4,7 @@
 #include "../Objects/object.h"
 #include "../Contexts/context.h"
 
+// Refer to builtin-functions.cpp
 class BuiltInFunctions
 {
 private:
