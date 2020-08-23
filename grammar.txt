@@ -1,51 +1,50 @@
-This is a summary of the grammar of the language. This is how everything is parsed.
+program                 : statement*
 
-statements				: SEMICOLON* statement (SEMICOLON* statement)* SEMICOLON* 
+statement               :  '{' program '}'
+                        : IF '(' expression ')' statement (ELIF '(' expression ')' statement )* (ELSE statement)?
+                        : WHILE '(' expression ')' statement
+                        : FOR '(' expression ';' expression ';' expression ')' statement
+                        : DEF IDENTIFIER '( (IDENTIFIER (',' IDENTIFIER)*)? ')' statement
+                        : expression ';'
+                        : RETURN expression? ';'
+                        : CONTINUE ';'
+                        : BREAK ';'
+                        : ';'
 
-statement 				: KEYWORD:RETURN expr? SEMICOLON 
-						: KEYWORD:BREAK SEMICOLON
-						: KEYWORD:CONTINUE SEMICOLON
-						: expr SEMICOLON 
-						: if-stm  
-						: for-stm
-						: while-stm
-						: funcdef-stm
+expression              : expression '||' expression    %prec 1
+                        : expression XOR expression
+                        : expression OR expression
+                        : expression '&&' expression    %prec 2
+                        : expression AND expression
+                        : expression '==' expression    %prec 3
+                        : expression '!=' expression
+                        : expression '<=' expression
+                        : expression '>=' expression
+                        : expression '<' expression
+                        : expression '>' expression
+                        : expression '+' expression     %prec 4
+                        : expression '-' expression  
+                        : expression '*' expression     %prec 5
+                        : expression '/' expression    
+                        : expression '%' expression  
+                        : '!' expression                %prec 6
+                        : '-' expression    
+                        : '+' expression 
+                        : expression '^' expression     %prec 7
+                        : VARKEYWORD IDENTIFIER 
+                        : VARKEYWORD IDENTIFIER '=' expression
+                        : IDENTIFIER = expression
+                        : molecule
 
-if-stm					: KEYWORD:IF LPAREN expr RPAREN body 
-							(KEYWORD:ELIF LPAREN expr RPAREN body)*
-							(KEYWORD:ELSE body)?
+molecule                : atom (('[' expression ']')*)
+                        : atom
 
-for-stm					: KEYWORD:FOR LPAREN expr SEMICOLON expr SEMICOLON expr RPAREN body
-
-while-stm				: KEYWORD:WHILE LPAREN expr RPAREN body
-
-funcdef-stm				: KEYWORD:FUNCDEF IDENTIFIER LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN body
-
-expr 					: comp-expr (KEYWORD:(AND|OR|XOR) comp-expr)* 
-						: KEYWORD:(INT|DOUBLE|STRING|LIST|FUNC) IDENTIFIER (EQUALS expr)?  
-						: IDENTIFIER EQUALS expr 
- 
-comp-expr				: KEYWORD:NOT comp-expr 
-						: arith-expr ((DEQUALS|NEQUALS|LESS|GREATER|GEQUALS|LEQUALS) arith-expr)*
-
-arith-expr				: term ((PLUS|MINUS) term)*
-
-term					: factor ((MUL|DIV|MOD) factor)*
-
-factor					: (PLUS|MINUS)* factor
-						: power
-
-power					: call (POW factor)*
-
-call					: atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
-						: atom ((LSQUARE expr RSQUARE)*)?
-
-atom					: INT|DOUBLE|STRING|IDENTIFIER
-						: LPAREN expr RPAREN
-						: list-expr
-
-list-expr				: LSQUARE (expr (COMMA expr)*)? RSQUARE
-
-body					: LCURLY statements RCURLY
-						: statement
-						: SEMICOLON
+atom:                   : STRING
+                        : INTEGER
+                        : BOOLEAN
+                        : DOUBLE
+                        : IDENTIFIER
+                        : IDENTIFIER '(' (expression (',' expression)*)?  ')' 
+                        : BUILTIN-FUNCTION '(' (expression (',' expression)*)?  ')' 
+                        : '(' expression ')'
+                        : '[' (expression (COMMA expression)*)? ']'

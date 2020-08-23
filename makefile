@@ -1,129 +1,149 @@
-kalman: main.o init.o tracers.o lxr.o nodes.o parser.o values.o intrprtr.o 
-	g++ -std=c++11 -o kalman main.o init.o tracers.o lxr.o nodes.o parser.o values.o intrprtr.o 
+kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
 
-main.o: main.cpp
-	g++ -std=c++11 -c main.cpp 
+program.o: program.cpp 
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c program.cpp 
 
-init.o: init.cpp
-	g++ -std=c++11 -c init.cpp 
+objects.o: boolean-object.o integer-object.o double-object.o \
+		string-object.o list-object.o function-object.o none-object.o object-helpers.o \
+		base-object.o
+	ld -r -o objects.o boolean-object.o integer-object.o double-object.o \
+		string-object.o list-object.o function-object.o none-object.o object-helpers.o \
+		base-object.o
 
-tracers.o : tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
-	ld -r -o tracers.o tracers/position.o tracers/errors.o tracers/symbol_table.o tracers/context.o
+base-object.o: Objects/base-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/base-object.cpp
 
-position.o: tracers/position.cpp
-	g++ -std=c++11 -c tracers/position.cpp 
+boolean-object.o: Objects/boolean-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/boolean-object.cpp
 
-errors.o : tracers/errors.cpp
-	g++ -std=c++11 -c tracers/errors.cpp
+integer-object.o: Objects/integer-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/integer-object.cpp
 
-symbol_table.o : tracers/symbol_table.cpp
-	g++ -std=c++11 -c tracers/symbol_table.cpp
+double-object.o: Objects/double-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/double-object.cpp
 
-context.o : tracers/context.cpp
-	g++ -std=c++11 -c tracers/context.cpp
+string-object.o: Objects/string-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/string-object.cpp
 
-lxr.o : lexer/token.o lexer/lexer.o
-	ld -r -o lxr.o lexer/token.o lexer/lexer.o
+list-object.o: Objects/list-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/list-object.cpp
 
-token.o: lexer/token.cpp
-	g++ -std=c++11 -c lexer/token.cpp 
+function-object.o: Objects/function-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/function-object.cpp
 
-lexer.o : lexer/lexer.cpp
-	g++ -std=c++11 -c lexer/lexer.cpp
+none-object.o: Objects/none-object.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/none-object.cpp
 
-nodes.o : nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
-			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
-			nodes/nodes_functions.o nodes/nodes_index.o
-	ld -r -o nodes.o nodes/nodes_base.o nodes/nodes_literal.o nodes/nodes_operation.o \
-			nodes/nodes_sequence.o nodes/nodes_condition.o nodes/nodes_loop.o nodes/nodes_var.o \
-			nodes/nodes_functions.o nodes/nodes_index.o
+object-helpers.o: Objects/object-helpers.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Objects/object-helpers.cpp
 
-nodes_base.o : nodes/nodes_base.cpp
-	g++ -std=c++11 -c nodes/nodes_base.cpp
+contexts.o: context.o symbol-table.o 
+	ld -r -o contexts.o context.o symbol-table.o 
 
-nodes_literal.o : nodes/nodes_literal.cpp
-	g++ -std=c++11 -c nodes/nodes_literal.cpp
+context.o: Contexts/context.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Contexts/context.cpp
 
-nodes_operation.o : nodes/nodes_operation.cpp
-	g++ -std=c++11 -c nodes/nodes_operation.cpp
+symbol-table.o: Contexts/symbol-table.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Contexts/symbol-table.cpp
 
-nodes_sequence.o : nodes/nodes_sequence.cpp
-	g++ -std=c++11 -c nodes/nodes_sequence.cpp
+diagnostics.o: diagnostic.o diagnostic-bag.o
+	ld -r -o diagnostics.o diagnostic.o diagnostic-bag.o
 
-nodes_condition.o : nodes/nodes_condition.cpp
-	g++ -std=c++11 -c nodes/nodes_condition.cpp
+diagnostic.o: Diagnostics/diagnostic.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Diagnostics/diagnostic.cpp
 
-nodes_loop.o : nodes/nodes_loop.cpp
-	g++ -std=c++11 -c nodes/nodes_loop.cpp
+diagnostic-bag.o: Diagnostics/diagnostic-bag.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Diagnostics/diagnostic-bag.cpp
 
-nodes_var.o : nodes/nodes_var.cpp
-	g++ -std=c++11 -c nodes/nodes_var.cpp
+syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o syntax-expressions.o \
+			parser.o
+	ld -r -o syntax.o lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o \
+			syntax-expressions.o parser.o
 
-nodes_functions.o : nodes/nodes_functions.cpp
-	g++ -std=c++11 -c nodes/nodes_functions.cpp
+lexer.o: Syntax/lexer.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/lexer.cpp
 
-nodes_index.o : nodes/nodes_index.cpp
-	g++ -std=c++11 -c nodes/nodes_index.cpp
+parser.o: Syntax/parser.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/parser.cpp
 
-parser.o : parser/parser_base.o parser/statements.o parser/expressions.o \
-		 	parser/terms.o parser/atom_exprs.o
-	ld -r -o parser.o parser/parser_base.o parser/statements.o parser/expressions.o \
-			parser/terms.o parser/atom_exprs.o
+syntax-facts.o: Syntax/syntax-facts.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/syntax-facts.cpp
 
-parser_base.o : parser/parser_base.cpp
-	g++ -std=c++11 -c parser/parser_base.cpp
+syntax-helpers.o: Syntax/syntax-helpers.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/syntax-helpers.cpp
 
-statements.o : parser/statements.cpp
-	g++ -std=c++11 -c parser/statements.cpp
+syntax-node.o: Syntax/syntax-node.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/syntax-node.cpp
 
-expressions.o : parser/expressions.cpp
-	g++ -std=c++11 -c parser/expressions.cpp
+syntax-token.o: Syntax/syntax-token.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/syntax-token.cpp
 
-terms.o : parser/terms.cpp
-	g++ -std=c++11 -c parser/terms.cpp
+syntax-expressions.o: binary-syntax.o func-call-syntax.o func-define-syntax.o for-syntax.o if-syntax.o \
+			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o \
+			return-syntax.o continue-syntax.o break-syntax.o
+	ld -r -o syntax-expressions.o binary-syntax.o func-call-syntax.o func-define-syntax.o for-syntax.o if-syntax.o \
+			literal-syntax.o sequence-syntax.o unary-syntax.o var-access-syntax.o var-assign-syntax.o \
+			var-declare-syntax.o while-syntax.o index-syntax.o none-syntax.o \
+			return-syntax.o continue-syntax.o break-syntax.o
 
-atom_exprs.o : parser/atom_exprs.cpp
-	g++ -std=c++11 -c parser/atom_exprs.cpp
+binary-syntax.o: Syntax/Expressions/binary-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/binary-syntax.cpp
 
-values.o : values/values_base.o values/values_null.o values/values_integer.o \
-			values/values_double.o values/values_list.o values/values_string.o \
-			values/values_function.o values/values_builtinfunc.o
-	ld -r -o values.o values/values_base.o values/values_null.o \
-			values/values_integer.o values/values_double.o values/values_list.o \
-			values/values_string.o values/values_function.o values/values_builtinfunc.o
+func-call-syntax.o: Syntax/Expressions/func-call-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/func-call-syntax.cpp
 
-values_base.o : values/values_base.cpp
-	g++ -std=c++11 -c values/values_base.cpp
+func-define-syntax.o: Syntax/Expressions/func-define-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/func-define-syntax.cpp
 
-values_null.o : values/values_null.cpp
-	g++ -std=c++11 -c values/values_null.cpp
+for-syntax.o: Syntax/Expressions/for-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/for-syntax.cpp
 
-values_integer.o : values/values_integer.cpp
-	g++ -std=c++11 -c values/values_integer.cpp
+if-syntax.o: Syntax/Expressions/if-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/if-syntax.cpp
 
-values_double.o : values/values_double.cpp
-	g++ -std=c++11 -c values/values_double.cpp
+literal-syntax.o: Syntax/Expressions/literal-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/literal-syntax.cpp
 
-values_list.o : values/values_list.cpp
-	g++ -std=c++11 -c values/values_list.cpp
+sequence-syntax.o: Syntax/Expressions/sequence-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/sequence-syntax.cpp
 
-values_string.o : values/values_string.cpp
-	g++ -std=c++11 -c values/values_string.cpp
+unary-syntax.o: Syntax/Expressions/unary-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/unary-syntax.cpp
 
-values_function.o : values/values_function.cpp
-	g++ -std=c++11 -c values/values_function.cpp
+var-access-syntax.o: Syntax/Expressions/var-access-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/var-access-syntax.cpp
 
-values_builtinfunc.o : values/values_builtinfunc.cpp
-	g++ -std=c++11 -c values/values_builtinfunc.cpp
+var-assign-syntax.o: Syntax/Expressions/var-assign-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/var-assign-syntax.cpp
 
-intrprtr.o : interpreter/interpreter.o interpreter/builtin_functions.o
-	ld -r -o intrprtr.o interpreter/interpreter.o interpreter/builtin_functions.o
+var-declare-syntax.o: Syntax/Expressions/var-declare-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/var-declare-syntax.cpp
 
-interpreter.o : interpreter/interpreter.cpp
-	g++ -std=c++11 -c interpreter/interpreter.cpp
+while-syntax.o: Syntax/Expressions/while-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/while-syntax.cpp
 
-builtin_functions.o : interpreter/builtin_functions.cpp
-	g++ -std=c++11 -c interpreter/builtin_functions.cpp
+index-syntax.o: Syntax/Expressions/index-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/index-syntax.cpp
 
-clean:
-	rm *.o */*.o kalman 
+none-syntax.o: Syntax/Expressions/none-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/none-syntax.cpp
+
+return-syntax.o: Syntax/Expressions/return-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/return-syntax.cpp
+
+continue-syntax.o: Syntax/Expressions/continue-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/continue-syntax.cpp
+
+break-syntax.o: Syntax/Expressions/break-syntax.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Syntax/Expressions/break-syntax.cpp
+
+evaluator.o: Evaluator/evaluator.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Evaluator/evaluator.cpp
+
+builtin-functions.o: Evaluator/builtin-functions.cpp
+	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c Evaluator/builtin-functions.cpp
+
+make clean:
+	rm *.o 
