@@ -155,6 +155,7 @@ We have the following operators:
 - o, || (standard OR operator)
 - xo (standard XOR operator)
 
+##### Arithmetic operations
 ```
 (2+1)^2*2;    // Evaluates to 18
 1+1 > 32;     // Evaluates to false
@@ -164,6 +165,24 @@ We have the following operators:
 ```
 
 The third example is an error because it first evaluates (12 > 6) as true, and evaluates (true > 3), which is an illegal operation.
+
+##### String operations
+String concatination and multiplication works just like python.
+```
+"Yes" + "no";       // Evaluates to "Yesno"
+"yes"*3;            // Evaluates to "yesyesyes"         
+```
+
+##### Matrix operations
+If a list is a 2D array of integers, then it is a valid matrix. These only apply for valid matrices.
+```
+[[1,1]]*[[2],[1]];    // Evaluates to [[3]]
+
+[[1,1],[1,0]]^10;     // Evaluates to [[89, 55], [55, 34]]
+
+```
+
+The second example is actually the matrix representation of the fibonacci sequence. Notice that the last 10th fibonacci number appears in the result.
 
 ### Conditionals
 Conditionals in kalamanC work the same in C++. The keywords are:
@@ -236,7 +255,12 @@ Arguments: None <br>
 Returns: StringType <br>
 Reads input from user.
 
-##### to_int() (not yet implemented)
+##### to_int()
+Arguments: 
+- string, integer, double, or boolean <br>
+Returns IntegerType
+Coverts the given value to an integer
+
 ##### to_double() (not yet implemented)
 ##### to_string() (not yet implemented)
 ##### type()  (not yet implemented)

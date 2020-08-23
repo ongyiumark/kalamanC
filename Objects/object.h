@@ -136,6 +136,7 @@ namespace Objects
     {
     private:
         std::vector<Object*> _values;   
+        static bool is_matrix(const List* list);
     public:
         List(std::vector<Object*>& values);
         
@@ -149,6 +150,9 @@ namespace Objects
         Object* added_by(Object* other) const;
         Object* accessed_by(Object* other) const;
         Object* equals(Object* other) const;
+
+        Object* multiplied_by(Object* other) const;
+        Object* powered_by(Object* other) const;
     };
 
     // Refer to function-object.cpp.

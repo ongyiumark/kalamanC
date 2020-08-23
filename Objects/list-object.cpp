@@ -1,5 +1,6 @@
 #include "object.h"
 
+#include <iostream>
 using namespace Objects;
 
 List::List(std::vector<Object*>& values) : _values(values) {}
@@ -37,6 +38,29 @@ std::string List::to_string() const
     }
     os << "]";
     return os.str();
+}
+
+// Checks if a given list is a valid matrix.
+// It checks if it's a 2D array of integers.
+bool List::is_matrix(const List* list)
+{
+    int n = list->get_size();
+    if (n == 0) return false;
+    int m = -1;
+    for (int i = 0; i < n; i++)
+    {
+        if (list->get_value(i)->type() != Type::LIST) 
+            return false;
+        
+        List* child_list = (List*)(list->get_value(i));
+        if (m == -1) m = child_list->get_size();
+        if (m != child_list->get_size()) return false;
+        if (m == 0) return false;
+        for (int j = 0; j < m; j++)
+            if (child_list->get_value(j)->type() != Type::INTEGER)
+                return false;
+    }
+    return true;
 }
 
 // Concatinate the two lists.
@@ -103,5 +127,100 @@ Object* List::equals(Object* other) const
         }
         default:
             return new Boolean(false);
+    }
+}
+
+// Matrix multiplication
+Object* List::multiplied_by(Object* other) const
+{
+    switch(other->type())
+    {
+        case Type::LIST:
+        {
+            List* other_list = (List*)other;
+            if (!is_matrix(this) || !is_matrix(other_list))
+                return Object::none_result;
+            int a = _values.size();
+            int b = ((List*)_values[0])->get_size();
+            int c = other_list->get_size();
+            int d = ((List*)other_list->get_value(0))->get_size();
+
+            if (b != c) return Object::none_result;
+
+            std::vector<std::vector<long long>> result(a, std::vector<long long>(d));
+            for (int i = 0; i < a; i++)
+            {
+                for (int j = 0; j < d; j++)
+                {
+                    for (int k = 0; k < b; k++)
+                    {
+                        long long left = ((Integer*)((List*)_values[i])->get_value(k))->get_value();
+                        long long right = ((Integer*)((List*)other_list->get_value(k))->get_value(j))->get_value();
+                        result[i][j] += left*right;
+                    }
+                }
+
+            }
+
+            std::vector<Object*> elems;
+            for (int i = 0; i < a; i++)
+            {
+                std::vector<Object*> children;
+                for (int j = 0; j < d; j++)
+                    children.push_back(new Integer(result[i][j]));
+                
+                elems.push_back(new List(children));
+            }
+
+            return new List(elems);
+        }
+        default:
+            return Object::none_result;
+    }
+}
+
+// Matrix exponentiation
+Object* List::powered_by(Object* other) const
+{
+    switch(other->type())
+    {
+        case Type::INTEGER:
+        {
+            if (!is_matrix(this)) return Object::none_result;
+            int n = _values.size();
+            int m = ((List*)_values[0])->get_size();
+            if (n != m) return Object::none_result;
+
+            long long e = ((Integer*)other)->get_value();
+            if (e < 0) return Object::none_result;
+
+            // Build identity matrix
+            std::vector<Object*> result_elems;
+            for (int i = 0; i < n; i++)
+            {
+                std::vector<Object*> result_children;
+                for (int j = 0; j < n; j++)
+                    result_children.push_back(new Integer(j == i));
+                result_elems.push_back(new List(result_children));
+            }
+            List* result = new List(result_elems);
+            
+            // Copying the original matrix
+            std::vector<Object*> base_elems;
+            for (int i = 0; i < n; i++)
+                base_elems.push_back(_values[i]);
+
+            List* base = new List(base_elems);
+
+            while(e > 0)
+            {
+                if (e&1) result = (List*)(result->multiplied_by(base));
+                base = ((List*)base->multiplied_by(base));
+                e >>= 1;
+            }
+            return result;
+        }
+        default:
+            return Object::none_result;
     }
 }
