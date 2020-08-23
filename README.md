@@ -263,10 +263,6 @@ Arguments:
 Returns IntegerType
 Coverts the given value to an integer
 
-##### to_double() (not yet implemented)
-##### to_string() (not yet implemented)
-##### type()  (not yet implemented)
-
 #### User-defined Functions
 This works very similar to python functions. The keywords are:
 - aka (python DEF)
@@ -318,6 +314,7 @@ line comment */
 
 <a name=plans></a>
 # Future Plans
+- Fix memory leaks (yes, theres a lot).
 - Add more built in functions
 - Add a mutable list/collection
 - Improve error messages (it's pretty hard to debug if you have the wrong syntax)
