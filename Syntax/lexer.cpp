@@ -64,7 +64,7 @@ SyntaxToken* Lexer::lex()
         std::string text = _text.substr(start, length);
         if (dot_count == 0)
         {
-            int x;
+            long long x;
             std::istringstream is(text);
             if (is >> x)
                 return new SyntaxToken(SyntaxKind::IntegerToken, start, text, new Integer(x));
@@ -74,7 +74,7 @@ SyntaxToken* Lexer::lex()
         }
         else
         {
-            double x;
+            long double x;
             std::istringstream is(text);
             if (is >> x)
                 return new SyntaxToken(SyntaxKind::DoubleToken, start, text, new Double(x));

@@ -70,12 +70,12 @@ namespace Objects
     class Integer final : public Object
     {
     private:
-        int _value;   
+        long long _value;   
     public:
-        Integer(int value);
+        Integer(long long value);
         Type type() const;
         std::string to_string() const;
-        int get_value() const;
+        long long get_value() const;
 
         Object* added_by(Object* other) const;
         Object* subtracted_by(Object* other) const;
@@ -92,12 +92,12 @@ namespace Objects
     class Double final : public Object
     {
     private:
-        double _value;   
+        long double _value;   
     public:
-        Double(double value);
+        Double(long double value);
         Type type() const;
         std::string to_string() const;
-        double get_value() const;
+        long double get_value() const;
 
         Object* added_by(Object* other) const;
         Object* subtracted_by(Object* other) const;

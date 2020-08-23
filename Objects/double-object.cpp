@@ -1,26 +1,27 @@
 #include "object.h"
 #include <math.h>
 #include <iomanip>
+#include <limits>
 
 using namespace Objects;
 
-Double::Double(double value) : _value(value) {}
+Double::Double(long double value) : _value(value) {}
 
 Type Double::type() const
 {
     return Type::DOUBLE;
 }
 
-double Double::get_value() const
+long double Double::get_value() const
 {
     return _value;
 }
 
-// Prints up to 15 digits of precision, which is the precision limit of a double.
+// Prints up to the digits of precision of a long double, which can be different for every platform.
 std::string Double::to_string() const
 {
     std::ostringstream os;
-    os << std::setprecision(15) << _value;
+    os << std::setprecision(std::numeric_limits<long double>::digits10) << _value;
     return os.str();
 }
 
@@ -89,9 +90,9 @@ Object* Double::powered_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Double(pow(_value, ((Integer*)other)->get_value())); 
+            return new Double(powl(_value, ((Integer*)other)->get_value())); 
         case Type::DOUBLE:
-            return new Double(pow(_value, ((Double*)other)->get_value()));     
+            return new Double(powl(_value, ((Double*)other)->get_value()));     
         default:
             return none_result;       
     }

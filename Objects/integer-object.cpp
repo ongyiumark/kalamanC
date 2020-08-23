@@ -3,14 +3,14 @@
 
 using namespace Objects;
 
-Integer::Integer(int value) : _value(value) {}
+Integer::Integer(long long value) : _value(value) {}
 
 Type Integer::type() const
 {
     return Type::INTEGER;
 }
 
-int Integer::get_value() const
+long long Integer::get_value() const
 {
     return _value;
 }
@@ -62,7 +62,7 @@ Object* Integer::multiplied_by(Object* other) const
         case Type::STRING:
         {
             if (_value < 0) return none_result;
-            int e = _value;
+            long long e = _value;
             std::string result;
             std::string base = ((String*)other)->get_value();
             while (e > 0)
@@ -122,11 +122,11 @@ Object* Integer::powered_by(Object* other) const
     {
         case Type::INTEGER:
         {
-            int b = _value;
-            int e = ((Integer*)other)->get_value();
-            if (e < 0) return new Double(pow(b,e));
+            long long b = _value;
+            long long e = ((Integer*)other)->get_value();
+            if (e < 0) return new Double(powl(b,e));
 
-            int ans = 1;
+            long long ans = 1;
             while (e > 0)
             {
                 if (e&1) ans *= b;
@@ -136,7 +136,7 @@ Object* Integer::powered_by(Object* other) const
             return new Integer(ans);
         }
         case Type::DOUBLE:
-            return new Double(pow(_value, ((Double*)other)->get_value()));   
+            return new Double(powl(_value, ((Double*)other)->get_value()));   
         default:
             return none_result;         
     }

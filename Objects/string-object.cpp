@@ -45,7 +45,7 @@ Object* String::multiplied_by(Object* other) const
     {
         case Type::INTEGER:
         {
-            int e = ((Integer*)other)->get_value();
+            long long e = ((Integer*)other)->get_value();
             if (e < 0) return none_result;
             std::string result;
             std::string base = _value;
@@ -69,7 +69,7 @@ Object* String::accessed_by(Object* other) const
     {
         case Type::INTEGER:
         {
-            int i = ((Integer*)other)->get_value();
+            long long i = ((Integer*)other)->get_value();
             int n = _value.size();
             if (i < 0) i += n;
             if (i < 0 || i >= n) return none_result;

@@ -71,7 +71,7 @@ Object* List::accessed_by(Object* other) const
     {
         case Type::INTEGER:
         {
-            int i = ((Integer*)other)->get_value();
+            long long i = ((Integer*)other)->get_value();
             int n = _values.size();
             if (i < 0) i += n;
             if (i < 0 || i >= n) return none_result;

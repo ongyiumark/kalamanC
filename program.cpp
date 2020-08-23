@@ -44,7 +44,7 @@ int main(int argc, char ** argv)
     if (argc == 1)
     {
         bool show_tree = false;
-        bool show_return = false;
+        bool show_return = true;
         while(true)
         {
             std::string line;
