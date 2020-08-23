@@ -19,13 +19,13 @@ I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi+
 - [Future Plans](#plans)
 - [Acknowledgements](#acknowledgements)
 
-<a name=features></a>
+<a name=motivation></a>
 # Motivation
 Classes just ended and I wanted to try my hand on a technical project, and I came up with this. I wanted to see if I could write a programming language. 
 This is actually my very **first personal project** (my first attempt on this doesn't count because they're basically the same thing), so I'm not sure what I'm doing. 
 If you're reading this and you know what I'm doing wrong, I'm open to criticsm.
 
-<a name=motivation></a>
+<a name=features></a>
 # Features
 All the programming languages I know have english keywords, so I wanted to make my own programming language where I could **easily change the keywords**. This can be done by changing a few values in [this](constants.h) header file. 
 
@@ -34,6 +34,8 @@ Right now, I have a Filipino version of the keywords. Just paste the contents of
 As for the syntax, the grammar of the language is summarized in [this](grammar.txt) text file, but it's basically **C++ syntax with python lists and functions**. 
 
 I wanted to make an original language, but I'm not that great at language design. I picked this combination of syntax because I didn't like how whitespace mattered in python, and functions with definite return types in C++ felt too restrictive. I'm open to ideas though.
+
+Also, I implemented builtin matrix operations, so KalamanC can be used to prototype or solve constant space DP problems or linear reccurences. Refer to [this](https://www.youtube.com/watch?v=eMXNWcbw75E) video for more information. You can see how it works in the [tutorial](#tutorial) below.
 
 ### Benchmark
 The following script runs in **0.490 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.

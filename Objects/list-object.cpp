@@ -29,12 +29,14 @@ std::vector<Object*> List::get_values() const
 std::string List::to_string() const
 {
     std::ostringstream os;
+    bool is_mat = is_matrix(this);
     int n = _values.size();
     os << "[";
     for (int i = 0; i < n; i++)
     {
         os << _values[i]->to_string();
-        if (i != n-1) os << ", ";
+        if (i != n-1) 
+            os << (is_mat ? ",\n " : ", ");
     }
     os << "]";
     return os.str();
