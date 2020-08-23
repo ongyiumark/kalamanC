@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 // This turns the tokens into a tree of syntax. 
-Parser::Parser(std::string& text) : _position(0)
+Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return(show_return)
 {
     Syntax::Lexer* lexer = new Syntax::Lexer(text);
     SyntaxToken* token;
@@ -23,7 +23,7 @@ Parser::Parser(std::string& text) : _position(0)
 
 SyntaxToken* Parser::peek(int offset) const
 {  
-    int index = _position+offset;
+    unsigned int index = _position+offset;
     if (index >= _tokens.size()) 
         index = _tokens.size()-1;
     
@@ -87,12 +87,14 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                 case SyntaxKind::EndOfFileToken:
                 {
                     match_token(SyntaxKind::RCurlyToken);
-                    return new SequenceExpressionSyntax(program_seq); 
+                    return new SequenceExpressionSyntax(program_seq, _show_return); 
                 }
+                default:
+                    break;
             }
         }
         next_token();
-        return new SequenceExpressionSyntax(program_seq); 
+        return new SequenceExpressionSyntax(program_seq, _show_return); 
     }
 
     while(current()->kind() != SyntaxKind::EndOfFileToken)
@@ -108,10 +110,12 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                 _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
                 next_token();
             }
+            default:
+                break;
         }
     }
         
-    return new SequenceExpressionSyntax(program_seq);
+    return new SequenceExpressionSyntax(program_seq, _show_return);
 }
 
 SyntaxNode* Parser::parse_statement()
@@ -288,7 +292,10 @@ SyntaxNode* Parser::parse_expression(int precedence)
                     SyntaxNode* expression = parse_expression(precedence);
                     return new VarAssignExpressionSyntax(identifier, expression);
                 }
-            }        
+                break;
+            }  
+            default:
+                break;      
         }
         left = parse_molecule();
     }
@@ -320,7 +327,10 @@ SyntaxNode* Parser::parse_molecule()
                 match_token(SyntaxKind::RSquareToken);
                 left = new IndexExpressionSyntax(left, right);
             }
+            break;
         }     
+        default:
+            break;
     }
     return left;   
 }
@@ -366,7 +376,7 @@ SyntaxNode* Parser::parse_atom()
             while(current()->kind() == SyntaxKind::CommaToken)
             {
                 next_token();
-                SyntaxNode* expression = parse_expression();
+                expression = parse_expression();
                 elements.push_back(expression);
             }
             match_token(SyntaxKind::RSquareToken);
@@ -390,7 +400,7 @@ SyntaxNode* Parser::parse_atom()
             while(current()->kind() == SyntaxKind::CommaToken)
             {
                 next_token();
-                SyntaxNode* expression = parse_expression();
+                expression = parse_expression();
                 args.push_back(expression);
             }
             match_token(SyntaxKind::RParenToken);
@@ -415,7 +425,7 @@ SyntaxNode* Parser::parse_atom()
                 while(current()->kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
-                    SyntaxNode* expression = parse_expression();
+                    expression = parse_expression();
                     args.push_back(expression);
                 }
                 match_token(SyntaxKind::RParenToken);

@@ -58,6 +58,7 @@ Object* Function::equals(Object* other) const
     {
         case Type::FUNCTION:
             return new Boolean(this == other);
+        default:
+            return new Boolean(false);
     }
-    return new Boolean(false);
 }

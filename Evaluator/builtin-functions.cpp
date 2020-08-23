@@ -8,7 +8,7 @@ using namespace Contexts;
 // Prints to the screen.
 Object* BuiltInFunctions::BI_PRINT(Context* context)
 {
-    Object* obj = context->get_symbol_table()->get_object("value");
+    Object* obj = context->get_symbol_table()->get_object("value").object;
     std::cout << obj->to_string() << std::endl;
     return new None();
 }

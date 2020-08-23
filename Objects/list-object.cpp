@@ -55,11 +55,13 @@ Object* List::added_by(Object* other) const
 
             return new List(result);
         }
+        default:
+        {
+            std::vector<Object*> result = _values;
+            result.push_back(other);
+            return new List(result);    
+        }
     }
-
-    std::vector<Object*> result = _values;
-    result.push_back(other);
-    return new List(result);
 }
 
 // Returns the object at the index.
@@ -75,8 +77,9 @@ Object* List::accessed_by(Object* other) const
             if (i < 0 || i >= n) return none_result;
             return _values[i];
         }
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 // Returns true when all the values in the lists are equal.
@@ -98,6 +101,7 @@ Object* List::equals(Object* other) const
             }
             return new Boolean(result);
         }
+        default:
+            return new Boolean(false);
     }
-    return new Boolean(false);
 }

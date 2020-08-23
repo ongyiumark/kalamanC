@@ -9,7 +9,7 @@ Lexer::Lexer(const std::string& text) : _text(text), _position(0) {}
 
 char Lexer::peek(int offset) const
 {
-    int index = _position+offset;
+    unsigned int index = _position+offset;
     if (index >= _text.size()) return '\0';
     return _text[index];
 }
@@ -32,7 +32,7 @@ void Lexer::next()
 SyntaxToken* Lexer::lex()
 {
     // Inserts an end of file token at the end.
-    if (_position >= _text.size())
+    if (_position >= (int)_text.size())
         return new SyntaxToken(SyntaxKind::EndOfFileToken, _position, "\0", NULL);
     
     int start = _position;

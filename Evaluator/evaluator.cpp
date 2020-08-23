@@ -48,7 +48,9 @@ Object* Evaluator::evaluate(Context* context, const SyntaxNode* node)
         case SyntaxKind::FuncCallExpression:  
             return evaluate_function_call(context, (FuncCallExpressionSyntax*)node);     
         case SyntaxKind::NoneExpression:  
-            return Object::none_result;       
+            return Object::none_result;    
+        default:
+            break;   
     }
 
     _diagnostics->report_unknown_syntax(kind_to_string(node->kind()));
@@ -79,6 +81,8 @@ Object* Evaluator::evaluate_unary(Context* context, const UnaryExpressionSyntax*
         case SyntaxKind::NotKeyword:
         case SyntaxKind::BangToken:
             result = operand->notted();    
+            break;
+        default:
             break;
     }
 
@@ -145,6 +149,8 @@ Object* Evaluator::evaluate_binary(Context* context, const BinaryExpressionSynta
             break;
         case SyntaxKind::BangEqualsToken:
             result = left->not_equals(right);
+            break;
+        default:
             break;
     }
 
@@ -243,6 +249,11 @@ Object* Evaluator::evaluate_var_declare(Context* context, const VarDeclareExpres
             value = new Objects::Function("<uninitialized>", arg_names, new NoneExpressionSyntax());
             break;
         }
+        default:
+        {
+            _diagnostics->report_unreachable_code("invalid type declaration");
+            return Object::none_result;
+        }
     }
 
     context->get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
@@ -256,21 +267,23 @@ Object* Evaluator::evaluate_var_assign(Context* context, const VarAssignExpressi
     Object* value = evaluate(context, node->get_value());
     if (DiagnosticBag::should_return()) return result;
 
-    Object* orig_value = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
+    ObjectSymbol obj_sym = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
+
+    Object* orig_value = obj_sym.object;
     if (orig_value->type() != value->type())
     {
         _diagnostics->report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()));
         return result;
     }
 
-    context->get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
+    obj_sym.symbol->set_object(node->get_identifier()->get_text(), value);
     return value;
 }
 
 // Accesses a variable.
 Object* Evaluator::evaluate_var_access(Context* context, const VarAccessExpressionSyntax* node)
 {
-    Object* result = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
+    Object* result = context->get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (result->type() == Type::NONE)
     {
         _diagnostics->report_undeclared_identifier(node->get_identifier()->get_text());
@@ -284,6 +297,7 @@ Object* Evaluator::evaluate_var_access(Context* context, const VarAccessExpressi
 Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax* node)
 {
     Object* result = Object::none_result;
+    Context* exec_ctx = new Context("while-loop", context, new SymbolTable(context->get_symbol_table()));
     while(true)
     {
         Object* condition = evaluate(context, node->get_condition());
@@ -297,7 +311,7 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
         if (!((Boolean*)condition)->get_value())
             break;
         
-        Object* body_val = evaluate(context, node->get_body());
+        evaluate(exec_ctx, node->get_body());
         if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) return result;
 
         if (DiagnosticBag::to_break)
@@ -332,7 +346,8 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
 
         if (((Boolean*)condition)->get_value())
         {
-            Object* value = evaluate(context, node->get_body(i));
+            Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
+            Object* value = evaluate(exec_ctx, node->get_body(i));
             if (DiagnosticBag::should_return()) return result;
             return value;
         }
@@ -340,7 +355,8 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
 
     if (node->get_else_body())
     {
-        Object* value = evaluate(context, node->get_else_body());
+        Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
+        Object* value = evaluate(exec_ctx, node->get_else_body());
         if (DiagnosticBag::should_return()) return result;
         return value;       
     }
@@ -406,7 +422,7 @@ Object* Evaluator::evaluate_function_define(Context* context, const FuncDefineEx
 Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpressionSyntax* node)
 {
     Object* result = Object::none_result;
-    Object* obj = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
+    Object* obj = context->get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (obj->type() != Type::FUNCTION)
     {
         _diagnostics->report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
@@ -458,6 +474,11 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
             return BuiltInFunctions::BI_PRINT(exec_ctx);
         case SyntaxKind::InputFunction:
             return BuiltInFunctions::BI_INPUT(exec_ctx);
+        default:
+        {
+            _diagnostics->report_unreachable_code("invalid builtin function");
+            return Object::none_result;
+        }
     }
 
     return result;
@@ -469,7 +490,7 @@ Object* Evaluator::evaluate_return(Context* context, const ReturnExpressionSynta
     Object* result = Object::none_result;
     if (node->get_to_return())
     {
-        Object* value = evaluate(context, node->get_to_return());
+        evaluate(context, node->get_to_return());
         if (DiagnosticBag::should_return()) return result;
 
         DiagnosticBag::return_value = evaluate(context, node->get_to_return());

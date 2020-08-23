@@ -23,6 +23,7 @@ Object* None::equals(Object* other) const
     {
         case Type::NONE:
             return new Boolean(true);
+        default:
+            return new Boolean(false);
     }
-    return new Boolean(false);
 }

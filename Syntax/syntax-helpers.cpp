@@ -220,6 +220,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
             children = {t->get_var_keyword(), t->get_identifier()};
             break;
         }
+        case SyntaxKind::NoneExpression:
+            break;
         default:
         {
             std::cout << " ";

@@ -1,9 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "Syntax/Expressions/syntax-expressions.h"
-#include "Objects/object.h"
+
 #include "Evaluator/evaluator.h"
-#include "Contexts/context.h"
 #include "constants.h"
 
 Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
@@ -17,25 +15,62 @@ void initialize()
     context->get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
 }
 
+void run(std::string &script, bool show_tree=false, bool show_return=false)
+{
+    Syntax::Parser* parser = new Syntax::Parser(script, show_return);
+    Syntax::SyntaxNode* root = parser->parse();
+
+    if (show_tree) Syntax::pretty_print(root);
+
+    Objects::Object* answer = Objects::Object::none_result;
+    if (!Diagnostics::DiagnosticBag::should_return()) 
+        answer = Evaluator::evaluate(context, root);
+
+    Diagnostics::DiagnosticBag::print();
+
+    // If the List only has one element, print that element.
+    if (!Diagnostics::DiagnosticBag::should_return() && show_return) 
+    {
+        if (answer->type() == Objects::Type::LIST && ((Objects::List*)answer)->get_size() == 1)
+            std::cout << ((Objects::List*)answer)->get_value(0)->to_string();
+        else std::cout << answer->to_string();
+        std::cout << std::endl;
+    }
+}
+
 int main(int argc, char ** argv)
 {
     initialize();
     if (argc == 1)
     {
+        bool show_tree = false;
+        bool show_return = false;
         while(true)
         {
             std::string line;
             std::cout << "> ";
             getline(std::cin, line);
+            if (line == "#showtree")
+            {
+                show_tree = !show_tree;
+                std::cout << (show_tree ? "Showing parse tree..." : "Not showing parse tree...") << std::endl;
+                continue;
+            }
 
-            Syntax::Parser* parser = new Syntax::Parser(line);
-            Syntax::SyntaxNode* root = parser->parse();
+            if(line == "#showreturn")
+            {
+                show_return = !show_return;
+                std::cout << (show_return ? "Showing return values..." : "Not showing return values...") << std::endl;
+                continue;
+            }
 
-            Syntax::pretty_print(root);
-            std::cout << Evaluator::evaluate(context, root)->to_string() << std::endl;
+            if (line == "#cls")
+            {
+                system("CLS");
+                continue;
+            }
             
-            
-            Diagnostics::DiagnosticBag::print();
+            run(line, show_tree, show_return);
             Diagnostics::DiagnosticBag::clear();
         }
     }
@@ -51,13 +86,6 @@ int main(int argc, char ** argv)
 		file.close();
 	}
 
-    Syntax::Parser* parser = new Syntax::Parser(script);
-    Syntax::SyntaxNode* root = parser->parse();
-
-    //Syntax::pretty_print(root);
-
-    std::cout << Evaluator::evaluate(context, root)->to_string() << std::endl;
-    
-    Diagnostics::DiagnosticBag::print();
+    run(script);
     return 0;
 }

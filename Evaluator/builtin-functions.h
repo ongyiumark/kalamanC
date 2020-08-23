@@ -12,4 +12,6 @@ private:
     static Objects::Object* BI_PRINT(Contexts::Context* context);
     static Objects::Object* BI_INPUT(Contexts::Context* context);
     friend class Evaluator; 
+public:
+    static void initialize(Contexts::Context* context);
 };

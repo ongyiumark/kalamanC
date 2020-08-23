@@ -150,3 +150,11 @@ void DiagnosticBag::report_illegal_arguments(int expected, int actual)
     os << "ERROR: expected " << expected << " argument(s), provided with " << actual;
     report(os.str());    
 }
+
+// Occurs when supposedly unreachable code is reached.
+void DiagnosticBag::report_unreachable_code(std::string info)
+{
+    std::ostringstream os;
+    os << "ERROR: reached unreachable code, " << info;
+    report(os.str());    
+}

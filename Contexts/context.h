@@ -5,6 +5,15 @@
 
 namespace Contexts
 {
+    class SymbolTable;
+    // Refer to symbol-table.cpp.
+    struct ObjectSymbol
+    {
+        Objects::Object* object;
+        SymbolTable* symbol;
+        ObjectSymbol(Objects::Object* _object, SymbolTable* _symbol);
+    };
+
     // Refer to symbol-table.cpp.
     class SymbolTable final
     {
@@ -14,7 +23,7 @@ namespace Contexts
     public:
         SymbolTable(SymbolTable* parent);
 
-        Objects::Object* get_object(const std::string name) const;
+        ObjectSymbol get_object(const std::string name);
         void set_object(const std::string name, Objects::Object* object);
 
         SymbolTable* get_parent() const;

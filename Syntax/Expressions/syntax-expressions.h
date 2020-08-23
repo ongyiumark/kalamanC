@@ -237,6 +237,7 @@ namespace Syntax
         std::vector<SyntaxToken*> _tokens;
         int _position;
         Diagnostics::DiagnosticBag* _diagnostics; 
+        bool _show_return;
 
         SyntaxToken* peek(int offset) const;
         SyntaxToken* current() const;
@@ -250,7 +251,7 @@ namespace Syntax
         SyntaxNode* parse_statement();
         SyntaxNode* parse_program(bool sub_program=false);
     public:
-        Parser(std::string& text);
+        Parser(std::string& text, bool show_return);
         SyntaxNode* parse();
     };
 }

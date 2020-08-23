@@ -32,8 +32,9 @@ Object* Double::added_by(Object* other) const
             return new Double(_value+((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Double(_value+((Double*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::subtracted_by(Object* other) const
@@ -44,8 +45,9 @@ Object* Double::subtracted_by(Object* other) const
             return new Double(_value-((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Double(_value-((Double*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::multiplied_by(Object* other) const
@@ -56,8 +58,9 @@ Object* Double::multiplied_by(Object* other) const
             return new Double(_value*((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Double(_value*((Double*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::divided_by(Object* other) const
@@ -76,8 +79,9 @@ Object* Double::divided_by(Object* other) const
             if (other_double->get_value() == 0) return none_result;
             return new Double(_value/other_double->get_value());            
         }
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::powered_by(Object* other) const
@@ -87,9 +91,10 @@ Object* Double::powered_by(Object* other) const
         case Type::INTEGER:
             return new Double(pow(_value, ((Integer*)other)->get_value())); 
         case Type::DOUBLE:
-            return new Double(pow(_value, ((Double*)other)->get_value()));            
+            return new Double(pow(_value, ((Double*)other)->get_value()));     
+        default:
+            return none_result;       
     }
-    return none_result;
 }
 
 // Returns the respective booleans.
@@ -101,8 +106,9 @@ Object* Double::less_than(Object* other) const
             return new Boolean(_value<((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Boolean(_value<((Double*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::greater_than(Object* other) const
@@ -113,8 +119,9 @@ Object* Double::greater_than(Object* other) const
             return new Boolean(_value>((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Boolean(_value>((Double*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* Double::equals(Object* other) const
@@ -125,6 +132,7 @@ Object* Double::equals(Object* other) const
             return new Boolean(_value==((Integer*)other)->get_value());
         case Type::DOUBLE:
             return new Boolean(_value==((Double*)other)->get_value());
+        default:
+            return new Boolean(false);
     }
-    return new Boolean(false);
 }

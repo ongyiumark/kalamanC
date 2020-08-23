@@ -1,8 +1,4 @@
-# Develop
-
-This is an attempt at making it more efficient with better coding practices.
-
-# Kalamansi
+# KalamanC
 Basically, it's an **interpreted programming language** written in C++. 
 
 The **keywords** are **easily replacable**, so you it can be ported to a different language. 
@@ -12,9 +8,7 @@ It's essentially the same project, but this is much more optimized.
 I still don't really know what I'm doing though.
 
 ### Name origins
-I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi++', but it felt too long so I shortened it. 
-
-'KalamanC' seemed too punny.
+I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi++', but it felt too long so I shortened it to 'KalamanC'. 
 
 # Table of Contents
 - [Motivation](#motivation)
@@ -40,14 +34,14 @@ As for the syntax, the grammar of the language is summarized in [this](grammar.t
 I wanted to make an original language, but I'm not that great at language design. I picked this combination of syntax because I didn't like how whitespace mattered in python, and functions with definite return types in C++ felt too restrictive. I'm open to ideas though.
 
 ### Benchmark
-The following script runs in **2.733 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
+The following script runs in **0.490 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
 
 ```
 int i = 0;
 while(i < 1000000) i = i + 1;
 ```
 
-That's about **20 times slower than python**, but that's a huge impovement over my first attempt which was over 100 times slower.
+That's about **4 times slower than python**, but that's a huge impovement over my first attempt which was over 100 times slower.
 
 <a name=code_example></a>
 # Code Example
@@ -58,7 +52,7 @@ That's about **20 times slower than python**, but that's a huge impovement over 
 aka make_list()
 {
   lista a = [];
-  mula (bilang i = 0; i < 10; i = i + 1)
+  para (bilang i = 0; i < 10; i = i + 1)
   {
     kung (i == 4) tuloy;
     a = a + i;
@@ -66,7 +60,7 @@ aka make_list()
   ibalik a;
 }
 
-lathala(make_list())    // This will print [0,1,2,3,5,6,7,8,9]
+lathala(make_list());    // This will print [0,1,2,3,5,6,7,8,9]
 ```
 
 ### In English
@@ -83,7 +77,7 @@ def make_list()
   return a;
 }
 
-print(make_list())    // This will print [0,1,2,3,5,6,7,8,9]
+print(make_list());    // This will print [0,1,2,3,5,6,7,8,9]
 ```
 
 I'll be going over the syntax in more detail below, but if you know C++ and python, you can probably guess from the example above.
@@ -108,7 +102,7 @@ You can run the file without any arguments to run a shell.
 
 `$ ./kalman`
 
-You can also run it with a file containing a **Kalamansi script** to run that script.
+You can also run it with a file containing a **KalamanC script** to run that script.
 
 `$ ./kalman sample.kal`
 
@@ -117,14 +111,14 @@ I chose a `.kal` file extension but really, it can be anything as long as it con
 <a name=tutorial></a>
 # Language Tutorial
 ### Data Types
-Kalamansi currently has 5 data type:
+KalamanC currently has 5 data type:
 - bilang (integer) 
 - doble (double)
 - mgawords (string)
 - lista (list)
 - func
 
-Kalamansi is staticly typed like C++, so delaring and initializing variables have the same syntax as C++.
+KalamanC is staticly typed like C++, so delaring and initializing variables have the same syntax as C++.
 ```
 bilang x;                    // Declares an integer 'x', initializes to 0
 x = 4;                       // Sets 'x' to 4
@@ -133,7 +127,7 @@ mgawords s = "Hello world!"; // Declares a string 's',  sets to "Hello world!"
 lista l = [x,s, y];          // Declares a list 'l', sets to [4, "Hello world", 3.14]
 ```
 Make sure to end your statments with a semicolon. 
-This is because I designed Kalamansi to completely ignore whitespace (no more python indenting errors).
+This is because I designed KalamanC to completely ignore whitespace (no more python indenting errors).
 
 I'll discuss 'func' later when we get to functions, but basically, it can be used to store functions.
 It works the same as the data types above.
@@ -175,7 +169,7 @@ Note the following true values:
 - Functions are always true
 
 ### Conditionals
-Conditionals in kalamansi work the same in C++. The keywords are:
+Conditionals in kalamanC work the same in C++. The keywords are:
 - kung (standard IF)
 - ehkung (standard ELIF)
 - kundi (standard ELSE)
@@ -213,7 +207,7 @@ ehkung (x > 3) lathala("Yes");
 ```
 
 ### Loops
-Loops in kalamansi work the same in C++. The keywords are:
+Loops in kalamanC work the same in C++. The keywords are:
 - habang (standard WHILE)
 - para (C++ FOR)
 - tuloy (standard CONTINUE)
@@ -264,7 +258,7 @@ aka gcd(a,b)
 lathala(gcd(10,25));      // This prints 5
 ```
 
-This is an implentation of a gcd function in Kalamansi. 
+This is an implentation of a gcd function in KalamanC. 
 Notice that I didn't need to enclose it in curly braces because the conditional is a single statement.
 
 You can also store functions into a variable
@@ -291,7 +285,7 @@ a[0] = 3;   // This will incur a runtime error
 ```
 
 ### Comments
-Comments work the same as C++.
+Comments work the same as C++. (not yet implemented)
 
 ```
 // This is a single line comment

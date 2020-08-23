@@ -33,8 +33,9 @@ Object* String::added_by(Object* other) const
     {
         case Type::STRING:
             return new String(_value + ((String*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 // Binary multiplication here again. Refer to integer-object.cpp.
@@ -56,8 +57,9 @@ Object* String::multiplied_by(Object* other) const
             }
             return new String(result);
         }
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 // Returns a substring of length 1 because I didn't implement a character data type.
@@ -73,8 +75,9 @@ Object* String::accessed_by(Object* other) const
             if (i < 0 || i >= n) return none_result;
             return new String(_value.substr(i, 1));
         }
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 // Returns the respective booleans.
@@ -84,8 +87,9 @@ Object* String::less_than(Object* other) const
     {
         case Type::STRING:
             return new Boolean(_value<((String*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* String::greater_than(Object* other) const
@@ -94,8 +98,9 @@ Object* String::greater_than(Object* other) const
     {
         case Type::STRING:
             return new Boolean(_value>((String*)other)->get_value());
+        default:
+            return none_result;
     }
-    return none_result;
 }
 
 Object* String::equals(Object* other) const
@@ -104,6 +109,7 @@ Object* String::equals(Object* other) const
     {
         case Type::STRING:
             return new Boolean(_value==((String*)other)->get_value());
+        default:
+            return new Boolean(false);
     }
-    return new Boolean(false);
 }
