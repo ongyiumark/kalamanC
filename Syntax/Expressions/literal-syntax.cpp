@@ -12,6 +12,13 @@ LiteralExpressionSyntax::LiteralExpressionSyntax(SyntaxToken* literal_token)
     _children = {literal_token};
 }
 
+// Tokens are already deleted by the parser.
+// I delete the object here because I create new objects for boolean values.
+LiteralExpressionSyntax::~LiteralExpressionSyntax()
+{
+    delete _value;
+}
+
 SyntaxKind LiteralExpressionSyntax::kind() const
 {
     return SyntaxKind::LiteralExpression;

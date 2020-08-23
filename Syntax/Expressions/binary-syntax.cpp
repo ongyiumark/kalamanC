@@ -6,6 +6,13 @@ using namespace Syntax;
 BinaryExpressionSyntax::BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken* op_token, SyntaxNode* right)
     : _left(left), _op_token(op_token), _right(right) {}
 
+// Tokens are already deleted by the parser.
+BinaryExpressionSyntax::~BinaryExpressionSyntax()
+{
+    delete _left;
+    delete _right;
+}
+
 SyntaxKind BinaryExpressionSyntax::kind() const
 {
     return SyntaxKind::BinaryExpression;

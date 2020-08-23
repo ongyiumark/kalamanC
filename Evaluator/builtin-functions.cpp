@@ -15,12 +15,15 @@ Object* BuiltInFunctions::BI_PRINT(Context* context)
 {
     Object* obj = context->get_symbol_table()->get_object("value").object;
     std::cout << obj->to_string() << std::endl;
-    return new None();
+
+    delete context;
+    return Object::none_result;
 }
 
 // Reads a line as a string.
 Object* BuiltInFunctions::BI_INPUT(Context* context)
 {
+    delete context;
     std::string val;
     getline(std::cin, val);
     return new String(val);
@@ -30,6 +33,8 @@ Object* BuiltInFunctions::BI_INPUT(Context* context)
 Object* BuiltInFunctions::BI_TO_INT(Context* context)
 {
     Object* obj = context->get_symbol_table()->get_object("value").object;
+    delete context;
+
     switch (obj->type())
     {
         case Type::STRING:

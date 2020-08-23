@@ -7,6 +7,12 @@ using namespace Syntax;
 SequenceExpressionSyntax::SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, bool to_return)
     : _nodes(nodes), _to_return(to_return) {}
 
+SequenceExpressionSyntax::~SequenceExpressionSyntax()
+{
+    for (auto &o : _nodes)
+        delete o;
+}
+
 SyntaxKind SequenceExpressionSyntax::kind() const
 {
     return SyntaxKind::SequenceExpression;

@@ -2,6 +2,8 @@
 
 using namespace Syntax;
 
+SyntaxNode::~SyntaxNode() {}
+
 // These are just to help with the pretty print.
 int SyntaxNode::children_size() const
 {

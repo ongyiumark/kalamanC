@@ -6,6 +6,13 @@ using namespace Syntax;
 FuncCallExpressionSyntax::FuncCallExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxNode*>& args)
     : _identifier(identifier), _args(args) {}
 
+// Tokens are already deleted by the parser.
+FuncCallExpressionSyntax::~FuncCallExpressionSyntax()
+{
+    for (auto &o : _args)
+        delete o;
+}
+
 SyntaxKind FuncCallExpressionSyntax::kind() const
 {
     return SyntaxKind::FuncCallExpression;

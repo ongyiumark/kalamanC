@@ -6,6 +6,17 @@ using namespace Syntax;
 IfExpressionSyntax::IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std::vector<SyntaxNode*>& bodies, 
     SyntaxNode* else_body) : _conditions(conditions), _bodies(bodies), _else_body(else_body) {}
 
+IfExpressionSyntax::~IfExpressionSyntax()
+{
+    for (auto &o : _conditions)
+        delete o;
+    
+    for (auto &o : _bodies)
+        delete o;
+    
+    delete _else_body;
+}
+
 SyntaxKind IfExpressionSyntax::kind() const
 {
     return SyntaxKind::IfExpression;
