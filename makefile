@@ -1,5 +1,6 @@
 kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
 	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
+	rm *.o
 
 program.o: program.cpp 
 	g++ -O2 -Wshadow -Wall -Wno-unused-result -std=c++17 -c program.cpp 
