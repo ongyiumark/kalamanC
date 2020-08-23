@@ -6,12 +6,6 @@ using namespace Syntax;
 FuncDefineExpressionSyntax::FuncDefineExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body)
     : _identifier(identifier), _arg_names(arg_names), _body(body) {}
 
-// Tokens are already deleted by the parser.
-FuncDefineExpressionSyntax::~FuncDefineExpressionSyntax()
-{
-    delete _body;
-}
-
 SyntaxKind FuncDefineExpressionSyntax::kind() const
 {
     return SyntaxKind::FuncDefineExpression;

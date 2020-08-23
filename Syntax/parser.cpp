@@ -7,36 +7,19 @@ Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return
 {
     Syntax::Lexer* lexer = new Syntax::Lexer(text);
     SyntaxToken* token;
-    bool to_delete = false;
     do
     {
-        // Plugging that memory leak
-        if (to_delete)
-        {
-            delete token;
-            to_delete = false;
-        }
-
         token = lexer->lex();
         switch(token->kind())
         {
             case SyntaxKind::BadToken:
             case SyntaxKind::WhitespaceToken:
             case SyntaxKind::CommentToken:
-                to_delete = true;
                 break;
             default:
                 _tokens.push_back(token);
         }
     } while (token->kind() != Syntax::SyntaxKind::EndOfFileToken);
-    
-    delete lexer;
-}
-
-Parser::~Parser()
-{
-    for (auto &o : _tokens)
-        if (o) delete o;
 }
 
 SyntaxToken* Parser::peek(int offset) const

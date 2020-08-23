@@ -5,8 +5,6 @@ using namespace Objects;
 // I'm not sure if this is more efficient, but I'll just return the same none object for everything.
 Object* Object::none_result = new None();
 
-Object::~Object() {}
-
 // Return none type as default. This will tell me when an illegal operation has occured.
 Object* Object::added_by(Object* other) const
 {

@@ -6,12 +6,6 @@ using namespace Syntax;
 VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value)
     : _identifier(identifier), _value(value) {}
 
-// Tokens are already deleted by the parser.
-VarAssignExpressionSyntax::~VarAssignExpressionSyntax()
-{
-    delete _value;
-}
-
 SyntaxKind VarAssignExpressionSyntax::kind() const
 {
     return SyntaxKind::VarAssignExpression;

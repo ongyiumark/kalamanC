@@ -21,7 +21,7 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
 {
     Syntax::Parser* parser = new Syntax::Parser(script, show_return);
     Syntax::SyntaxNode* root = parser->parse();
-    
+
     if (show_tree) Syntax::pretty_print(root);
 
     Objects::Object* answer = Objects::Object::none_result;
@@ -38,11 +38,6 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
         else std::cout << answer->to_string();
         std::cout << std::endl;
     }
-
-    // Plugging that memory leak.
-    delete parser;
-    delete root;
-    if (answer != Objects::Object::none_result) delete answer;
 }
 
 int main(int argc, char ** argv)
@@ -94,6 +89,5 @@ int main(int argc, char ** argv)
 	}
 
     run(script);
-
     return 0;
 }

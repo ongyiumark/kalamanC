@@ -6,14 +6,6 @@ using namespace Syntax;
 ForExpressionSyntax::ForExpressionSyntax(SyntaxNode *init, SyntaxNode* condition, SyntaxNode *update, SyntaxNode* body)
     : _init(init), _condition(condition), _update(update), _body(body) {}
 
-ForExpressionSyntax::~ForExpressionSyntax()
-{
-    delete _init;
-    delete _condition;
-    delete _update;
-    delete _body;
-}
-
 SyntaxKind ForExpressionSyntax::kind() const
 {
     return SyntaxKind::ForExpression;

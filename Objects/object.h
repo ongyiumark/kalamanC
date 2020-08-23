@@ -25,7 +25,6 @@ namespace Objects
     class Object
     {
     public:
-        virtual ~Object();
         static Object* none_result;
         virtual Type type() const = 0;
         virtual std::string to_string() const = 0;

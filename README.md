@@ -46,7 +46,6 @@ while(i < 1000000) i = i + 1;
 ```
 
 That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
-This obviously doesn't give us a full picture of the speed of the language, but it can give a rough estimate. I'm to lazy to do other tests.
 
 <a name=code_example></a>
 # Code Example
@@ -315,7 +314,7 @@ line comment */
 
 <a name=plans></a>
 # Future Plans
-- Fix memory leaks (yes, theres a lot, and I gave up on this.)
+- Fix memory leaks (yes, theres a lot).
 - Add more built in functions
 - Add a mutable list/collection
 - Improve error messages (it's pretty hard to debug if you have the wrong syntax)

@@ -69,17 +69,14 @@ Object* Evaluator::evaluate_unary(Context* context, const UnaryExpressionSyntax*
     Object* result = Object::none_result;
     Object* operand = evaluate(context, node->get_operand());
     if (DiagnosticBag::should_return()) return result;
-    
-    Integer* one = new Integer(1);
-    Integer* minus_one = new Integer(-1);
-
+  
     switch (node->get_op_token()->kind())
     {
         case SyntaxKind::MinusToken:
-            result = operand->multiplied_by(minus_one);
+            result = operand->multiplied_by(new Integer(-1));
             break;
         case SyntaxKind::PlusToken:
-            result = operand->multiplied_by(one);
+            result = operand->multiplied_by(new Integer(1));
             break;
         case SyntaxKind::NotKeyword:
         case SyntaxKind::BangToken:
@@ -89,9 +86,6 @@ Object* Evaluator::evaluate_unary(Context* context, const UnaryExpressionSyntax*
             break;
     }
 
-    delete one;
-    delete minus_one;
-    
     if (result->type() == Type::NONE)
     {
         _diagnostics->report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
@@ -307,28 +301,18 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
     while(true)
     {
         Object* condition = evaluate(context, node->get_condition());
-        if (DiagnosticBag::should_return()) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return()) return result;
         
         if (condition->type() != Type::BOOLEAN)
         {
             _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
-            delete exec_ctx;
             return result;
         }
-
         if (!((Boolean*)condition)->get_value())
             break;
         
         evaluate(exec_ctx, node->get_body());
-        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) return result;
 
         if (DiagnosticBag::to_break)
         {
@@ -342,8 +326,6 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
             continue;
         }
     }
-    
-    delete exec_ctx;
     return result;
 }
 
@@ -366,12 +348,7 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
         {
             Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
             Object* value = evaluate(exec_ctx, node->get_body(i));
-            if (DiagnosticBag::should_return()) 
-            {
-                delete exec_ctx;
-                return result;
-            }
-            delete exec_ctx;
+            if (DiagnosticBag::should_return()) return result;
             return value;
         }
     }
@@ -380,12 +357,7 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
     {
         Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
         Object* value = evaluate(exec_ctx, node->get_else_body());
-        if (DiagnosticBag::should_return()) 
-        {
-            delete exec_ctx;
-            return result;
-        }
-        delete exec_ctx;
+        if (DiagnosticBag::should_return()) return result;
         return value;       
     }
 
@@ -398,25 +370,15 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
     Context* exec_ctx = new Context("for-loop", context, new SymbolTable(context->get_symbol_table()));
     Object* result = Object::none_result;
     evaluate(exec_ctx, node->get_init());
-    if (DiagnosticBag::should_return()) 
-    {
-        delete exec_ctx;
-        return result;
-    }
+    if (DiagnosticBag::should_return()) return result;
 
     while(true)
     {
         Object* condition = evaluate(exec_ctx, node->get_condition());
-        if (DiagnosticBag::should_return()) 
-        {
-            delete exec_ctx;
-            return result;
-        }
-
+        if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
             _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
-            delete exec_ctx;
             return result;
         }
 
@@ -424,11 +386,7 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
             break;
 
         evaluate(exec_ctx, node->get_body());
-        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) return result;
 
         if (DiagnosticBag::to_break)
         {
@@ -439,14 +397,8 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
         if (DiagnosticBag::to_continue) DiagnosticBag::to_continue = false;
 
         evaluate(exec_ctx, node->get_update());
-        if (DiagnosticBag::should_return()) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return()) return result;
     }
-
-    delete exec_ctx;
     return result;
 }
 
@@ -488,7 +440,6 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
     if (n != m)
     {
         _diagnostics->report_illegal_arguments(n, m);
-        delete exec_ctx;
         return result;
     }
     
@@ -497,11 +448,7 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
     for (int i = 0; i < n; i++)
     {
         args.push_back(evaluate(context, node->get_arg(i)));
-        if (DiagnosticBag::should_return()) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return()) return result;
     }
 
     // Populate arguments
@@ -512,17 +459,12 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
     {
         // I had to cast here because I used a void*.
         evaluate(exec_ctx, (SyntaxNode*)func->get_body());
-        if (DiagnosticBag::should_return() && !DiagnosticBag::return_value) 
-        {
-            delete exec_ctx;
-            return result;
-        }
+        if (DiagnosticBag::should_return() && !DiagnosticBag::return_value) return result;
         if (DiagnosticBag::return_value)
         {
             result = DiagnosticBag::return_value;
             DiagnosticBag::return_value = NULL;
         }
-        delete exec_ctx;
         return result;
     }
 
@@ -537,12 +479,10 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
         default:
         {
             _diagnostics->report_unreachable_code("invalid builtin function");
-            delete exec_ctx;
             return Object::none_result;
         }
     }
 
-    delete exec_ctx;
     return result;
 }
 

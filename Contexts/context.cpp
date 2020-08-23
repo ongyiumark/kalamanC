@@ -6,11 +6,6 @@ using namespace Contexts;
 Context::Context(std::string name, Context* parent, SymbolTable* symbol_table)
     : _name(name), _parent(parent), _symbol_table(symbol_table) {}
 
-Context::~Context()
-{
-    delete _symbol_table;
-}
-
 std::string Context::get_name() const
 {
     return _name;

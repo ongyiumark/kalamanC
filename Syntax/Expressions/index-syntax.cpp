@@ -6,12 +6,6 @@ using namespace Syntax;
 IndexExpressionSyntax::IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer)
     : _to_access(to_access), _indexer(indexer)  {}
 
-IndexExpressionSyntax::~IndexExpressionSyntax()
-{
-    delete _to_access;
-    delete _indexer;
-}
-
 SyntaxKind IndexExpressionSyntax::kind() const
 {
     return SyntaxKind::IndexExpression;

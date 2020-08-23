@@ -13,7 +13,6 @@ namespace Syntax
     public:
         LiteralExpressionSyntax(SyntaxToken* literal_token, Objects::Object* value);
         LiteralExpressionSyntax(SyntaxToken* literal_token);
-        ~LiteralExpressionSyntax();
 
         SyntaxKind kind() const;
         Objects::Object* get_object() const;
@@ -28,7 +27,6 @@ namespace Syntax
         SyntaxNode* _operand;
     public:
         UnaryExpressionSyntax(SyntaxToken* op_token, SyntaxNode* operand);
-        ~UnaryExpressionSyntax();
         SyntaxKind kind() const;
         
         SyntaxToken* get_op_token() const;
@@ -44,7 +42,6 @@ namespace Syntax
         SyntaxNode*_right;
     public:
         BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken* op_token, SyntaxNode* right);
-        ~BinaryExpressionSyntax();
         SyntaxKind kind() const;
         SyntaxNode* get_left() const;
         SyntaxToken* get_op_token() const;
@@ -59,7 +56,6 @@ namespace Syntax
         bool _to_return;
     public:
         SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, bool to_return=false);
-        ~SequenceExpressionSyntax();
         SyntaxKind kind() const;    
 
         int get_nodes_size() const;
@@ -76,7 +72,6 @@ namespace Syntax
         SyntaxNode* _body;
     public:
         WhileExpressionSyntax(SyntaxNode* condition, SyntaxNode* body);
-        ~WhileExpressionSyntax();
         SyntaxKind kind() const;
 
         SyntaxNode* get_condition() const;
@@ -90,7 +85,6 @@ namespace Syntax
         SyntaxNode *_init, *_condition, *_update, *_body;
     public:
         ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body);
-        ~ForExpressionSyntax();
         SyntaxKind kind() const;
         SyntaxNode* get_init() const;     
         SyntaxNode* get_condition() const;      
@@ -119,7 +113,6 @@ namespace Syntax
         SyntaxNode* _value;
     public:
         VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value);
-        ~VarAssignExpressionSyntax();
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
         SyntaxNode* get_value() const;
@@ -145,7 +138,6 @@ namespace Syntax
         SyntaxNode* _else_body;
     public:
         IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body);
-        ~IfExpressionSyntax();
         SyntaxKind kind() const;
         SyntaxNode* get_else_body() const;
         
@@ -166,7 +158,6 @@ namespace Syntax
         SyntaxNode* _body;
     public:
         FuncDefineExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body);
-        ~FuncDefineExpressionSyntax();
 
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
@@ -184,8 +175,6 @@ namespace Syntax
         std::vector<SyntaxNode*> _args;
     public:
         FuncCallExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxNode*>& args);
-        ~FuncCallExpressionSyntax();
-
         SyntaxKind kind() const;
         SyntaxToken* get_identifier() const;
         int get_arg_size() const;
@@ -201,8 +190,6 @@ namespace Syntax
         SyntaxNode* _indexer;
     public:
         IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer);
-        ~IndexExpressionSyntax();
-
         SyntaxKind kind() const;
         SyntaxNode* get_to_access() const;
         SyntaxNode* get_indexer() const;
@@ -215,8 +202,6 @@ namespace Syntax
         SyntaxNode* _to_return;
     public:
         ReturnExpressionSyntax(SyntaxNode* to_return);
-        ~ReturnExpressionSyntax();
-
         SyntaxKind kind() const;
         SyntaxNode* get_to_return() const;
     };
@@ -267,7 +252,6 @@ namespace Syntax
         SyntaxNode* parse_program(bool sub_program=false);
     public:
         Parser(std::string& text, bool show_return);
-        ~Parser();
         SyntaxNode* parse();
     };
 }

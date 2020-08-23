@@ -101,7 +101,6 @@ namespace Syntax
     protected:
         std::vector<SyntaxNode*> _children;
     public:
-        virtual ~SyntaxNode();
         virtual SyntaxKind kind() const = 0;
         virtual int children_size() const;
         virtual SyntaxNode* child(int i) const;
@@ -119,6 +118,7 @@ namespace Syntax
         Objects::Object* _value;
     public:
         SyntaxToken(SyntaxKind kind, int position, std::string text, Objects::Object* value);
+
         SyntaxKind kind() const;
         int get_position() const;
         std::string get_text() const;

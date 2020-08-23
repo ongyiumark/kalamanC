@@ -6,12 +6,6 @@ using namespace Syntax;
 UnaryExpressionSyntax::UnaryExpressionSyntax(SyntaxToken* op_token, SyntaxNode* operand)
     : _op_token(op_token), _operand(operand) {}
     
-// Tokens are already deleted by the parser.
-UnaryExpressionSyntax::~UnaryExpressionSyntax()
-{
-    delete _operand;
-}
-
 SyntaxKind UnaryExpressionSyntax::kind() const
 {
     return SyntaxKind::UnaryExpression;
