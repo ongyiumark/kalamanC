@@ -14,6 +14,7 @@ Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return
         {
             case SyntaxKind::BadToken:
             case SyntaxKind::WhitespaceToken:
+            case SyntaxKind::CommentToken:
                 break;
             default:
                 _tokens.push_back(token);
@@ -384,6 +385,7 @@ SyntaxNode* Parser::parse_atom()
         }
         case SyntaxKind::PrintFunction:
         case SyntaxKind::InputFunction:
+        case SyntaxKind::ToIntFunction:
         {
             SyntaxToken* identifier = next_token();
             match_token(SyntaxKind::LParenToken);

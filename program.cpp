@@ -7,12 +7,14 @@
 Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
 Contexts::Context* context = new Contexts::Context("<program>", NULL, global_symbol_table);
 
+// Create Builtin 
 void initialize()
 {
     std::vector<std::string> arg_names = {};
     context->get_symbol_table()->set_object(BI_INPUT, new Objects::Function(BI_INPUT, arg_names, NULL, true));
     arg_names = {"value"};
     context->get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
+    context->get_symbol_table()->set_object(BI_TO_INT, new Objects::Function(BI_TO_INT, arg_names, NULL, true));
 }
 
 void run(std::string &script, bool show_tree=false, bool show_return=false)

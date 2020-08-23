@@ -158,3 +158,11 @@ void DiagnosticBag::report_unreachable_code(std::string info)
     os << "ERROR: reached unreachable code, " << info;
     report(os.str());    
 }
+
+// Occurs when invalid arguments are passed to a builtin function.
+void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type)
+{
+    std::ostringstream os;
+    os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
+    report(os.str());    
+}

@@ -53,6 +53,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::PrintFunction;
     else if (text == BI_INPUT)
         return SyntaxKind::InputFunction;
+    else if (text == BI_TO_INT)
+        return SyntaxKind::ToIntFunction;
     else
         return SyntaxKind::IdentifierToken;
 }

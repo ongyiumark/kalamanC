@@ -15,6 +15,7 @@ namespace Syntax
         BadToken,
         EndOfFileToken,
         WhitespaceToken,
+        CommentToken,
         IntegerToken,
         DoubleToken,
         StringToken,
@@ -88,7 +89,8 @@ namespace Syntax
 
         // Builtin Functions
         PrintFunction,
-        InputFunction
+        InputFunction,
+        ToIntFunction,
     };
 
     std::string kind_to_string(SyntaxKind kind);

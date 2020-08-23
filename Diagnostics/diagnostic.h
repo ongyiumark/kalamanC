@@ -47,5 +47,6 @@ namespace Diagnostics
         void report_undeclared_identifier(std::string identifier);
         void report_illegal_arguments(int expected, int actual);
         void report_unreachable_code(std::string info);
+        void report_invalid_builtin_arguments(std::string name, int i, std::string type);
     };
 }

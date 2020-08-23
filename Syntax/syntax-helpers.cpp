@@ -31,6 +31,7 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::BadToken);
         PROCESS_VAL(SyntaxKind::EndOfFileToken);
         PROCESS_VAL(SyntaxKind::WhitespaceToken);
+        PROCESS_VAL(SyntaxKind::CommentToken);
         PROCESS_VAL(SyntaxKind::IntegerToken);
         PROCESS_VAL(SyntaxKind::DoubleToken);
         PROCESS_VAL(SyntaxKind::StringToken);
@@ -105,6 +106,7 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         // Builtin Functions   
         PROCESS_VAL(SyntaxKind::PrintFunction);  
         PROCESS_VAL(SyntaxKind::InputFunction);  
+        PROCESS_VAL(SyntaxKind::ToIntFunction);  
     }
 #undef PROCESS_VAL
     return s;

@@ -26,3 +26,4 @@ const std::string KT_CONTINUE   = "continue";
 
 const std::string BI_PRINT      = "print";
 const std::string BI_INPUT      = "input";
+const std::string BI_TO_INT     = "to_int";

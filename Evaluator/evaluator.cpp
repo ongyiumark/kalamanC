@@ -474,6 +474,8 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
             return BuiltInFunctions::BI_PRINT(exec_ctx);
         case SyntaxKind::InputFunction:
             return BuiltInFunctions::BI_INPUT(exec_ctx);
+        case SyntaxKind::ToIntFunction:
+            return BuiltInFunctions::BI_TO_INT(exec_ctx);
         default:
         {
             _diagnostics->report_unreachable_code("invalid builtin function");

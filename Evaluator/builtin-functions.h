@@ -8,9 +8,10 @@
 class BuiltInFunctions
 {
 private:
-    Diagnostics::DiagnosticBag* _diagnostics;
+    static Diagnostics::DiagnosticBag* _diagnostics;
     static Objects::Object* BI_PRINT(Contexts::Context* context);
     static Objects::Object* BI_INPUT(Contexts::Context* context);
+    static Objects::Object* BI_TO_INT(Contexts::Context* context);
     friend class Evaluator; 
 public:
     static void initialize(Contexts::Context* context);

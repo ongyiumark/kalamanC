@@ -103,6 +103,33 @@ SyntaxToken* Lexer::lex()
         case '*':
             return new SyntaxToken(SyntaxKind::StarToken, _position++, "*", NULL);
         case '/':
+            if (look_ahead() == '/')
+            {
+                while(current() && current() != '\n')
+                    next();
+                
+                int length = _position-start;
+                std::string text = _text.substr(start, length);
+                return new SyntaxToken(SyntaxKind::CommentToken, start, text, NULL);
+            }
+            else if (look_ahead() == '*')
+            {
+                next(); next();
+                while(true)
+                {
+                    if (current() == '*' && look_ahead() == '/')
+                    {
+                        next(); next();
+                        break;
+                    }
+                    if (!current())
+                        break;
+                    next();
+                }
+                int length = _position-start;
+                std::string text = _text.substr(start, length);
+                return new SyntaxToken(SyntaxKind::CommentToken, start, text, NULL);
+            }
             return new SyntaxToken(SyntaxKind::SlashToken, _position++, "/", NULL);
         case '%':
             return new SyntaxToken(SyntaxKind::ModuloToken, _position++, "%", NULL);

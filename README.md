@@ -27,7 +27,9 @@ If you're reading this and you know what I'm doing wrong, I'm open to criticsm.
 
 <a name=motivation></a>
 # Features
-All the programming languages I know have english keywords, so I wanted to make my own programming language where I could **easily change the keywords**. This can be done by changing a few values in [this](constants.h) header file. Right now, I have a Filipino version of the keywords.
+All the programming languages I know have english keywords, so I wanted to make my own programming language where I could **easily change the keywords**. This can be done by changing a few values in [this](constants.h) header file. 
+
+Right now, I have a Filipino version of the keywords. Just paste the contents of [constants-filipino.h](constants-filipino.h) into the [constants.h](constants.h) file.
 
 As for the syntax, the grammar of the language is summarized in [this](grammar.txt) text file, but it's basically **C++ syntax with python lists and functions**. 
 
@@ -41,7 +43,7 @@ int i = 0;
 while(i < 1000000) i = i + 1;
 ```
 
-That's about **4 times slower than python**, but that's a huge impovement over my first attempt which was over 100 times slower.
+That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
 
 <a name=code_example></a>
 # Code Example
@@ -80,7 +82,7 @@ def make_list()
 print(make_list());    // This will print [0,1,2,3,5,6,7,8,9]
 ```
 
-I'll be going over the syntax in more detail below, but if you know C++ and python, you can probably guess from the example above.
+I'll be going over the syntax in more detail below, but if you're familiar C++ and python, you can probably already guess from the example above.
 
 <a name=installation></a>
 # Installation
@@ -106,12 +108,13 @@ You can also run it with a file containing a **KalamanC script** to run that scr
 
 `$ ./kalman sample.kal`
 
-I chose a `.kal` file extension but really, it can be anything as long as it contains the text of the script.
+I chose a `.kal` file extension, but really it can be anything as long as it contains the text of the script.
 
 <a name=tutorial></a>
 # Language Tutorial
 ### Data Types
-KalamanC currently has 5 data type:
+KalamanC currently has 6 data type:
+- bool (boolean)
 - bilang (integer) 
 - doble (double)
 - mgawords (string)
@@ -120,11 +123,12 @@ KalamanC currently has 5 data type:
 
 KalamanC is staticly typed like C++, so delaring and initializing variables have the same syntax as C++.
 ```
-bilang x;                    // Declares an integer 'x', initializes to 0
-x = 4;                       // Sets 'x' to 4
-doble y = 3.14;              // Declares a double 'y', sets to 3.14
-mgawords s = "Hello world!"; // Declares a string 's',  sets to "Hello world!"
-lista l = [x,s, y];          // Declares a list 'l', sets to [4, "Hello world", 3.14]
+bool b = totoo;               // Declares a boolean 'b', sets to true;
+bilang x;                     // Declares an integer 'x', initializes to 0
+x = 4;                        // Sets 'x' to 4
+doble y = 3.14;               // Declares a double 'y', sets to 3.14
+mgawords s = "Hello world!";  // Declares a string 's',  sets to "Hello world!"
+lista l = [x, s, y];          // Declares a list 'l', sets to [4, "Hello world", 3.14]
 ```
 Make sure to end your statments with a semicolon. 
 This is because I designed KalamanC to completely ignore whitespace (no more python indenting errors).
@@ -146,27 +150,20 @@ We have the following operators:
 - \+, \-, \*, \/, \% (standard arithmetic operators)
 - \^  (power operator)
 - \<, \>, \<=, \>=, \!=, == (standard comparison operators)
-- hindi (standard NOT operator)
-- at (standard AND operator)
-- o (standard OR operator)
+- hindi, ! (standard NOT operator)
+- at, && (standard AND operator)
+- o, || (standard OR operator)
 - xo (standard XOR operator)
 
 ```
-(2+1)^2*2;   // Evaluates to 18
-1+1 > 32;     // Evaluates to 0
-12 > 6 > 3;   // Evaluates to 0
+(2+1)^2*2;    // Evaluates to 18
+1+1 > 32;     // Evaluates to false
+12 > 6 > 3;   // The incurs an error.
 
-13 at 0;      // Evaluates to 0
+13 at 0;      // This incurs an error because logical operators can only be used on booleans
 ```
 
-Boolean values are stored as integers with values of 0 or 1. The third example is false because it first evaluates (12 > 6) as true, 
-and evaluate (1 > 3) as false.
-
-Note the following true values:
-- Integers and doubles are false only if their value is 0.
-- String are false only if it's empty
-- Lists are true if everything in the list is true. This means that an empty list is vacuously true.
-- Functions are always true
+The third example is an error because it first evaluates (12 > 6) as true, and evaluates (true > 3), which is an illegal operation.
 
 ### Conditionals
 Conditionals in kalamanC work the same in C++. The keywords are:
@@ -242,7 +239,6 @@ Reads input from user.
 ##### to_int() (not yet implemented)
 ##### to_double() (not yet implemented)
 ##### to_string() (not yet implemented)
-##### to_list() (not yet implemented)
 ##### type()  (not yet implemented)
 
 #### User-defined Functions
@@ -274,7 +270,7 @@ You can access elements of a list or a string with square brackets. They work si
 
 ```
 lista a = ["Yes", "No", 3, [3,1,3.5]];
-lathala(a[0][-1]);     // Prints "s"
+lathala(a[0][-1]);      // Prints "s"
 lathala(a[-1][-1]);     // Prints 3.5
 ```
 
@@ -285,7 +281,7 @@ a[0] = 3;   // This will incur a runtime error
 ```
 
 ### Comments
-Comments work the same as C++. (not yet implemented)
+Comments work the same as C++.
 
 ```
 // This is a single line comment
@@ -296,14 +292,12 @@ line comment */
 
 <a name=plans></a>
 # Future Plans
-- Fix the memory leaks (yes, there's a lot)
 - Add more built in functions
 - Add a mutable list/collection
 - Improve error messages (it's pretty hard to debug if you have the wrong syntax)
-- Improve runtime (not sure how to)
 
 <a name=acknowledgements></a>
 # Acknowledgments
 
 This was largely based on CodePulse's [Make YOUR OWN Programming Language](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) Series on YouTube.
-The series was written in *python* so I had to make a couple of adjustments. I also implemented my own syntax.
+The series was written in python so I had to make a couple of adjustments. I also implemented my own syntax.
