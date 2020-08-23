@@ -21,3 +21,8 @@ Objects::Object* LiteralExpressionSyntax::get_object() const
 {
     return _value;
 }
+
+SyntaxToken* LiteralExpressionSyntax::get_literal_token() const
+{
+    return _literal_token;
+}

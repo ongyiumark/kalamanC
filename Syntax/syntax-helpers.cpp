@@ -1,4 +1,5 @@
-#include "syntax.h"
+#include "Expressions/syntax-expressions.h"
+#include "../constants.h"
 #include <iostream>
 
 // Checks if a character is a digit. 
@@ -119,22 +120,111 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 
     std::cout << kind_to_string(node->kind());
     
+    std::vector<SyntaxNode*> children;
     switch(node->kind())
     {
-        case SyntaxKind::IntegerToken:
-        case SyntaxKind::StringToken:
-        case SyntaxKind::DoubleToken:
+        case SyntaxKind::LiteralExpression:
         {
-            std::cout << " ";
-            SyntaxToken* token = (SyntaxToken*)node;
-            if (token->get_object()) std::cout << token->get_object()->to_string();
+            children = {((LiteralExpressionSyntax*)node)->get_literal_token()};
             break;
         }
-        case SyntaxKind::IdentifierToken:
+        case SyntaxKind::UnaryExpression:
+        {
+            UnaryExpressionSyntax* t = (UnaryExpressionSyntax*)node;
+            children = {t->get_op_token(), t->get_operand()};
+            break;
+        }
+        case SyntaxKind::BinaryExpression:
+        {
+            BinaryExpressionSyntax* t = (BinaryExpressionSyntax*)node;
+            children = {t->get_left(), t->get_op_token(), t->get_right()};
+            break;
+        }
+        case SyntaxKind::ForExpression:
+        {
+            ForExpressionSyntax* t = (ForExpressionSyntax*)node;
+            children = {t->get_init(), t->get_condition(), t->get_update(), t->get_body()};
+            break;
+        }
+        case SyntaxKind::FuncCallExpression:
+        {
+            FuncCallExpressionSyntax* t = (FuncCallExpressionSyntax*)node;
+            children = {t->get_identifier()};
+            int m = t->get_arg_size();
+            for (int i = 0; i < m; i++) children.push_back(t->get_arg(i));
+            break;
+        }
+        case SyntaxKind::FuncDefineExpression:
+        {
+            FuncDefineExpressionSyntax* t = (FuncDefineExpressionSyntax*)node;
+            children = {t->get_identifier()};
+            int m = t->get_arg_size();
+            for (int i = 0; i < m; i++) children.push_back(t->get_arg_name(i));
+            children.push_back(t->get_body());
+            break;
+        }
+        case SyntaxKind::IfExpression:
+        {
+            IfExpressionSyntax* t = (IfExpressionSyntax*)node;
+            SyntaxToken* if_token = new SyntaxToken(SyntaxKind::IfKeyword, -1, KT_IF, NULL);
+            SyntaxToken* elif_token = new SyntaxToken(SyntaxKind::ElifKeyword, -1, KT_ELIF, NULL);
+            int m = t->get_size();
+            for (int i = 0; i < m; i++)
+            {
+                if (i == 0) children.push_back(if_token);
+                else children.push_back(elif_token);
+                children.push_back(t->get_condition(i));
+                children.push_back(t->get_body(i));
+            }
+
+            if (t->get_else_body())
+            {
+                children.push_back(new SyntaxToken(SyntaxKind::ElseKeyword, -1, KT_ELSE, NULL));
+                children.push_back(t->get_else_body());
+            }
+            break;
+        }
+        case SyntaxKind::IndexExpression:
+        {
+            IndexExpressionSyntax* t = (IndexExpressionSyntax*)node;
+            children = {t->get_to_access(), t->get_indexer()};
+            break;
+        }
+        case SyntaxKind::ReturnExpression:
+        {
+            ReturnExpressionSyntax* t = (ReturnExpressionSyntax*)node;
+            if (t->get_to_return()) children = {t->get_to_return()};
+            break;
+        }
+        case SyntaxKind::SequenceExpression:
+        {
+            SequenceExpressionSyntax* t = (SequenceExpressionSyntax*)node;
+            children = t->get_nodes();
+            break;
+        }
+        case SyntaxKind::VarAccessExpression:
+        {
+            VarAccessExpressionSyntax* t = (VarAccessExpressionSyntax*)node;
+            children = {t->get_identifier()};
+            break;
+        }
+        case SyntaxKind::VarAssignExpression:
+        {
+            VarAssignExpressionSyntax* t = (VarAssignExpressionSyntax*)node;
+            children = {t->get_identifier(), t->get_value()};
+            break;
+        }
+        case SyntaxKind::VarDeclareExpression:
+        {
+            VarDeclareExpressionSyntax* t = (VarDeclareExpressionSyntax*)node;
+            children = {t->get_var_keyword(), t->get_identifier()};
+            break;
+        }
+        default:
         {
             std::cout << " ";
             SyntaxToken* token = (SyntaxToken*)node;
-            std::cout << token->get_text();
+            std::cout << "'" << token->get_text() << "'";
             break;
         }
     }
@@ -142,9 +232,9 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
     std::cout << std::endl;
 
     SyntaxNode* last_child = NULL;
-    int n = node->children_size();
-    if (n) last_child = node->child(n-1);
+    int n = children.size();
+    if (n) last_child = children[n-1];
 
     for (int i = 0; i < n; i++)
-        pretty_print(node->child(i), indent, last_child == node->child(i));
+        pretty_print(children[i], indent, last_child == children[i]);
 }

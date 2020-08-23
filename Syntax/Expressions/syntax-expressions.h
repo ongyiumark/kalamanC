@@ -16,6 +16,7 @@ namespace Syntax
 
         SyntaxKind kind() const;
         Objects::Object* get_object() const;
+        SyntaxToken* get_literal_token() const;
     };
 
     // Refer to unary-syntax.cpp.
