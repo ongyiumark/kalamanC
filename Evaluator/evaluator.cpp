@@ -8,10 +8,8 @@ using namespace Contexts;
 using namespace Diagnostics;
 using namespace Objects;
 
-DiagnosticBag* Evaluator::_diagnostics;
-
 // Picks the right function and casts the node appropriately.
-Object* Evaluator::evaluate(Context* context, const SyntaxNode* node)
+Object* Evaluator::evaluate(Context& context, SyntaxNode* node)
 {
     switch (node->kind())
     {
@@ -53,31 +51,39 @@ Object* Evaluator::evaluate(Context* context, const SyntaxNode* node)
             break;   
     }
 
-    _diagnostics->report_unknown_syntax(kind_to_string(node->kind()));
+    DiagnosticBag::report_unknown_syntax(kind_to_string(node->kind()));
     return Object::none_result;
 }
 
 // Literally just return the object.
-Object* Evaluator::evaluate_literal(Context* context, const LiteralExpressionSyntax* node)
+Object* Evaluator::evaluate_literal(Context& context, LiteralExpressionSyntax* node)
 {
     return node->get_object();
 }
 
 // Unary operations.
-Object* Evaluator::evaluate_unary(Context* context, const UnaryExpressionSyntax* node)
+Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     Object* operand = evaluate(context, node->get_operand());
     if (DiagnosticBag::should_return()) return result;
-  
+
     switch (node->get_op_token()->kind())
     {
         case SyntaxKind::MinusToken:
-            result = operand->multiplied_by(new Integer(-1));
+        {
+            Integer* minus_one = new Integer(-1);
+            result = operand->multiplied_by(minus_one);
+            delete minus_one;
             break;
+        }
         case SyntaxKind::PlusToken:
-            result = operand->multiplied_by(new Integer(1));
+        {
+            Integer* one = new Integer(1);
+            result = operand->multiplied_by(one);
+            delete one;
             break;
+        }
         case SyntaxKind::NotKeyword:
         case SyntaxKind::BangToken:
             result = operand->notted();    
@@ -88,14 +94,16 @@ Object* Evaluator::evaluate_unary(Context* context, const UnaryExpressionSyntax*
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
+        DiagnosticBag::report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
             type_to_string(operand->type()));
     }
+    else DiagnosticBag::add_object(result);
+
     return result;
 }
 
 // Binary operations.
-Object* Evaluator::evaluate_binary(Context* context, const BinaryExpressionSyntax* node)
+Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     Object* left = evaluate(context, node->get_left());
@@ -156,14 +164,14 @@ Object* Evaluator::evaluate_binary(Context* context, const BinaryExpressionSynta
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
+        DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()));
-    }
+    } else DiagnosticBag::add_object(result);
     return result;
 }
 
 // Sequence/List expressions.
-Object* Evaluator::evaluate_sequence(Context* context, const SequenceExpressionSyntax* node)
+Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax* node)
 {
     // List expression.
     if (node->get_to_return())
@@ -175,8 +183,9 @@ Object* Evaluator::evaluate_sequence(Context* context, const SequenceExpressionS
             elements.push_back(evaluate(context, node->get_node(i)));
             if (DiagnosticBag::should_return()) return Object::none_result;
         }
-
-        return new List(elements);
+        List* list_res = new List(elements);
+        DiagnosticBag::add_object(list_res);
+        return list_res;
     }
 
     // Sequence expression.
@@ -190,7 +199,7 @@ Object* Evaluator::evaluate_sequence(Context* context, const SequenceExpressionS
 }
 
 // Index a list or a string.
-Object* Evaluator::evaluate_index(Context* context, const IndexExpressionSyntax* node)
+Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     Object* left = evaluate(context, node->get_to_access());
@@ -203,14 +212,14 @@ Object* Evaluator::evaluate_index(Context* context, const IndexExpressionSyntax*
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
+        DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()));
-    }
+    } else DiagnosticBag::add_object(result);
     return result;
 }
 
 // Declares a variable, assigns a default value.
-Object* Evaluator::evaluate_var_declare(Context* context, const VarDeclareExpressionSyntax* node)
+Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSyntax* node)
 {
     Type type = SyntaxFacts::get_keyword_type(node->get_var_keyword()->kind());
 
@@ -246,33 +255,33 @@ Object* Evaluator::evaluate_var_declare(Context* context, const VarDeclareExpres
         case Objects::Type::FUNCTION:
         {
             std::vector<std::string> arg_names;
-            value = new Objects::Function("<uninitialized>", arg_names, new NoneExpressionSyntax());
+            value = new Objects::Function("<uninitialized>", arg_names, nullptr);
             break;
         }
         default:
         {
-            _diagnostics->report_unreachable_code("invalid type declaration");
+            DiagnosticBag::report_unreachable_code("invalid type declaration");
             return Object::none_result;
         }
     }
-
-    context->get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
+    DiagnosticBag::add_object(value);
+    context.get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
     return value;
 }
 
 // Assigns a value to a variable.
-Object* Evaluator::evaluate_var_assign(Context* context, const VarAssignExpressionSyntax* node)
+Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     Object* value = evaluate(context, node->get_value());
     if (DiagnosticBag::should_return()) return result;
 
-    ObjectSymbol obj_sym = context->get_symbol_table()->get_object(node->get_identifier()->get_text());
+    ObjectSymbol obj_sym = context.get_symbol_table()->get_object(node->get_identifier()->get_text());
 
     Object* orig_value = obj_sym.object;
     if (orig_value->type() != value->type())
     {
-        _diagnostics->report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()));
+        DiagnosticBag::report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()));
         return result;
     }
 
@@ -281,12 +290,12 @@ Object* Evaluator::evaluate_var_assign(Context* context, const VarAssignExpressi
 }
 
 // Accesses a variable.
-Object* Evaluator::evaluate_var_access(Context* context, const VarAccessExpressionSyntax* node)
+Object* Evaluator::evaluate_var_access(Context& context, VarAccessExpressionSyntax* node)
 {
-    Object* result = context->get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
+    Object* result = context.get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_undeclared_identifier(node->get_identifier()->get_text());
+        DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text());
         return result;
     }
 
@@ -294,10 +303,10 @@ Object* Evaluator::evaluate_var_access(Context* context, const VarAccessExpressi
 }
 
 // While statement.
-Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax* node)
+Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
 {
     Object* result = Object::none_result;
-    Context* exec_ctx = new Context("while-loop", context, new SymbolTable(context->get_symbol_table()));
+    Context exec_ctx = Context("while-loop", &context, SymbolTable(context.get_symbol_table()));
     while(true)
     {
         Object* condition = evaluate(context, node->get_condition());
@@ -305,7 +314,7 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
         
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
         if (!((Boolean*)condition)->get_value())
@@ -330,7 +339,7 @@ Object* Evaluator::evaluate_while(Context* context, const WhileExpressionSyntax*
 }
 
 // Conditional staement.
-Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
+Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     int n = node->get_size();
@@ -340,13 +349,13 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
         if (((Boolean*)condition)->get_value())
         {
-            Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
+            Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
             Object* value = evaluate(exec_ctx, node->get_body(i));
             if (DiagnosticBag::should_return()) return result;
             return value;
@@ -355,7 +364,7 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
 
     if (node->get_else_body())
     {
-        Context* exec_ctx = new Context("if-statement", context, new SymbolTable(context->get_symbol_table()));
+        Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
         Object* value = evaluate(exec_ctx, node->get_else_body());
         if (DiagnosticBag::should_return()) return result;
         return value;       
@@ -365,9 +374,9 @@ Object* Evaluator::evaluate_if(Context* context, const IfExpressionSyntax* node)
 }
 
 // For statement.
-Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* node)
+Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
 {
-    Context* exec_ctx = new Context("for-loop", context, new SymbolTable(context->get_symbol_table()));
+    Context exec_ctx = Context("for-loop", &context, SymbolTable(context.get_symbol_table()));
     Object* result = Object::none_result;
     evaluate(exec_ctx, node->get_init());
     if (DiagnosticBag::should_return()) return result;
@@ -378,7 +387,7 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
@@ -403,7 +412,7 @@ Object* Evaluator::evaluate_for(Context* context, const ForExpressionSyntax* nod
 }
 
 // Defines a function.
-Object* Evaluator::evaluate_function_define(Context* context, const FuncDefineExpressionSyntax* node)
+Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressionSyntax* node)
 {
     std::string name = node->get_identifier()->get_text();
     std::vector<std::string> arg_names; 
@@ -414,32 +423,33 @@ Object* Evaluator::evaluate_function_define(Context* context, const FuncDefineEx
         arg_names.push_back(node->get_arg_name(i)->get_text());
     
     Object* val = new Function(name, arg_names, node->get_body());
-    context->get_symbol_table()->set_object(node->get_identifier()->get_text(), val);
+    DiagnosticBag::add_object(val);
+    context.get_symbol_table()->set_object(node->get_identifier()->get_text(), val);
     return val;
 }
 
 // Calls a function.
-Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpressionSyntax* node)
+Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSyntax* node)
 {
     Object* result = Object::none_result;
-    Object* obj = context->get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
+    Object* obj = context.get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (obj->type() != Type::FUNCTION)
     {
-        _diagnostics->report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
+        DiagnosticBag::report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
         return result;
     }
     
     Function* func = (Function*)obj;
 
     // Generate context
-    Context* exec_ctx = new Context(func->get_name(), context, new SymbolTable(context->get_symbol_table()));
+    Context exec_ctx = Context(func->get_name(), &context, SymbolTable(context.get_symbol_table()));
 
     // Check arguments
     int n = func->get_argument_size();
     int m = node->get_arg_size();
     if (n != m)
     {
-        _diagnostics->report_illegal_arguments(n, m);
+        DiagnosticBag::report_illegal_arguments(n, m);
         return result;
     }
     
@@ -453,12 +463,18 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
 
     // Populate arguments
     for (int i = 0; i < n; i++)
-        exec_ctx->get_symbol_table()->set_object(func->get_argument_name(i), args[i]);
+        exec_ctx.get_symbol_table()->set_object(func->get_argument_name(i), args[i]);
 
     if (!func->is_built_in())
     {
         // I had to cast here because I used a void*.
+        if (func->get_body() == nullptr)
+        {
+            DiagnosticBag::report_uninitialized_function();
+            return result;
+        }
         evaluate(exec_ctx, (SyntaxNode*)func->get_body());
+
         if (DiagnosticBag::should_return() && !DiagnosticBag::return_value) return result;
         if (DiagnosticBag::return_value)
         {
@@ -478,7 +494,7 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
             return BuiltInFunctions::BI_TO_INT(exec_ctx);
         default:
         {
-            _diagnostics->report_unreachable_code("invalid builtin function");
+            DiagnosticBag::report_unreachable_code("invalid builtin function");
             return Object::none_result;
         }
     }
@@ -487,7 +503,7 @@ Object* Evaluator::evaluate_function_call(Context* context, const FuncCallExpres
 }
 
 // Return expression.
-Object* Evaluator::evaluate_return(Context* context, const ReturnExpressionSyntax* node)
+Object* Evaluator::evaluate_return(Context& context, ReturnExpressionSyntax* node)
 {
     Object* result = Object::none_result;
     if (node->get_to_return())
@@ -503,14 +519,14 @@ Object* Evaluator::evaluate_return(Context* context, const ReturnExpressionSynta
 }
 
 // Continue expression.
-Object* Evaluator::evaluate_continue(Context* context, const ContinueExpressionSyntax* node)
+Object* Evaluator::evaluate_continue(Context& context, ContinueExpressionSyntax* node)
 {
     DiagnosticBag::to_continue = true;
     return Object::none_result;
 }
 
 // Break expression.
-Object* Evaluator::evaluate_break(Context* context, const BreakExpressionSyntax* node)
+Object* Evaluator::evaluate_break(Context& context, BreakExpressionSyntax* node)
 {
     DiagnosticBag::to_break = true;
     return Object::none_result;

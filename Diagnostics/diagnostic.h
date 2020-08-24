@@ -20,9 +20,13 @@ namespace Diagnostics
     {
     private:
         static std::vector<Diagnostic> _diagnostics;
-        void report(std::string message);
+        static std::vector<Objects::Object*> deleter; 
+
+        static void report(std::string message);
     public:
         DiagnosticBag();
+
+        static void add_object(Objects::Object* obj);
 
         static bool should_return();
         static bool to_continue;
@@ -35,18 +39,19 @@ namespace Diagnostics
         static void print();
         static void clear();
         
-        void report_bad_character(char c);
-        void report_invalid_type(std::string text, std::string type);
-        void report_expected_character(char c);
-        void report_unexpected_token(std::string actual, std::string expected);
-        void report_illegal_binary_operation(std::string left, std::string operation, std::string right);
-        void report_illegal_unary_operation(std::string operation, std::string operand);
-        void report_unknown_syntax(std::string syntax);
-        void report_unexpected_type(std::string acutal, std::string expected);
-        void report_invalid_assign(std::string actual, std::string expected);
-        void report_undeclared_identifier(std::string identifier);
-        void report_illegal_arguments(int expected, int actual);
-        void report_unreachable_code(std::string info);
-        void report_invalid_builtin_arguments(std::string name, int i, std::string type);
+        static void report_bad_character(char c);
+        static void report_invalid_type(std::string text, std::string type);
+        static void report_expected_character(char c);
+        static void report_unexpected_token(std::string actual, std::string expected);
+        static void report_illegal_binary_operation(std::string left, std::string operation, std::string right);
+        static void report_illegal_unary_operation(std::string operation, std::string operand);
+        static void report_unknown_syntax(std::string syntax);
+        static void report_unexpected_type(std::string acutal, std::string expected);
+        static void report_invalid_assign(std::string actual, std::string expected);
+        static void report_undeclared_identifier(std::string identifier);
+        static void report_illegal_arguments(int expected, int actual);
+        static void report_unreachable_code(std::string info);
+        static void report_invalid_builtin_arguments(std::string name, int i, std::string type);
+        static void report_uninitialized_function();
     };
 }

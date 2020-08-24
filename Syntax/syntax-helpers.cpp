@@ -127,7 +127,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
     {
         case SyntaxKind::LiteralExpression:
         {
-            children = {((LiteralExpressionSyntax*)node)->get_literal_token()};
+            LiteralExpressionSyntax* t = (LiteralExpressionSyntax*)node;
+            std::cout << " " << t->get_object()->to_string();
             break;
         }
         case SyntaxKind::UnaryExpression:
@@ -168,20 +169,21 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::IfExpression:
         {
             IfExpressionSyntax* t = (IfExpressionSyntax*)node;
-            SyntaxToken* if_token = new SyntaxToken(SyntaxKind::IfKeyword, -1, KT_IF, NULL);
-            SyntaxToken* elif_token = new SyntaxToken(SyntaxKind::ElifKeyword, -1, KT_ELIF, NULL);
+            SyntaxToken if_token = SyntaxToken(SyntaxKind::IfKeyword, -1, KT_IF);
+            SyntaxToken elif_token = SyntaxToken(SyntaxKind::ElifKeyword, -1, KT_ELIF);
+            SyntaxToken else_token = SyntaxToken(SyntaxKind::ElseKeyword, -1, KT_ELSE);
             int m = t->get_size();
             for (int i = 0; i < m; i++)
             {
-                if (i == 0) children.push_back(if_token);
-                else children.push_back(elif_token);
+                if (i == 0) children.push_back(&if_token);
+                else children.push_back(&elif_token);
                 children.push_back(t->get_condition(i));
                 children.push_back(t->get_body(i));
             }
 
             if (t->get_else_body())
             {
-                children.push_back(new SyntaxToken(SyntaxKind::ElseKeyword, -1, KT_ELSE, NULL));
+                children.push_back(&else_token);
                 children.push_back(t->get_else_body());
             }
             break;
@@ -235,7 +237,7 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 
     std::cout << std::endl;
 
-    SyntaxNode* last_child = NULL;
+    SyntaxNode* last_child = nullptr;
     int n = children.size();
     if (n) last_child = children[n-1];
 

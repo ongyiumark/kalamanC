@@ -3,20 +3,25 @@
 using namespace Syntax;
 
 // Assigns a value to an existing variable.
-VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value)
+VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value)
     : _identifier(identifier), _value(value) {}
+
+VarAssignExpressionSyntax::~VarAssignExpressionSyntax()
+{
+    delete _value;
+}
 
 SyntaxKind VarAssignExpressionSyntax::kind() const
 {
     return SyntaxKind::VarAssignExpression;
 }
 
-SyntaxNode* VarAssignExpressionSyntax::get_value() const
+SyntaxNode* VarAssignExpressionSyntax::get_value()
 {
     return _value;
 }
 
-SyntaxToken* VarAssignExpressionSyntax::get_identifier() const
+SyntaxToken* VarAssignExpressionSyntax::get_identifier()
 {
-    return _identifier;
+    return &_identifier;
 }

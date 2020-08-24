@@ -95,15 +95,11 @@ namespace Syntax
 
     std::string kind_to_string(SyntaxKind kind);
 
-    // Refer to syntax-node.cpp.
     class SyntaxNode
     {
-    protected:
-        std::vector<SyntaxNode*> _children;
     public:
+        virtual ~SyntaxNode(); 
         virtual SyntaxKind kind() const = 0;
-        virtual int children_size() const;
-        virtual SyntaxNode* child(int i) const;
     };
 
     void pretty_print(SyntaxNode* node, std::string indent="", bool is_last=true);
@@ -115,14 +111,14 @@ namespace Syntax
         SyntaxKind _kind;
         int _position;
         std::string _text;
-        Objects::Object* _value;
     public:
-        SyntaxToken(SyntaxKind kind, int position, std::string text, Objects::Object* value);
+        SyntaxToken(SyntaxKind kind, int position, std::string text);
+        SyntaxToken();
+        ~SyntaxToken();
 
         SyntaxKind kind() const;
         int get_position() const;
         std::string get_text() const;
-        Objects::Object* get_object() const;
     };
 
     // Refer to lexer.cpp.
@@ -131,7 +127,6 @@ namespace Syntax
     private:
         const std::string _text;
         int _position;
-        Diagnostics::DiagnosticBag* _diagnostics;
 
         char peek(int offset) const;
         char current() const;
@@ -139,7 +134,7 @@ namespace Syntax
         void next(); 
     public:
         Lexer(const std::string& text);
-        SyntaxToken* lex();
+        SyntaxToken lex();
     };
 
     // Refer to syntax-facts.cpp.

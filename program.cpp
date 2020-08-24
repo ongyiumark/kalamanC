@@ -4,23 +4,28 @@
 #include "Evaluator/evaluator.h"
 #include "constants.h"
 
-Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
-Contexts::Context* context = new Contexts::Context("<program>", NULL, global_symbol_table);
+Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(NULL);
+Contexts::Context context("<program>", NULL, global_symbol_table);
 
 // Create Builtin 
+void add_builtin_function(std::string name, std::vector<std::string> arg_names)
+{
+    Objects::Object* func = new Objects::Function(name, arg_names, nullptr, true);
+    Diagnostics::DiagnosticBag::add_object(func);
+    context.get_symbol_table()->set_object(name, func);
+}
+
 void initialize()
 {
-    std::vector<std::string> arg_names = {};
-    context->get_symbol_table()->set_object(BI_INPUT, new Objects::Function(BI_INPUT, arg_names, NULL, true));
-    arg_names = {"value"};
-    context->get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
-    context->get_symbol_table()->set_object(BI_TO_INT, new Objects::Function(BI_TO_INT, arg_names, NULL, true));
+    add_builtin_function(BI_INPUT, {});
+    add_builtin_function(BI_PRINT, {"value"});
+    add_builtin_function(BI_TO_INT, {"value"});
 }
 
 void run(std::string &script, bool show_tree=false, bool show_return=false)
 {
-    Syntax::Parser* parser = new Syntax::Parser(script, show_return);
-    Syntax::SyntaxNode* root = parser->parse();
+    Syntax::Parser parser(script, show_return);
+    Syntax::SyntaxNode* root = parser.parse();
 
     if (show_tree) Syntax::pretty_print(root);
 
@@ -38,6 +43,9 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
         else std::cout << answer->to_string();
         std::cout << std::endl;
     }
+
+    delete root;
+    Diagnostics::DiagnosticBag::clear();
 }
 
 int main(int argc, char ** argv)
@@ -73,7 +81,6 @@ int main(int argc, char ** argv)
             }
             
             run(line, show_tree, show_return);
-            Diagnostics::DiagnosticBag::clear();
         }
     }
 

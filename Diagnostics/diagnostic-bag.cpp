@@ -7,6 +7,9 @@ using namespace Diagnostics;
 
 DiagnosticBag::DiagnosticBag() {}
 
+// This keeps track of new objects so I can do garbage collected later.
+std::vector<Objects::Object*> DiagnosticBag::deleter = std::vector<Objects::Object*>();
+
 // I made this static so I just have one bag for the entire program.
 std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>(); 
 
@@ -14,6 +17,12 @@ std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>();
 bool DiagnosticBag::to_continue = false;
 bool DiagnosticBag::to_break = false;
 Objects::Object* DiagnosticBag::return_value = NULL;
+
+// Add the object here every time I create a new object.
+void DiagnosticBag::add_object(Objects::Object* obj)
+{
+    deleter.push_back(obj);
+}
 
 // This signals the evaluator to stop propagating values.
 bool DiagnosticBag::should_return()
@@ -56,6 +65,9 @@ void DiagnosticBag::clear()
     to_continue = false;
     to_break = false;
     return_value = NULL;
+    for (auto &o : deleter)
+        delete o;
+    deleter.clear();
 }
 
 // Occurs when the lexer encounters an unknown character
@@ -164,5 +176,13 @@ void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, st
 {
     std::ostringstream os;
     os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
+    report(os.str());    
+}
+
+// Occurs when an uninitialized function is called
+void DiagnosticBag::report_uninitialized_function()
+{
+    std::ostringstream os;
+    os << "ERROR: cannot call uninitialized function";
     report(os.str());    
 }

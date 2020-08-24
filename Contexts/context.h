@@ -35,12 +35,12 @@ namespace Contexts
     private:
         std::string _name;
         Context* _parent;
-        SymbolTable* _symbol_table;
+        SymbolTable _symbol_table;
     public:
-        Context(std::string name, Context* parent, SymbolTable* symbol_table);
+        Context(std::string name, Context* parent, SymbolTable symbol_table);
 
         std::string get_name() const;
         Context* get_parent() const;
-        SymbolTable* get_symbol_table() const;
+        SymbolTable* get_symbol_table();
     };
 }

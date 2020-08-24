@@ -29,11 +29,11 @@ void Lexer::next()
     _position++;
 }
 
-SyntaxToken* Lexer::lex()
+SyntaxToken Lexer::lex()
 {
     // Inserts an end of file token at the end.
     if (_position >= (int)_text.size())
-        return new SyntaxToken(SyntaxKind::EndOfFileToken, _position, "\0", NULL);
+        return SyntaxToken(SyntaxKind::EndOfFileToken, _position, "\0");
     
     int start = _position;
 
@@ -45,7 +45,7 @@ SyntaxToken* Lexer::lex()
         int length = _position-start;
         std::string text = _text.substr(start, length);
         SyntaxKind kind = SyntaxFacts::get_keyword_kind(text);
-        return new SyntaxToken(kind, start, text, NULL);
+        return SyntaxToken(kind, start, text);
     }
 
     if (is_digit(current()))
@@ -67,20 +67,20 @@ SyntaxToken* Lexer::lex()
             long long x;
             std::istringstream is(text);
             if (is >> x)
-                return new SyntaxToken(SyntaxKind::IntegerToken, start, text, new Integer(x));
+                return SyntaxToken(SyntaxKind::IntegerToken, start, text);
 
-            _diagnostics->report_invalid_type(text, type_to_string(Type::INTEGER));
-            return new SyntaxToken(SyntaxKind::IntegerToken, start, text, NULL);            
+            Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER));
+            return SyntaxToken(SyntaxKind::IntegerToken, start, text);            
         }
         else
         {
             long double x;
             std::istringstream is(text);
             if (is >> x)
-                return new SyntaxToken(SyntaxKind::DoubleToken, start, text, new Double(x));
+                return SyntaxToken(SyntaxKind::DoubleToken, start, text);
     
-            _diagnostics->report_invalid_type(text, type_to_string(Type::DOUBLE));
-            return new SyntaxToken(SyntaxKind::DoubleToken, start, text, NULL);    
+            Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE));
+            return SyntaxToken(SyntaxKind::DoubleToken, start, text);    
         }
     }
 
@@ -91,17 +91,17 @@ SyntaxToken* Lexer::lex()
 
         int length = _position-start;
         std::string text = _text.substr(start, length);
-        return new SyntaxToken(SyntaxKind::WhitespaceToken, start, text, NULL);
+        return SyntaxToken(SyntaxKind::WhitespaceToken, start, text);
     }
 
     switch(current())
     {
         case '+':
-            return new SyntaxToken(SyntaxKind::PlusToken, _position++, "+", NULL);
+            return SyntaxToken(SyntaxKind::PlusToken, _position++, "+");
         case '-':
-            return new SyntaxToken(SyntaxKind::MinusToken, _position++, "-", NULL);
+            return SyntaxToken(SyntaxKind::MinusToken, _position++, "-");
         case '*':
-            return new SyntaxToken(SyntaxKind::StarToken, _position++, "*", NULL);
+            return SyntaxToken(SyntaxKind::StarToken, _position++, "*");
         case '/':
             if (look_ahead() == '/')
             {
@@ -110,7 +110,7 @@ SyntaxToken* Lexer::lex()
                 
                 int length = _position-start;
                 std::string text = _text.substr(start, length);
-                return new SyntaxToken(SyntaxKind::CommentToken, start, text, NULL);
+                return SyntaxToken(SyntaxKind::CommentToken, start, text);
             }
             else if (look_ahead() == '*')
             {
@@ -128,55 +128,55 @@ SyntaxToken* Lexer::lex()
                 }
                 int length = _position-start;
                 std::string text = _text.substr(start, length);
-                return new SyntaxToken(SyntaxKind::CommentToken, start, text, NULL);
+                return SyntaxToken(SyntaxKind::CommentToken, start, text);
             }
-            return new SyntaxToken(SyntaxKind::SlashToken, _position++, "/", NULL);
+            return SyntaxToken(SyntaxKind::SlashToken, _position++, "/");
         case '%':
-            return new SyntaxToken(SyntaxKind::ModuloToken, _position++, "%", NULL);
+            return SyntaxToken(SyntaxKind::ModuloToken, _position++, "%");
         case '^':
-            return new SyntaxToken(SyntaxKind::PowerToken, _position++, "^", NULL);
+            return SyntaxToken(SyntaxKind::PowerToken, _position++, "^");
         case '=':
         {
             if (look_ahead() == '=') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::DEqualsToken, start, "==", NULL);
+                return SyntaxToken(SyntaxKind::DEqualsToken, start, "==");
             }
-            return new SyntaxToken(SyntaxKind::EqualsToken, _position++, "=", NULL);
+            return SyntaxToken(SyntaxKind::EqualsToken, _position++, "=");
         }
         case '!':
         {
             if (look_ahead() == '=') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::BangEqualsToken, start, "!=", NULL);
+                return SyntaxToken(SyntaxKind::BangEqualsToken, start, "!=");
             }
-            return new SyntaxToken(SyntaxKind::BangToken, _position++, "!", NULL);
+            return SyntaxToken(SyntaxKind::BangToken, _position++, "!");
         }
         case '<':
         {
             if (look_ahead() == '=') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::LessEqualsToken, start, "<=", NULL);
+                return SyntaxToken(SyntaxKind::LessEqualsToken, start, "<=");
             }
-            return new SyntaxToken(SyntaxKind::LessThanToken, _position++, "<", NULL);
+            return SyntaxToken(SyntaxKind::LessThanToken, _position++, "<");
         }
         case '>':
         {
             if (look_ahead() == '=') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::GreaterEqualsToken, start, ">=", NULL);              
+                return SyntaxToken(SyntaxKind::GreaterEqualsToken, start, ">=");              
             }
-            return new SyntaxToken(SyntaxKind::GreaterThanToken, _position++, ">", NULL);
+            return SyntaxToken(SyntaxKind::GreaterThanToken, _position++, ">");
         }
         case '&':
         {
             if (look_ahead() == '&') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::DAmpersandToken, start, "&&", NULL);  
+                return SyntaxToken(SyntaxKind::DAmpersandToken, start, "&&");  
             }
             break;           
         }
@@ -185,26 +185,26 @@ SyntaxToken* Lexer::lex()
             if (look_ahead() == '|') 
             {
                 _position+=2;
-                return new SyntaxToken(SyntaxKind::DPipeToken, start, "||", NULL);
+                return SyntaxToken(SyntaxKind::DPipeToken, start, "||");
             }
             break;           
         }
         case '(':
-            return new SyntaxToken(SyntaxKind::LParenToken, _position++, "(", NULL);
+            return SyntaxToken(SyntaxKind::LParenToken, _position++, "(");
         case ')':
-            return new SyntaxToken(SyntaxKind::RParenToken, _position++, ")", NULL);
+            return SyntaxToken(SyntaxKind::RParenToken, _position++, ")");
         case '[':
-            return new SyntaxToken(SyntaxKind::LSquareToken, _position++, "[", NULL);
+            return SyntaxToken(SyntaxKind::LSquareToken, _position++, "[");
         case ']':
-            return new SyntaxToken(SyntaxKind::RSquareToken, _position++, "]", NULL);
+            return SyntaxToken(SyntaxKind::RSquareToken, _position++, "]");
         case '{':
-            return new SyntaxToken(SyntaxKind::LCurlyToken, _position++, "{", NULL);
+            return SyntaxToken(SyntaxKind::LCurlyToken, _position++, "{");
         case '}':
-            return new SyntaxToken(SyntaxKind::RCurlyToken, _position++, "}", NULL);
+            return SyntaxToken(SyntaxKind::RCurlyToken, _position++, "}");
         case ',':
-            return new SyntaxToken(SyntaxKind::CommaToken, _position++, ",", NULL);
+            return SyntaxToken(SyntaxKind::CommaToken, _position++, ",");
         case ';':
-            return new SyntaxToken(SyntaxKind::SemicolonToken, _position++, ";", NULL);
+            return SyntaxToken(SyntaxKind::SemicolonToken, _position++, ";");
         case '"':
         {
             next();
@@ -215,18 +215,18 @@ SyntaxToken* Lexer::lex()
             std::string text = _text.substr(start+1, length-1);
             if (current() != '"')
             {
-                _diagnostics->report_expected_character('"');
-                return new SyntaxToken(SyntaxKind::StringToken, start, text, NULL);
+                Diagnostics::DiagnosticBag::report_expected_character('"');
+                return SyntaxToken(SyntaxKind::StringToken, start, text);
             }
             next();
                        
-            return new SyntaxToken(SyntaxKind::StringToken, start, text, new String(text));
+            return SyntaxToken(SyntaxKind::StringToken, start, text);
         }
     }
 
     // Report and return a bad character.
     std::string text = _text.substr(start, 1);
-    _diagnostics->report_bad_character(current());
-    return new SyntaxToken(SyntaxKind::BadToken, _position++, text, NULL);
+    Diagnostics::DiagnosticBag::report_bad_character(current());
+    return SyntaxToken(SyntaxKind::BadToken, _position++, text);
 }
 
