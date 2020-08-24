@@ -1,5 +1,5 @@
-kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
-	g++ -O2 -march=native -Wall -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
+kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluators.o
+	g++ -O2 -march=native -Wall -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluators.o 
 
 program.o: program.cpp 
 	g++ -O2 -march=native -Wall -std=c++17 -c program.cpp 
@@ -139,11 +139,17 @@ continue-syntax.o: Syntax/Expressions/continue-syntax.cpp
 break-syntax.o: Syntax/Expressions/break-syntax.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Syntax/Expressions/break-syntax.cpp
 
-evaluator.o: Evaluator/evaluator.cpp
-	g++ -O2 -march=native -Wall -std=c++17 -c Evaluator/evaluator.cpp
+evaluators.o: evaluator.o builtin-functions.o initialize.o
+	ld -r -o evaluators.o evaluator.o builtin-functions.o initialize.o
 
-builtin-functions.o: Evaluator/builtin-functions.cpp
-	g++ -O2 -march=native -Wall -std=c++17 -c Evaluator/builtin-functions.cpp
+evaluator.o: Evaluators/evaluator.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/evaluator.cpp
+
+builtin-functions.o: Evaluators/builtin-functions.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/builtin-functions.cpp
+
+initialize.o: Evaluators/initialize.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/initialize.cpp
 
 make clean:
 	rm *.o 

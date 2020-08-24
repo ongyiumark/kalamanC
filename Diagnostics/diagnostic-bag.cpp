@@ -10,17 +10,6 @@ DiagnosticBag::DiagnosticBag() {}
 // I made this static so I just have one bag for the entire program.
 std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>(); 
 
-// These help in evaluation. I didn't know where else to put them.
-bool DiagnosticBag::to_continue = false;
-bool DiagnosticBag::to_break = false;
-Objects::Object* DiagnosticBag::return_value = NULL;
-
-// This signals the evaluator to stop propagating values.
-bool DiagnosticBag::should_return()
-{
-    return _diagnostics.size() || to_break || to_continue || return_value;
-}
-
 int DiagnosticBag::size()
 {
     return _diagnostics.size();
@@ -42,6 +31,7 @@ void DiagnosticBag::report(std::string message)
     _diagnostics.push_back(Diagnostic(message));
 }
 
+// Prints all the errors.
 void DiagnosticBag::print()
 {
     int n = _diagnostics.size();
@@ -53,12 +43,9 @@ void DiagnosticBag::print()
 void DiagnosticBag::clear()
 {
     _diagnostics.clear();
-    to_continue = false;
-    to_break = false;
-    return_value = NULL;
 }
 
-// Occurs when the lexer encounters an unknown character
+// Occurs when the lexer encounters an unknown character.
 void DiagnosticBag::report_bad_character(char c)
 {
     std::ostringstream os;
@@ -144,14 +131,15 @@ void DiagnosticBag::report_undeclared_identifier(std::string identifier)
 }
 
 // Occurs when the wrong number of arguments are given when calling a function.
-void DiagnosticBag::report_illegal_arguments(int expected, int actual)
+void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name)
 {
     std::ostringstream os;
-    os << "ERROR: expected " << expected << " argument(s), provided with " << actual;
+    os << "ERROR: provided with " << actual << "argument(s), expected " << expected;
     report(os.str());    
 }
 
 // Occurs when supposedly unreachable code is reached.
+// Again, this should never occur unless I messed up.
 void DiagnosticBag::report_unreachable_code(std::string info)
 {
     std::ostringstream os;
@@ -164,13 +152,5 @@ void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, st
 {
     std::ostringstream os;
     os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
-    report(os.str());    
-}
-
-// Occurs when an uninitialized function is called
-void DiagnosticBag::report_uninitialized_function()
-{
-    std::ostringstream os;
-    os << "ERROR: cannot call uninitialized function";
     report(os.str());    
 }

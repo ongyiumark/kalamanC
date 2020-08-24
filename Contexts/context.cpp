@@ -2,7 +2,7 @@
 
 using namespace Contexts;
 
-// This helps if I want to have detailed tracebacks of errors in the future.
+// Helps with a detailed traceback of errors.
 Context::Context(std::string name, Context* parent, SymbolTable symbol_table)
     : _name(name), _parent(parent), _symbol_table(symbol_table) {}
 

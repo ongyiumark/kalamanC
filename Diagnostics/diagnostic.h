@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Objects/object.h"
 #include <vector>
+#include <string>
 
 namespace Diagnostics
 {
@@ -20,15 +20,9 @@ namespace Diagnostics
     {
     private:
         static std::vector<Diagnostic> _diagnostics;
-
         static void report(std::string message);
     public:
         DiagnosticBag();
-
-        static bool should_return();
-        static bool to_continue;
-        static bool to_break;
-        static Objects::Object* return_value;
 
         static int size();
         static Diagnostic diagnostic(int i);
@@ -46,9 +40,8 @@ namespace Diagnostics
         static void report_unexpected_type(std::string acutal, std::string expected);
         static void report_invalid_assign(std::string actual, std::string expected);
         static void report_undeclared_identifier(std::string identifier);
-        static void report_illegal_arguments(int expected, int actual);
+        static void report_illegal_arguments(int actual, int expected, std::string name);
         static void report_unreachable_code(std::string info);
         static void report_invalid_builtin_arguments(std::string name, int i, std::string type);
-        static void report_uninitialized_function();
     };
 }

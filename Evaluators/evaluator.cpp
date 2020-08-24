@@ -7,6 +7,25 @@ using namespace Syntax;
 using namespace Contexts;
 using namespace Diagnostics;
 using namespace Objects;
+using namespace Evaluators;
+
+// These help in evaluation. 
+bool Evaluator::to_continue = false;
+bool Evaluator::to_break = false;
+Object* Evaluator::return_value = nullptr;
+
+void Evaluator::clear()
+{
+    to_continue = false;
+    to_break = false;
+    return_value = nullptr;
+}
+
+// This signals the evaluator to stop propagating values.
+bool Evaluator::should_return()
+{
+    return DiagnosticBag::size() || to_break || to_continue || return_value;
+}
 
 // Picks the right function and casts the node appropriately.
 Object* Evaluator::evaluate(Context& context, SyntaxNode* node)
@@ -66,7 +85,7 @@ Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
 {
     Object* result = nullptr;
     Object* operand = evaluate(context, node->get_operand());
-    if (DiagnosticBag::should_return()) 
+    if (should_return()) 
     {
         delete operand;
         return new None();
@@ -112,7 +131,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
 {
     Object* left = evaluate(context, node->get_left());
 
-    if (DiagnosticBag::should_return()) 
+    if (should_return()) 
     {
         delete left;
         return new None();
@@ -120,7 +139,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
 
     Object* right = evaluate(context, node->get_right());
     
-    if (DiagnosticBag::should_return()) 
+    if (should_return()) 
     {
         delete left;
         delete right;
@@ -203,7 +222,7 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
             Object* obj = evaluate(context, node->get_node(i));
             elements.push_back(obj->copy());
             delete obj;
-            if (DiagnosticBag::should_return()) 
+            if (should_return()) 
             {
                 for (auto &o : elements)
                     delete o;
@@ -220,7 +239,7 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
     {
         Object* obj = evaluate(context, node->get_node(i));
         delete obj;
-        if (DiagnosticBag::should_return()) return new None();
+        if (should_return()) return new None();
     }
     return new None();
 }
@@ -229,14 +248,14 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
 Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 {
     Object* left = evaluate(context, node->get_to_access());
-    if (DiagnosticBag::should_return()) 
+    if (should_return()) 
     {
         delete left;
         return new None();    
     }
   
     Object* right = evaluate(context, node->get_indexer());
-    if (DiagnosticBag::should_return())
+    if (should_return())
     {
         delete left;
         delete right;
@@ -313,7 +332,7 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
 Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSyntax* node)
 {
     Object* value = evaluate(context, node->get_value());
-    if (DiagnosticBag::should_return()) 
+    if (should_return()) 
     {
         delete value;
         return new None();
@@ -354,7 +373,7 @@ Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
     while(true)
     {
         Object* condition = evaluate(context, node->get_condition());
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             delete condition;
             return new None();
@@ -377,18 +396,18 @@ Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
         delete body_obj;
         delete condition;
 
-        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) 
+        if (should_return() && !(to_break || to_continue)) 
             return new None();
         
-        if (DiagnosticBag::to_break)
+        if (to_break)
         {
-            DiagnosticBag::to_break = false;
+            to_break = false;
             break;
         }
 
-        if (DiagnosticBag::to_continue)
+        if (to_continue)
         {
-            DiagnosticBag::to_continue = false;
+            to_continue = false;
             continue;
         }
     }
@@ -402,7 +421,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
     for (int i = 0; i < n; i++)
     {
         Object* condition = evaluate(context,node->get_condition(i));
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             delete condition;
             return new None();
@@ -420,7 +439,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
             Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
             Object* value = evaluate(exec_ctx, node->get_body(i));
             delete condition;
-            if (DiagnosticBag::should_return()) 
+            if (should_return()) 
             {
                 delete value;
                 return new None();
@@ -434,7 +453,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
     {
         Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
         Object* value = evaluate(exec_ctx, node->get_else_body());
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             delete value;
             return new None();
@@ -451,12 +470,12 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
     Context exec_ctx = Context("for-loop", &context, SymbolTable(context.get_symbol_table()));
     Object* init_obj = evaluate(exec_ctx, node->get_init());
     delete init_obj;
-    if (DiagnosticBag::should_return()) return new None();
+    if (should_return()) return new None();
 
     while(true)
     {
         Object* condition = evaluate(exec_ctx, node->get_condition());
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             delete condition;
             return new None();
@@ -478,20 +497,20 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
         delete body_obj;
         delete condition;
 
-        if (DiagnosticBag::should_return() && !(DiagnosticBag::to_break || DiagnosticBag::to_continue)) 
+        if (should_return() && !(to_break || to_continue)) 
             return new None();
 
-        if (DiagnosticBag::to_break)
+        if (to_break)
         {
-            DiagnosticBag::to_break = false;
+            to_break = false;
             break;
         }
 
-        if (DiagnosticBag::to_continue) DiagnosticBag::to_continue = false;
+        if (to_continue) to_continue = false;
 
         Object* update_obj = evaluate(exec_ctx, node->get_update());
         delete update_obj;
-        if (DiagnosticBag::should_return()) return new None();
+        if (should_return()) return new None();
     }
     return new None();
 }
@@ -537,7 +556,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     if (n != m)
     {
         delete func;
-        DiagnosticBag::report_illegal_arguments(n, m);
+        DiagnosticBag::report_illegal_arguments(m, n, func->get_name());
         return new None();
     }
     
@@ -546,7 +565,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     for (int i = 0; i < n; i++)
     {
         args.push_back(evaluate(context, node->get_arg(i)));
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             for (auto &o : args)
                 delete o;
@@ -562,27 +581,28 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     Object* result = nullptr;
     if (!func->is_built_in())
     {
-        // I had to cast here because I used a void*.
+        
         if (func->get_body() == nullptr)
         {
-            DiagnosticBag::report_uninitialized_function();
             for (auto &o : args)
                 delete o;
             return new None();
         }
+
+        // I had to cast here because I used a void*.
         Object* body_obj = evaluate(exec_ctx, (SyntaxNode*)func->get_body());
         delete body_obj;
 
-        if (DiagnosticBag::should_return() && !DiagnosticBag::return_value) 
+        if (should_return() && !return_value) 
         {
             for (auto &o : args) delete o;
             return new None();
         }
 
-        if (DiagnosticBag::return_value)
+        if (return_value)
         {
-            result = DiagnosticBag::return_value;
-            DiagnosticBag::return_value = nullptr;
+            result = return_value;
+            return_value = nullptr;
         }
         
         if (result != nullptr) return result;
@@ -619,13 +639,13 @@ Object* Evaluator::evaluate_return(Context& context, ReturnExpressionSyntax* nod
     if (node->get_to_return())
     {
         result = evaluate(context, node->get_to_return());
-        if (DiagnosticBag::should_return()) 
+        if (should_return()) 
         {
             delete result;
             return new None();
         }
 
-        DiagnosticBag::return_value = result;
+        return_value = result;
         return new None();
     }
 
@@ -635,13 +655,13 @@ Object* Evaluator::evaluate_return(Context& context, ReturnExpressionSyntax* nod
 // Continue expression.
 Object* Evaluator::evaluate_continue(Context& context, ContinueExpressionSyntax* node)
 {
-    DiagnosticBag::to_continue = true;
+    to_continue = true;
     return new None();
 }
 
 // Break expression.
 Object* Evaluator::evaluate_break(Context& context, BreakExpressionSyntax* node)
 {
-    DiagnosticBag::to_break = true;
+    to_break = true;
     return new None();
 }
