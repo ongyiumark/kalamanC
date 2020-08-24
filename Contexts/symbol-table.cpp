@@ -12,7 +12,7 @@ ObjectSymbol SymbolTable::get_object(const std::string name)
 {
     if (_table.count(name) > 0) return ObjectSymbol(_table.at(name), this);
     if (_parent) return _parent->get_object(name);
-    return ObjectSymbol(new Objects::None(), NULL);
+    return ObjectSymbol(Objects::Object::none_result, NULL);
 }
 
 void SymbolTable::set_object(const std::string name, Objects::Object* object)

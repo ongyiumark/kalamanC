@@ -6,17 +6,23 @@ using namespace Syntax;
 WhileExpressionSyntax::WhileExpressionSyntax(SyntaxNode *condition, SyntaxNode* body)
     : _condition(condition), _body(body) {}
     
+WhileExpressionSyntax::~WhileExpressionSyntax()
+{
+    delete _condition;
+    delete _body;
+}
+
 SyntaxKind WhileExpressionSyntax::kind() const
 {
     return SyntaxKind::WhileExpression;
 }
 
-SyntaxNode* WhileExpressionSyntax::get_condition() const
+SyntaxNode* WhileExpressionSyntax::get_condition()
 {
     return _condition;
 }
 
-SyntaxNode* WhileExpressionSyntax::get_body() const
+SyntaxNode* WhileExpressionSyntax::get_body()
 {
     return _body;
 }

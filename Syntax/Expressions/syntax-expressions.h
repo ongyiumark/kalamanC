@@ -8,29 +8,29 @@ namespace Syntax
     class LiteralExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _literal_token;
         Objects::Object* _value;
     public:
-        LiteralExpressionSyntax(SyntaxToken* literal_token, Objects::Object* value);
-        LiteralExpressionSyntax(SyntaxToken* literal_token);
+        LiteralExpressionSyntax(Objects::Object* value);
+        ~LiteralExpressionSyntax();
 
         SyntaxKind kind() const;
-        Objects::Object* get_object() const;
-        SyntaxToken* get_literal_token() const;
+        Objects::Object* get_object();
     };
 
     // Refer to unary-syntax.cpp.
     class UnaryExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _op_token;
+        SyntaxToken _op_token;
         SyntaxNode* _operand;
     public:
-        UnaryExpressionSyntax(SyntaxToken* op_token, SyntaxNode* operand);
+        UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand);
+        ~UnaryExpressionSyntax();
+
         SyntaxKind kind() const;
         
-        SyntaxToken* get_op_token() const;
-        SyntaxNode* get_operand() const;
+        SyntaxToken* get_op_token();
+        SyntaxNode* get_operand();
     };
 
     // Refer to binary-syntax.cpp.
@@ -38,14 +38,16 @@ namespace Syntax
     {
     private:
         SyntaxNode* _left;
-        SyntaxToken* _op_token;
+        SyntaxToken _op_token;
         SyntaxNode*_right;
     public:
-        BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken* op_token, SyntaxNode* right);
+        BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right);
+        ~BinaryExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxNode* get_left() const;
-        SyntaxToken* get_op_token() const;
-        SyntaxNode* get_right() const;
+        SyntaxNode* get_left();
+        SyntaxToken* get_op_token();
+        SyntaxNode* get_right();
     };
 
     // Refer to sequence-syntax.cpp.
@@ -56,12 +58,13 @@ namespace Syntax
         bool _to_return;
     public:
         SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, bool to_return=false);
+        ~SequenceExpressionSyntax();
         SyntaxKind kind() const;    
 
         int get_nodes_size() const;
-        SyntaxNode* get_node(int i) const;
-        std::vector<SyntaxNode*> get_nodes() const;
-        bool get_to_return() const;
+        SyntaxNode* get_node(int i);
+        std::vector<SyntaxNode*> get_nodes();
+        bool get_to_return();
     };
 
     // Refer to while-syntax.cpp.
@@ -72,10 +75,12 @@ namespace Syntax
         SyntaxNode* _body;
     public:
         WhileExpressionSyntax(SyntaxNode* condition, SyntaxNode* body);
+        ~WhileExpressionSyntax();
+
         SyntaxKind kind() const;
 
-        SyntaxNode* get_condition() const;
-        SyntaxNode* get_body() const;
+        SyntaxNode* get_condition();
+        SyntaxNode* get_body();
     };
 
     // Refer to for-syntax.cpp.
@@ -84,49 +89,57 @@ namespace Syntax
     private:
         SyntaxNode *_init, *_condition, *_update, *_body;
     public:
-        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body);
+        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body);\
+        ~ForExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxNode* get_init() const;     
-        SyntaxNode* get_condition() const;      
-        SyntaxNode* get_update() const;      
-        SyntaxNode* get_body() const;            
+        SyntaxNode* get_init();     
+        SyntaxNode* get_condition();      
+        SyntaxNode* get_update();      
+        SyntaxNode* get_body();            
     };
 
     // Refer to var-declare-syntax.cpp.
     class VarDeclareExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _var_keyword;
-        SyntaxToken* _identifier;
+        SyntaxToken _var_keyword;
+        SyntaxToken _identifier;
     public:
-        VarDeclareExpressionSyntax(SyntaxToken* var_keyword, SyntaxToken* identifier);
+        VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier);
+        ~VarDeclareExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxToken* get_var_keyword() const;
-        SyntaxToken* get_identifier() const;
+        SyntaxToken* get_var_keyword();
+        SyntaxToken* get_identifier();
     };
 
     // Refer to var-assign-syntax.cpp.
     class VarAssignExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _identifier;
+        SyntaxToken _identifier;
         SyntaxNode* _value;
     public:
-        VarAssignExpressionSyntax(SyntaxToken* identifier, SyntaxNode* value);
+        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value);
+        ~VarAssignExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxToken* get_identifier() const;
-        SyntaxNode* get_value() const;
+        SyntaxToken* get_identifier();
+        SyntaxNode* get_value();
     };
 
     // Refer to var-access-syntax.cpp.
     class VarAccessExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _identifier;
+        SyntaxToken _identifier;
     public:
-        VarAccessExpressionSyntax(SyntaxToken* identifier);
+        VarAccessExpressionSyntax(SyntaxToken identifier);
+        ~VarAccessExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxToken* get_identifier() const;
+        SyntaxToken* get_identifier();
     };
 
     // Refer to if-syntax.cpp.
@@ -138,48 +151,53 @@ namespace Syntax
         SyntaxNode* _else_body;
     public:
         IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body);
-        SyntaxKind kind() const;
-        SyntaxNode* get_else_body() const;
-        
-        int get_size() const;
-        SyntaxNode* get_condition(int i) const;
-        SyntaxNode* get_body(int i) const;
+        ~IfExpressionSyntax();
 
-        std::vector<SyntaxNode*> get_conditions() const;
-        std::vector<SyntaxNode*> get_bodies() const;
+        SyntaxKind kind() const;
+        SyntaxNode* get_else_body();
+        
+        int get_size();
+        SyntaxNode* get_condition(int i);
+        SyntaxNode* get_body(int i);
+
+        std::vector<SyntaxNode*> get_conditions();
+        std::vector<SyntaxNode*> get_bodies();
     };
 
     // Refer to func-define-syntax.cpp.
     class FuncDefineExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _identifier;
-        std::vector<SyntaxToken*> _arg_names;
+        SyntaxToken _identifier;
+        std::vector<SyntaxToken> _arg_names;
         SyntaxNode* _body;
     public:
-        FuncDefineExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxToken*>& arg_names, SyntaxNode* body);
+        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body);
+        ~FuncDefineExpressionSyntax();
 
         SyntaxKind kind() const;
-        SyntaxToken* get_identifier() const;
-        int get_arg_size() const;
-        SyntaxToken* get_arg_name(int i) const;
-        std::vector<SyntaxToken*> get_arg_names() const;
-        SyntaxNode* get_body() const;
+        SyntaxToken* get_identifier();
+        int get_arg_size();
+        SyntaxToken* get_arg_name(int i);
+        std::vector<SyntaxToken> get_arg_names();
+        SyntaxNode* get_body();
     };
 
     // Refer to func-call-syntax.cpp.
     class FuncCallExpressionSyntax final : public SyntaxNode
     {
     private:
-        SyntaxToken* _identifier;
+        SyntaxToken _identifier;
         std::vector<SyntaxNode*> _args;
     public:
-        FuncCallExpressionSyntax(SyntaxToken* identifier, std::vector<SyntaxNode*>& args);
+        FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args);
+        ~FuncCallExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxToken* get_identifier() const;
-        int get_arg_size() const;
-        SyntaxNode* get_arg(int i) const;
-        std::vector<SyntaxNode*> get_args() const;
+        SyntaxToken* get_identifier();
+        int get_arg_size();
+        SyntaxNode* get_arg(int i);
+        std::vector<SyntaxNode*> get_args();
     }; 
 
     // Refer to index-syntax.cpp.
@@ -190,9 +208,11 @@ namespace Syntax
         SyntaxNode* _indexer;
     public:
         IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer);
+        ~IndexExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxNode* get_to_access() const;
-        SyntaxNode* get_indexer() const;
+        SyntaxNode* get_to_access();
+        SyntaxNode* get_indexer();
     };
 
     // Refer to return-syntax.cpp.
@@ -202,8 +222,10 @@ namespace Syntax
         SyntaxNode* _to_return;
     public:
         ReturnExpressionSyntax(SyntaxNode* to_return);
+        ~ReturnExpressionSyntax();
+
         SyntaxKind kind() const;
-        SyntaxNode* get_to_return() const;
+        SyntaxNode* get_to_return();
     };
 
     // Refer to continue-syntax.cpp.
@@ -211,6 +233,8 @@ namespace Syntax
     {
     public:
         ContinueExpressionSyntax();
+        ~ContinueExpressionSyntax();
+
         SyntaxKind kind() const;
     };
 
@@ -219,6 +243,8 @@ namespace Syntax
     {
     public:
         BreakExpressionSyntax();
+        ~BreakExpressionSyntax();
+
         SyntaxKind kind() const;
     };
 
@@ -227,6 +253,8 @@ namespace Syntax
     {
     public:
         NoneExpressionSyntax();
+        ~NoneExpressionSyntax();
+
         SyntaxKind kind() const;
     };
 
@@ -234,16 +262,16 @@ namespace Syntax
     class Parser final
     {
     private:
-        std::vector<SyntaxToken*> _tokens;
+        std::vector<SyntaxToken> _tokens;
         int _position;
         Diagnostics::DiagnosticBag* _diagnostics; 
         bool _show_return;
 
-        SyntaxToken* peek(int offset) const;
-        SyntaxToken* current() const;
-        SyntaxToken* look_ahead() const;
-        SyntaxToken* next_token();
-        SyntaxToken* match_token(SyntaxKind kind);
+        SyntaxToken peek(int offset) const;
+        SyntaxToken current() const;
+        SyntaxToken look_ahead() const;
+        SyntaxToken next_token();
+        SyntaxToken match_token(SyntaxKind kind);
 
         SyntaxNode* parse_atom();
         SyntaxNode* parse_molecule();

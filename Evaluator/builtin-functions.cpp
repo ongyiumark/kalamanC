@@ -11,15 +11,15 @@ using namespace Syntax;
 Diagnostics::DiagnosticBag* BuiltInFunctions::_diagnostics;
 
 // Prints to the screen.
-Object* BuiltInFunctions::BI_PRINT(Context* context)
+Object* BuiltInFunctions::BI_PRINT(Context& context)
 {
-    Object* obj = context->get_symbol_table()->get_object("value").object;
+    Object* obj = context.get_symbol_table()->get_object("value").object;
     std::cout << obj->to_string() << std::endl;
     return new None();
 }
 
 // Reads a line as a string.
-Object* BuiltInFunctions::BI_INPUT(Context* context)
+Object* BuiltInFunctions::BI_INPUT(Context& context)
 {
     std::string val;
     getline(std::cin, val);
@@ -27,9 +27,9 @@ Object* BuiltInFunctions::BI_INPUT(Context* context)
 }
 
 // Converts a string to an integer.
-Object* BuiltInFunctions::BI_TO_INT(Context* context)
+Object* BuiltInFunctions::BI_TO_INT(Context& context)
 {
-    Object* obj = context->get_symbol_table()->get_object("value").object;
+    Object* obj = context.get_symbol_table()->get_object("value").object;
     switch (obj->type())
     {
         case Type::STRING:

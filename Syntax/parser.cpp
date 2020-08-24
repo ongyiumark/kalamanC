@@ -1,16 +1,18 @@
 #include "Expressions/syntax-expressions.h"
 
+#include <iostream>
 using namespace Syntax;
+using namespace Objects;
 
 // This turns the tokens into a tree of syntax. 
 Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return(show_return)
 {
-    Syntax::Lexer* lexer = new Syntax::Lexer(text);
-    SyntaxToken* token;
+    Lexer lexer(text);
+    SyntaxToken token;
     do
     {
-        token = lexer->lex();
-        switch(token->kind())
+        token = lexer.lex();
+        switch(token.kind())
         {
             case SyntaxKind::BadToken:
             case SyntaxKind::WhitespaceToken:
@@ -19,10 +21,10 @@ Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return
             default:
                 _tokens.push_back(token);
         }
-    } while (token->kind() != Syntax::SyntaxKind::EndOfFileToken);
+    } while (token.kind() != SyntaxKind::EndOfFileToken);
 }
 
-SyntaxToken* Parser::peek(int offset) const
+SyntaxToken Parser::peek(int offset) const
 {  
     unsigned int index = _position+offset;
     if (index >= _tokens.size()) 
@@ -31,31 +33,31 @@ SyntaxToken* Parser::peek(int offset) const
     return _tokens[index];
 }
 
-SyntaxToken* Parser::current() const
+SyntaxToken Parser::current() const
 {
     return peek(0);
 }
 
-SyntaxToken* Parser::look_ahead() const
+SyntaxToken Parser::look_ahead() const
 {
     return peek(1);
 }
 
-SyntaxToken* Parser::next_token()
+SyntaxToken Parser::next_token()
 {
-    SyntaxToken* curr = current();
+    SyntaxToken curr = current();
     _position++;
     return curr;
 }
 
 // Inserts the relevant token, but reports an error.
-SyntaxToken* Parser::match_token(SyntaxKind kind)
+SyntaxToken Parser::match_token(SyntaxKind kind)
 {
-    if (current()->kind() == kind)
+    if (current().kind() == kind)
         return next_token();
 
-    _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(kind));
-    return new SyntaxToken(kind, current()->get_position(), "\0", NULL);
+    _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(kind));
+    return SyntaxToken(kind, current().get_position(), "\0");
 }
 
 // Refer to grammar.txt for the full summary of syntax.
@@ -73,16 +75,16 @@ SyntaxNode* Parser::parse_program(bool sub_program)
     // It's a sub-program when it's enclosed in curly braces.
     if (sub_program)
     {
-        while(current()->kind() != SyntaxKind::RCurlyToken)
+        while(current().kind() != SyntaxKind::RCurlyToken)
         {
             program_seq.push_back(parse_statement());
-            switch(current()->kind())
+            switch(current().kind())
             {
                 case SyntaxKind::RParenToken:
                 case SyntaxKind::RSquareToken:
                 case SyntaxKind::CommaToken:
                 {
-                    _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                    _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
                     next_token();
                 }
                 case SyntaxKind::EndOfFileToken:
@@ -98,17 +100,17 @@ SyntaxNode* Parser::parse_program(bool sub_program)
         return new SequenceExpressionSyntax(program_seq, _show_return); 
     }
 
-    while(current()->kind() != SyntaxKind::EndOfFileToken)
+    while(current().kind() != SyntaxKind::EndOfFileToken)
     {
         program_seq.push_back(parse_statement());
-        switch(current()->kind())
+        switch(current().kind())
         {
             case SyntaxKind::RParenToken:
             case SyntaxKind::RSquareToken:
             case SyntaxKind::RCurlyToken:
             case SyntaxKind::CommaToken:
             {
-                _diagnostics->report_unexpected_token(kind_to_string(current()->kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
                 next_token();
             }
             default:
@@ -121,7 +123,7 @@ SyntaxNode* Parser::parse_program(bool sub_program)
 
 SyntaxNode* Parser::parse_statement()
 {
-    switch(current()->kind())
+    switch(current().kind())
     {
         case SyntaxKind::LCurlyToken:
         {
@@ -133,7 +135,7 @@ SyntaxNode* Parser::parse_statement()
         {
             std::vector<SyntaxNode*> conditions;
             std::vector<SyntaxNode*> bodies;
-            SyntaxNode* else_body = NULL;
+            SyntaxNode* else_body = nullptr;
 
             next_token();
             match_token(SyntaxKind::LParenToken);
@@ -144,7 +146,7 @@ SyntaxNode* Parser::parse_statement()
             conditions.push_back(condition);
             bodies.push_back(body);
 
-            while(current()->kind() == SyntaxKind::ElifKeyword)
+            while(current().kind() == SyntaxKind::ElifKeyword)
             {
                 next_token();
 
@@ -157,7 +159,7 @@ SyntaxNode* Parser::parse_statement()
                 bodies.push_back(body);
             }
 
-            if (current()->kind() == SyntaxKind::ElseKeyword)
+            if (current().kind() == SyntaxKind::ElseKeyword)
             {
                 next_token();
                 else_body = parse_statement();
@@ -192,15 +194,15 @@ SyntaxNode* Parser::parse_statement()
         case SyntaxKind::DefineFunctionKeyword:
         {
             next_token();
-            SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
+            SyntaxToken identifier = match_token(SyntaxKind::IdentifierToken);
             match_token(SyntaxKind::LParenToken);
-            std::vector<SyntaxToken*> arg_names;
+            std::vector<SyntaxToken> arg_names;
 
-            if (current()->kind() != SyntaxKind::RParenToken)
+            if (current().kind() != SyntaxKind::RParenToken)
             {
-                SyntaxToken* arg_name = match_token(SyntaxKind::IdentifierToken);
+                SyntaxToken arg_name = match_token(SyntaxKind::IdentifierToken);
                 arg_names.push_back(arg_name);
-                while(current()->kind() == SyntaxKind::CommaToken)
+                while(current().kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
                     arg_name = match_token(SyntaxKind::IdentifierToken);
@@ -215,10 +217,10 @@ SyntaxNode* Parser::parse_statement()
         case SyntaxKind::ReturnKeyword:
         {
             next_token();
-            if (current()->kind() == SyntaxKind::SemicolonToken)
+            if (current().kind() == SyntaxKind::SemicolonToken)
             {
                 next_token();
-                return new ReturnExpressionSyntax(NULL);
+                return new ReturnExpressionSyntax(nullptr);
             }
 
             SyntaxNode* expression = parse_expression();
@@ -254,16 +256,16 @@ SyntaxNode* Parser::parse_statement()
 SyntaxNode* Parser::parse_expression(int precedence)
 {
     SyntaxNode* left;
-    int unary_precedence = SyntaxFacts::get_unary_precedence(current()->kind());
+    int unary_precedence = SyntaxFacts::get_unary_precedence(current().kind());
     if (unary_precedence && unary_precedence >= precedence)
     {
-        SyntaxToken* op_token = next_token();
+        SyntaxToken op_token = next_token();
         SyntaxNode* expression = parse_expression(unary_precedence);
         left = new UnaryExpressionSyntax(op_token, expression);
     }
     else 
     {
-        switch(current()->kind())
+        switch(current().kind())
         {
             case SyntaxKind::IntegerKeyword:
             case SyntaxKind::DoubleKeyword:
@@ -272,10 +274,10 @@ SyntaxNode* Parser::parse_expression(int precedence)
             case SyntaxKind::FunctionKeyword:
             case SyntaxKind::StringKeyword:
             {
-                SyntaxToken* var_keyword = next_token();
-                SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
+                SyntaxToken var_keyword = next_token();
+                SyntaxToken identifier = match_token(SyntaxKind::IdentifierToken);
                 SyntaxNode* var_decl = new VarDeclareExpressionSyntax(var_keyword, identifier);
-                if (current()->kind() == SyntaxKind::SemicolonToken)
+                if (current().kind() == SyntaxKind::SemicolonToken)
                     return var_decl;
                 
                 match_token(SyntaxKind::EqualsToken);
@@ -286,9 +288,9 @@ SyntaxNode* Parser::parse_expression(int precedence)
             }
             case SyntaxKind::IdentifierToken:
             {
-                if (look_ahead()->kind() == SyntaxKind::EqualsToken)
+                if (look_ahead().kind() == SyntaxKind::EqualsToken)
                 {
-                    SyntaxToken* identifier = next_token();
+                    SyntaxToken identifier = next_token();
                     next_token();
                     SyntaxNode* expression = parse_expression(precedence);
                     return new VarAssignExpressionSyntax(identifier, expression);
@@ -303,11 +305,11 @@ SyntaxNode* Parser::parse_expression(int precedence)
 
     while(true)
     {
-        int binary_precedence = SyntaxFacts::get_binary_precedence(current()->kind());
+        int binary_precedence = SyntaxFacts::get_binary_precedence(current().kind());
         if (!binary_precedence || binary_precedence <= precedence)
             break;
         
-        SyntaxToken* op_token = next_token();
+        SyntaxToken op_token = next_token();
         SyntaxNode* right = parse_expression(binary_precedence);
         left = new BinaryExpressionSyntax(left, op_token, right);
     }
@@ -317,11 +319,11 @@ SyntaxNode* Parser::parse_expression(int precedence)
 SyntaxNode* Parser::parse_molecule()
 {
     SyntaxNode* left = parse_atom();
-    switch(current()->kind())
+    switch(current().kind())
     {
         case SyntaxKind::LSquareToken:
         {
-            while(current()->kind() == SyntaxKind::LSquareToken)
+            while(current().kind() == SyntaxKind::LSquareToken)
             {
                 next_token();
                 SyntaxNode* right = parse_expression();
@@ -338,21 +340,37 @@ SyntaxNode* Parser::parse_molecule()
 
 SyntaxNode* Parser::parse_atom()
 {
-    switch(current()->kind())
+    switch(current().kind())
     {
         case SyntaxKind::IntegerToken:
+        {
+            SyntaxToken literal_token = next_token();
+            std::istringstream is(literal_token.get_text());
+            long long x;
+            if (is >> x) return new LiteralExpressionSyntax(new Integer(x));
+            
+            return new LiteralExpressionSyntax(nullptr);
+        }
         case SyntaxKind::StringToken:
+        {
+            SyntaxToken literal_token = next_token();
+            return new LiteralExpressionSyntax(new String(literal_token.get_text()));
+        }
         case SyntaxKind::DoubleToken:
         {
-            SyntaxToken* token = next_token();
-            return new LiteralExpressionSyntax(token);
+            SyntaxToken literal_token = next_token();
+            std::istringstream is(literal_token.get_text());
+            long double x;
+            if (is >> x) return new LiteralExpressionSyntax(new Double(x));
+            
+            return new LiteralExpressionSyntax(nullptr);
         }
         case SyntaxKind::TrueKeyword:
         case SyntaxKind::FalseKeyword:
         {
-            SyntaxToken* keyword = next_token();
-            bool value = keyword->kind() == SyntaxKind::TrueKeyword;
-            return new LiteralExpressionSyntax(keyword, new Objects::Boolean(value));
+            SyntaxToken keyword = next_token();
+            bool value = keyword.kind() == SyntaxKind::TrueKeyword;
+            return new LiteralExpressionSyntax(new Boolean(value));
         }
         case SyntaxKind::LParenToken:
         {
@@ -365,7 +383,7 @@ SyntaxNode* Parser::parse_atom()
         {
             next_token();
             std::vector<SyntaxNode*> elements;
-            if (current()->kind() == SyntaxKind::RSquareToken)
+            if (current().kind() == SyntaxKind::RSquareToken)
             {
                 next_token();
                 return new SequenceExpressionSyntax(elements, true);
@@ -374,7 +392,7 @@ SyntaxNode* Parser::parse_atom()
             SyntaxNode* expression = parse_expression();
             elements.push_back(expression);
 
-            while(current()->kind() == SyntaxKind::CommaToken)
+            while(current().kind() == SyntaxKind::CommaToken)
             {
                 next_token();
                 expression = parse_expression();
@@ -387,10 +405,10 @@ SyntaxNode* Parser::parse_atom()
         case SyntaxKind::InputFunction:
         case SyntaxKind::ToIntFunction:
         {
-            SyntaxToken* identifier = next_token();
+            SyntaxToken identifier = next_token();
             match_token(SyntaxKind::LParenToken);
             std::vector<SyntaxNode*> args;
-            if (current()->kind() == SyntaxKind::RParenToken)
+            if (current().kind() == SyntaxKind::RParenToken)
             {
                 next_token();
                 return new FuncCallExpressionSyntax(identifier, args);
@@ -399,7 +417,7 @@ SyntaxNode* Parser::parse_atom()
             SyntaxNode* expression = parse_expression();
             args.push_back(expression);
 
-            while(current()->kind() == SyntaxKind::CommaToken)
+            while(current().kind() == SyntaxKind::CommaToken)
             {
                 next_token();
                 expression = parse_expression();
@@ -410,12 +428,12 @@ SyntaxNode* Parser::parse_atom()
         }
         default:
         {
-            SyntaxToken* identifier = match_token(SyntaxKind::IdentifierToken);
-            if (current()->kind() == SyntaxKind::LParenToken)
+            SyntaxToken identifier = match_token(SyntaxKind::IdentifierToken);
+            if (current().kind() == SyntaxKind::LParenToken)
             {
                 next_token();
                 std::vector<SyntaxNode*> args;
-                if (current()->kind() == SyntaxKind::RParenToken)
+                if (current().kind() == SyntaxKind::RParenToken)
                 {
                     next_token();
                     return new FuncCallExpressionSyntax(identifier, args);
@@ -424,7 +442,7 @@ SyntaxNode* Parser::parse_atom()
                 SyntaxNode* expression = parse_expression();
                 args.push_back(expression);
 
-                while(current()->kind() == SyntaxKind::CommaToken)
+                while(current().kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
                     expression = parse_expression();

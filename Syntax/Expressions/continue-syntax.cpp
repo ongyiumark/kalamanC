@@ -5,6 +5,8 @@ using namespace Syntax;
 // This continues a loop. Just your standard continue keyword.
 ContinueExpressionSyntax::ContinueExpressionSyntax() {}
 
+ContinueExpressionSyntax::~ContinueExpressionSyntax() {}
+
 SyntaxKind ContinueExpressionSyntax::kind() const
 {
     return SyntaxKind::ContinueExpression;

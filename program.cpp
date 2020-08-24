@@ -5,22 +5,22 @@
 #include "constants.h"
 
 Contexts::SymbolTable* global_symbol_table = new Contexts::SymbolTable(NULL);
-Contexts::Context* context = new Contexts::Context("<program>", NULL, global_symbol_table);
+Contexts::Context context("<program>", NULL, global_symbol_table);
 
 // Create Builtin 
 void initialize()
 {
     std::vector<std::string> arg_names = {};
-    context->get_symbol_table()->set_object(BI_INPUT, new Objects::Function(BI_INPUT, arg_names, NULL, true));
+    context.get_symbol_table()->set_object(BI_INPUT, new Objects::Function(BI_INPUT, arg_names, NULL, true));
     arg_names = {"value"};
-    context->get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
-    context->get_symbol_table()->set_object(BI_TO_INT, new Objects::Function(BI_TO_INT, arg_names, NULL, true));
+    context.get_symbol_table()->set_object(BI_PRINT, new Objects::Function(BI_PRINT, arg_names, NULL, true));
+    context.get_symbol_table()->set_object(BI_TO_INT, new Objects::Function(BI_TO_INT, arg_names, NULL, true));
 }
 
 void run(std::string &script, bool show_tree=false, bool show_return=false)
 {
-    Syntax::Parser* parser = new Syntax::Parser(script, show_return);
-    Syntax::SyntaxNode* root = parser->parse();
+    Syntax::Parser parser(script, show_return);
+    Syntax::SyntaxNode* root = parser.parse();
 
     if (show_tree) Syntax::pretty_print(root);
 
@@ -38,6 +38,8 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
         else std::cout << answer->to_string();
         std::cout << std::endl;
     }
+
+    delete root;
 }
 
 int main(int argc, char ** argv)
@@ -45,7 +47,7 @@ int main(int argc, char ** argv)
     initialize();
     if (argc == 1)
     {
-        bool show_tree = false;
+        bool show_tree = true;
         bool show_return = true;
         while(true)
         {
