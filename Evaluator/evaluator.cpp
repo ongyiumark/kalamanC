@@ -8,8 +8,6 @@ using namespace Contexts;
 using namespace Diagnostics;
 using namespace Objects;
 
-DiagnosticBag* Evaluator::_diagnostics;
-
 // Picks the right function and casts the node appropriately.
 Object* Evaluator::evaluate(Context& context, SyntaxNode* node)
 {
@@ -53,7 +51,7 @@ Object* Evaluator::evaluate(Context& context, SyntaxNode* node)
             break;   
     }
 
-    _diagnostics->report_unknown_syntax(kind_to_string(node->kind()));
+    DiagnosticBag::report_unknown_syntax(kind_to_string(node->kind()));
     return Object::none_result;
 }
 
@@ -96,7 +94,7 @@ Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
+        DiagnosticBag::report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
             type_to_string(operand->type()));
     }
     else DiagnosticBag::add_object(result);
@@ -166,7 +164,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
+        DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()));
     } else DiagnosticBag::add_object(result);
     return result;
@@ -214,7 +212,7 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
+        DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()));
     } else DiagnosticBag::add_object(result);
     return result;
@@ -262,7 +260,7 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
         }
         default:
         {
-            _diagnostics->report_unreachable_code("invalid type declaration");
+            DiagnosticBag::report_unreachable_code("invalid type declaration");
             return Object::none_result;
         }
     }
@@ -283,7 +281,7 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
     Object* orig_value = obj_sym.object;
     if (orig_value->type() != value->type())
     {
-        _diagnostics->report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()));
+        DiagnosticBag::report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()));
         return result;
     }
 
@@ -297,7 +295,7 @@ Object* Evaluator::evaluate_var_access(Context& context, VarAccessExpressionSynt
     Object* result = context.get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (result->type() == Type::NONE)
     {
-        _diagnostics->report_undeclared_identifier(node->get_identifier()->get_text());
+        DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text());
         return result;
     }
 
@@ -316,7 +314,7 @@ Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
         
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
         if (!((Boolean*)condition)->get_value())
@@ -351,7 +349,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
@@ -389,7 +387,7 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
         if (DiagnosticBag::should_return()) return result;
         if (condition->type() != Type::BOOLEAN)
         {
-            _diagnostics->report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
+            DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN));
             return result;
         }
 
@@ -437,7 +435,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     Object* obj = context.get_symbol_table()->get_object(node->get_identifier()->get_text()).object;
     if (obj->type() != Type::FUNCTION)
     {
-        _diagnostics->report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
+        DiagnosticBag::report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION));
         return result;
     }
     
@@ -451,7 +449,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     int m = node->get_arg_size();
     if (n != m)
     {
-        _diagnostics->report_illegal_arguments(n, m);
+        DiagnosticBag::report_illegal_arguments(n, m);
         return result;
     }
     
@@ -470,7 +468,13 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     if (!func->is_built_in())
     {
         // I had to cast here because I used a void*.
+        if (func->get_body() == nullptr)
+        {
+            DiagnosticBag::report_uninitialized_function();
+            return result;
+        }
         evaluate(exec_ctx, (SyntaxNode*)func->get_body());
+
         if (DiagnosticBag::should_return() && !DiagnosticBag::return_value) return result;
         if (DiagnosticBag::return_value)
         {
@@ -490,7 +494,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return BuiltInFunctions::BI_TO_INT(exec_ctx);
         default:
         {
-            _diagnostics->report_unreachable_code("invalid builtin function");
+            DiagnosticBag::report_unreachable_code("invalid builtin function");
             return Object::none_result;
         }
     }

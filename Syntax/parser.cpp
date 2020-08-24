@@ -56,7 +56,7 @@ SyntaxToken Parser::match_token(SyntaxKind kind)
     if (current().kind() == kind)
         return next_token();
 
-    _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(kind));
+    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(kind));
     return SyntaxToken(kind, current().get_position(), "\0");
 }
 
@@ -84,7 +84,7 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                 case SyntaxKind::RSquareToken:
                 case SyntaxKind::CommaToken:
                 {
-                    _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
                     next_token();
                 }
                 case SyntaxKind::EndOfFileToken:
@@ -110,7 +110,7 @@ SyntaxNode* Parser::parse_program(bool sub_program)
             case SyntaxKind::RCurlyToken:
             case SyntaxKind::CommaToken:
             {
-                _diagnostics->report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
                 next_token();
             }
             default:

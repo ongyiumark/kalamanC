@@ -314,7 +314,6 @@ line comment */
 
 <a name=plans></a>
 # Future Plans
-- Fix memory leaks (yes, theres a lot).
 - Add more built in functions
 - Add a mutable list/collection
 - Improve error messages (it's pretty hard to debug if you have the wrong syntax)

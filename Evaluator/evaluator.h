@@ -9,7 +9,6 @@
 class Evaluator final
 {
 private:
-    static Diagnostics::DiagnosticBag* _diagnostics;
     static Objects::Object* evaluate_literal(Contexts::Context& context, Syntax::LiteralExpressionSyntax* node);
     static Objects::Object* evaluate_unary(Contexts::Context& context, Syntax::UnaryExpressionSyntax* node);
     static Objects::Object* evaluate_binary(Contexts::Context& context, Syntax::BinaryExpressionSyntax* node);

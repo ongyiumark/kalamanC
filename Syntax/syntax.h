@@ -127,7 +127,6 @@ namespace Syntax
     private:
         const std::string _text;
         int _position;
-        Diagnostics::DiagnosticBag* _diagnostics;
 
         char peek(int offset) const;
         char current() const;

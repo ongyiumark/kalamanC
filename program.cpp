@@ -8,7 +8,6 @@ Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(NULL);
 Contexts::Context context("<program>", NULL, global_symbol_table);
 
 // Create Builtin 
-
 void add_builtin_function(std::string name, std::vector<std::string> arg_names)
 {
     Objects::Object* func = new Objects::Function(name, arg_names, nullptr, true);
@@ -54,7 +53,7 @@ int main(int argc, char ** argv)
     initialize();
     if (argc == 1)
     {
-        bool show_tree = true;
+        bool show_tree = false;
         bool show_return = true;
         while(true)
         {

@@ -18,6 +18,7 @@ bool DiagnosticBag::to_continue = false;
 bool DiagnosticBag::to_break = false;
 Objects::Object* DiagnosticBag::return_value = NULL;
 
+// Add the object here every time I create a new object.
 void DiagnosticBag::add_object(Objects::Object* obj)
 {
     deleter.push_back(obj);
@@ -175,5 +176,13 @@ void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, st
 {
     std::ostringstream os;
     os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
+    report(os.str());    
+}
+
+// Occurs when an uninitialized function is called
+void DiagnosticBag::report_uninitialized_function()
+{
+    std::ostringstream os;
+    os << "ERROR: cannot call uninitialized function";
     report(os.str());    
 }

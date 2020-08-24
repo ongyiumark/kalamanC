@@ -69,7 +69,7 @@ SyntaxToken Lexer::lex()
             if (is >> x)
                 return SyntaxToken(SyntaxKind::IntegerToken, start, text);
 
-            _diagnostics->report_invalid_type(text, type_to_string(Type::INTEGER));
+            Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER));
             return SyntaxToken(SyntaxKind::IntegerToken, start, text);            
         }
         else
@@ -79,7 +79,7 @@ SyntaxToken Lexer::lex()
             if (is >> x)
                 return SyntaxToken(SyntaxKind::DoubleToken, start, text);
     
-            _diagnostics->report_invalid_type(text, type_to_string(Type::DOUBLE));
+            Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE));
             return SyntaxToken(SyntaxKind::DoubleToken, start, text);    
         }
     }
@@ -215,7 +215,7 @@ SyntaxToken Lexer::lex()
             std::string text = _text.substr(start+1, length-1);
             if (current() != '"')
             {
-                _diagnostics->report_expected_character('"');
+                Diagnostics::DiagnosticBag::report_expected_character('"');
                 return SyntaxToken(SyntaxKind::StringToken, start, text);
             }
             next();
@@ -226,7 +226,7 @@ SyntaxToken Lexer::lex()
 
     // Report and return a bad character.
     std::string text = _text.substr(start, 1);
-    _diagnostics->report_bad_character(current());
+    Diagnostics::DiagnosticBag::report_bad_character(current());
     return SyntaxToken(SyntaxKind::BadToken, _position++, text);
 }
 

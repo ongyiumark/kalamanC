@@ -264,7 +264,6 @@ namespace Syntax
     private:
         std::vector<SyntaxToken> _tokens;
         int _position;
-        Diagnostics::DiagnosticBag* _diagnostics; 
         bool _show_return;
 
         SyntaxToken peek(int offset) const;
