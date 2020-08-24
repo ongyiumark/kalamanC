@@ -99,6 +99,8 @@ Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
         _diagnostics->report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
             type_to_string(operand->type()));
     }
+    else DiagnosticBag::add_object(result);
+
     return result;
 }
 
@@ -166,7 +168,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
     {
         _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()));
-    }
+    } else DiagnosticBag::add_object(result);
     return result;
 }
 
@@ -183,8 +185,9 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
             elements.push_back(evaluate(context, node->get_node(i)));
             if (DiagnosticBag::should_return()) return Object::none_result;
         }
-
-        return new List(elements);
+        List* list_res = new List(elements);
+        DiagnosticBag::add_object(list_res);
+        return list_res;
     }
 
     // Sequence expression.
@@ -213,7 +216,7 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
     {
         _diagnostics->report_illegal_binary_operation(type_to_string(left->type()),
             kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()));
-    }
+    } else DiagnosticBag::add_object(result);
     return result;
 }
 
@@ -254,7 +257,7 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
         case Objects::Type::FUNCTION:
         {
             std::vector<std::string> arg_names;
-            value = new Objects::Function("<uninitialized>", arg_names, new NoneExpressionSyntax());
+            value = new Objects::Function("<uninitialized>", arg_names, nullptr);
             break;
         }
         default:
@@ -263,7 +266,7 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
             return Object::none_result;
         }
     }
-
+    DiagnosticBag::add_object(value);
     context.get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
     return value;
 }
@@ -305,7 +308,7 @@ Object* Evaluator::evaluate_var_access(Context& context, VarAccessExpressionSynt
 Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
 {
     Object* result = Object::none_result;
-    Context exec_ctx = Context("while-loop", &context, new SymbolTable(context.get_symbol_table()));
+    Context exec_ctx = Context("while-loop", &context, SymbolTable(context.get_symbol_table()));
     while(true)
     {
         Object* condition = evaluate(context, node->get_condition());
@@ -354,7 +357,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
 
         if (((Boolean*)condition)->get_value())
         {
-            Context exec_ctx = Context("if-statement", &context, new SymbolTable(context.get_symbol_table()));
+            Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
             Object* value = evaluate(exec_ctx, node->get_body(i));
             if (DiagnosticBag::should_return()) return result;
             return value;
@@ -363,7 +366,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
 
     if (node->get_else_body())
     {
-        Context exec_ctx = Context("if-statement", &context, new SymbolTable(context.get_symbol_table()));
+        Context exec_ctx = Context("if-statement", &context, SymbolTable(context.get_symbol_table()));
         Object* value = evaluate(exec_ctx, node->get_else_body());
         if (DiagnosticBag::should_return()) return result;
         return value;       
@@ -375,7 +378,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
 // For statement.
 Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
 {
-    Context exec_ctx = Context("for-loop", &context, new SymbolTable(context.get_symbol_table()));
+    Context exec_ctx = Context("for-loop", &context, SymbolTable(context.get_symbol_table()));
     Object* result = Object::none_result;
     evaluate(exec_ctx, node->get_init());
     if (DiagnosticBag::should_return()) return result;
@@ -422,6 +425,7 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
         arg_names.push_back(node->get_arg_name(i)->get_text());
     
     Object* val = new Function(name, arg_names, node->get_body());
+    DiagnosticBag::add_object(val);
     context.get_symbol_table()->set_object(node->get_identifier()->get_text(), val);
     return val;
 }
@@ -440,7 +444,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     Function* func = (Function*)obj;
 
     // Generate context
-    Context exec_ctx = Context(func->get_name(), &context, new SymbolTable(context.get_symbol_table()));
+    Context exec_ctx = Context(func->get_name(), &context, SymbolTable(context.get_symbol_table()));
 
     // Check arguments
     int n = func->get_argument_size();

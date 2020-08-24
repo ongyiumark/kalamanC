@@ -20,9 +20,13 @@ namespace Diagnostics
     {
     private:
         static std::vector<Diagnostic> _diagnostics;
+        static std::vector<Objects::Object*> deleter; 
+
         void report(std::string message);
     public:
         DiagnosticBag();
+
+        static void add_object(Objects::Object* obj);
 
         static bool should_return();
         static bool to_continue;
