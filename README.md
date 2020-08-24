@@ -261,8 +261,7 @@ Returns: StringType <br>
 Reads input from user.
 
 ##### to_int()
-Arguments: 
-- string, integer, double, or boolean <br>
+Arguments: string, integer, double, or boolean <br>
 Returns IntegerType
 Coverts the given value to an integer
 
