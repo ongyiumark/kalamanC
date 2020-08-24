@@ -4,8 +4,8 @@
 #include "Evaluator/evaluator.h"
 #include "constants.h"
 
-Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(NULL);
-Contexts::Context context("<program>", NULL, global_symbol_table);
+Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(nullptr);
+Contexts::Context context("<program>", nullptr, global_symbol_table);
 
 // Create Builtin 
 void add_builtin_function(std::string name, std::vector<std::string> arg_names)
@@ -45,7 +45,6 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
 
     delete answer;
     delete root;
-
     Diagnostics::DiagnosticBag::clear();
 }
 

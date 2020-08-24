@@ -26,3 +26,4 @@ const std::string KT_CONTINUE   = "tuloy";
 
 const std::string BI_PRINT      = "lathala";
 const std::string BI_INPUT      = "input";
+const std::string BI_TO_INT     = "gawing_bilang";
