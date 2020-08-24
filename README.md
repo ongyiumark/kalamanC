@@ -38,14 +38,14 @@ I wanted to make an original language, but I'm not that great at language design
 Also, I implemented builtin matrix operations, so KalamanC can be used to prototype or solve constant space DP problems or linear reccurences. Refer to [this](https://www.youtube.com/watch?v=eMXNWcbw75E) video for more information. You can see how it works in the [tutorial](#tutorial) below.
 
 ### Benchmark
-The following script runs in **0.490 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
+The following script runs in **0.619 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
 
 ```
 int i = 0;
 while(i < 1000000) i = i + 1;
 ```
 
-That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
+That's about **5 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
 
 <a name=code_example></a>
 # Code Example
