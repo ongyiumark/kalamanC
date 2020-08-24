@@ -262,7 +262,7 @@ Reads input from user.
 
 ##### to_int()
 Arguments: string, integer, double, or boolean <br>
-Returns IntegerType
+Returns: IntegerType <br>
 Coverts the given value to an integer
 
 #### User-defined Functions
