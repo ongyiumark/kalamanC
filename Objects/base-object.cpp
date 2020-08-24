@@ -2,6 +2,9 @@
 
 using namespace Objects;
 
+Object::~Object() {}
+
+
 // I'm not sure if this is more efficient, but I'll just return the same none object for everything.
 Object* Object::none_result = new None();
 
