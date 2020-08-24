@@ -4,14 +4,13 @@
 #include "Evaluator/evaluator.h"
 #include "constants.h"
 
-Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(NULL);
-Contexts::Context context("<program>", NULL, global_symbol_table);
+Contexts::SymbolTable global_symbol_table = Contexts::SymbolTable(nullptr);
+Contexts::Context context("<program>", nullptr, global_symbol_table);
 
 // Create Builtin 
 void add_builtin_function(std::string name, std::vector<std::string> arg_names)
 {
     Objects::Object* func = new Objects::Function(name, arg_names, nullptr, true);
-    Diagnostics::DiagnosticBag::add_object(func);
     context.get_symbol_table()->set_object(name, func);
 }
 
@@ -29,14 +28,14 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
 
     if (show_tree) Syntax::pretty_print(root);
 
-    Objects::Object* answer = Objects::Object::none_result;
+    Objects::Object* answer = nullptr;
     if (!Diagnostics::DiagnosticBag::should_return()) 
         answer = Evaluator::evaluate(context, root);
 
     Diagnostics::DiagnosticBag::print();
 
     // If the List only has one element, print that element.
-    if (!Diagnostics::DiagnosticBag::should_return() && show_return) 
+    if (!Diagnostics::DiagnosticBag::should_return() && show_return && answer != nullptr) 
     {
         if (answer->type() == Objects::Type::LIST && ((Objects::List*)answer)->get_size() == 1)
             std::cout << ((Objects::List*)answer)->get_value(0)->to_string();
@@ -44,6 +43,7 @@ void run(std::string &script, bool show_tree=false, bool show_return=false)
         std::cout << std::endl;
     }
 
+    delete answer;
     delete root;
     Diagnostics::DiagnosticBag::clear();
 }

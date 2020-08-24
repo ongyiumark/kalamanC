@@ -34,7 +34,7 @@ Object* Double::added_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value+((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -47,7 +47,7 @@ Object* Double::subtracted_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value-((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -60,7 +60,7 @@ Object* Double::multiplied_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value*((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -71,17 +71,17 @@ Object* Double::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return none_result;
+            if (other_int->get_value() == 0) return new None();
             return new Double(_value/other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
-            if (other_double->get_value() == 0) return none_result;
+            if (other_double->get_value() == 0) return new None();
             return new Double(_value/other_double->get_value());            
         }
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -94,7 +94,7 @@ Object* Double::powered_by(Object* other) const
         case Type::DOUBLE:
             return new Double(powl(_value, ((Double*)other)->get_value()));     
         default:
-            return none_result;       
+            return new None();       
     }
 }
 
@@ -108,7 +108,7 @@ Object* Double::less_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value<((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -121,7 +121,7 @@ Object* Double::greater_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value>((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -136,4 +136,9 @@ Object* Double::equals(Object* other) const
         default:
             return new Boolean(false);
     }
+}
+
+Object* Double::copy()
+{
+    return new Double(_value);
 }

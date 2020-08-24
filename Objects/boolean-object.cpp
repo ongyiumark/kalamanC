@@ -36,7 +36,7 @@ Object* Boolean::and_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value && ((Boolean*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -47,7 +47,7 @@ Object* Boolean::or_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value || ((Boolean*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -58,7 +58,7 @@ Object* Boolean::xor_with(Object* other) const
         case Type::BOOLEAN:
             return new Boolean(_value ^ ((Boolean*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -71,4 +71,9 @@ Object* Boolean::equals(Object* other) const
         default:
             return new Boolean(false);
     }
+}
+
+Object* Boolean::copy()
+{
+    return new Boolean(_value);
 }

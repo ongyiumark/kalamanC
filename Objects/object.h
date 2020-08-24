@@ -26,8 +26,7 @@ namespace Objects
     {
     public:
         virtual ~Object();
-
-        static Object* none_result;
+        
         virtual Type type() const = 0;
         virtual std::string to_string() const = 0;
 
@@ -48,6 +47,7 @@ namespace Objects
         virtual Object* and_with(Object* other) const;
         virtual Object* or_with(Object* other) const;
         virtual Object* xor_with(Object* other) const;
+        virtual Object* copy() = 0;
     };
 
     // Refer to boolean-object.cpp.
@@ -66,6 +66,7 @@ namespace Objects
         Object* or_with(Object* other) const;
         Object* xor_with(Object* other) const;
         Object* equals(Object* other) const;
+        Object* copy();
     };
 
     // Refer to integer-object.cpp.
@@ -88,6 +89,7 @@ namespace Objects
         Object* less_than(Object* other) const;
         Object* greater_than(Object* other) const;
         Object* equals(Object* other) const;
+        Object* copy();
     };
 
     // Refer to double-object.cpp.
@@ -109,6 +111,7 @@ namespace Objects
         Object* less_than(Object* other) const;
         Object* greater_than(Object* other) const;
         Object* equals(Object* other) const;
+        Object* copy();
     };
 
     // Refer to string-object.cpp.
@@ -131,6 +134,7 @@ namespace Objects
         Object* less_than(Object* other) const;
         Object* greater_than(Object* other) const;
         Object* equals(Object* other) const;
+        Object* copy();
     };
 
     // Refer to list-object.cpp.
@@ -141,7 +145,9 @@ namespace Objects
         static bool is_matrix(const List* list);
     public:
         List(std::vector<Object*>& values);
+        ~List();
         
+        static long long matrix_mod;
         Type type() const;
         std::string to_string() const;
 
@@ -155,6 +161,7 @@ namespace Objects
 
         Object* multiplied_by(Object* other) const;
         Object* powered_by(Object* other) const;
+        Object* copy();
     };
 
     // Refer to function-object.cpp.
@@ -180,6 +187,7 @@ namespace Objects
         bool is_built_in() const;
 
         Object* equals(Object* other) const;
+        Object* copy();
     };
 
     // Refer to none-object.cpp.
@@ -191,6 +199,7 @@ namespace Objects
         std::string to_string() const;
 
         Object* equals(Object* other) const;
+        Object* copy();
     };
 }
 

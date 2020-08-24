@@ -4,79 +4,75 @@ using namespace Objects;
 
 Object::~Object() {}
 
-
-// I'm not sure if this is more efficient, but I'll just return the same none object for everything.
-Object* Object::none_result = new None();
-
 // Return none type as default. This will tell me when an illegal operation has occured.
 Object* Object::added_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::subtracted_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::multiplied_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::divided_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::modded_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::powered_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::accessed_by(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::and_with(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::or_with(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::xor_with(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::notted() const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::less_than(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::greater_than(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 Object* Object::equals(Object* other) const
 {
-    return none_result;
+    return new None();
 }
 
 // These can be derived from the other operations.

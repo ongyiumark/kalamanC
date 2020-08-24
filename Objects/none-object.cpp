@@ -27,3 +27,8 @@ Object* None::equals(Object* other) const
             return new Boolean(false);
     }
 }
+
+Object* None::copy()
+{
+    return new None();
+}

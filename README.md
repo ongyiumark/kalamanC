@@ -38,14 +38,14 @@ I wanted to make an original language, but I'm not that great at language design
 Also, I implemented builtin matrix operations, so KalamanC can be used to prototype or solve constant space DP problems or linear reccurences. Refer to [this](https://www.youtube.com/watch?v=eMXNWcbw75E) video for more information. You can see how it works in the [tutorial](#tutorial) below.
 
 ### Benchmark
-The following script runs in **0.619 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
+The following script runs in **0.490 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
 
 ```
 int i = 0;
 while(i < 1000000) i = i + 1;
 ```
 
-That's about **5 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
+That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
 
 <a name=code_example></a>
 # Code Example
@@ -176,7 +176,8 @@ String concatination and multiplication works just like python.
 ```
 
 ##### Matrix operations
-If a list is a 2D array of integers, then it is a valid matrix. These only apply for valid matrices.
+If a list is a 2D array of integers, then it is a valid matrix. These only apply for valid matrices. 
+
 ```
 [[1,1]]*[[2],[1]];    // Evaluates to [[3]]
 
@@ -185,6 +186,8 @@ If a list is a 2D array of integers, then it is a valid matrix. These only apply
 ```
 
 The second example is actually the matrix representation of the fibonacci sequence. Notice that the last 10th fibonacci number appears in the result.
+
+Additionally, large numbers tend to overflow, so I set the default to output the result in mod 1e9+7. Currently, there's no way to change that, but It shouldn't take 30 minutes to add a builtin function that does just that. I'm just lazy. If for some reason, you're actually using KalamanC and need it, just inform me.
 
 ### Conditionals
 Conditionals in kalamanC work the same in C++. The keywords are:
