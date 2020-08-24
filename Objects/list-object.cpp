@@ -3,7 +3,15 @@
 #include <iostream>
 using namespace Objects;
 
+long long List::matrix_mod = 1'000'000'007;
+
 List::List(std::vector<Object*>& values) : _values(values) {}
+
+List::~List()
+{
+    for (auto &o : _values)
+        delete o;
+}
 
 Type List::type() const
 {
@@ -73,18 +81,25 @@ Object* List::added_by(Object* other) const
     {
         case Type::LIST:
         {
-            std::vector<Object*> result = _values;
-            List* other_list = (List*)other;
-            int n = other_list->get_size();
+            std::vector<Object*> result;
+            int n = _values.size();
             for (int i = 0; i < n; i++)
-                result.push_back(other_list->get_value(i));
+                result.push_back(_values[i]->copy());
+            
+            List* other_list = (List*)other;
+            n = other_list->get_size();
+            for (int i = 0; i < n; i++)
+                result.push_back(other_list->get_value(i)->copy());
 
             return new List(result);
         }
         default:
         {
-            std::vector<Object*> result = _values;
-            result.push_back(other);
+            std::vector<Object*> result;
+            int n = _values.size();
+            for (int i = 0; i < n; i++)
+                result.push_back(_values[i]->copy());
+            result.push_back(other->copy());
             return new List(result);    
         }
     }
@@ -100,11 +115,11 @@ Object* List::accessed_by(Object* other) const
             long long i = ((Integer*)other)->get_value();
             int n = _values.size();
             if (i < 0) i += n;
-            if (i < 0 || i >= n) return none_result;
-            return _values[i];
+            if (i < 0 || i >= n) return new None();
+            return _values[i]->copy();
         }
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -141,13 +156,13 @@ Object* List::multiplied_by(Object* other) const
         {
             List* other_list = (List*)other;
             if (!is_matrix(this) || !is_matrix(other_list))
-                return Object::none_result;
+                return new None();
             int a = _values.size();
             int b = ((List*)_values[0])->get_size();
             int c = other_list->get_size();
             int d = ((List*)other_list->get_value(0))->get_size();
 
-            if (b != c) return Object::none_result;
+            if (b != c) return new None();
 
             std::vector<std::vector<long long>> result(a, std::vector<long long>(d));
             for (int i = 0; i < a; i++)
@@ -158,7 +173,7 @@ Object* List::multiplied_by(Object* other) const
                     {
                         long long left = ((Integer*)((List*)_values[i])->get_value(k))->get_value();
                         long long right = ((Integer*)((List*)other_list->get_value(k))->get_value(j))->get_value();
-                        result[i][j] += left*right;
+                        result[i][j] = (result[i][j] + left*right)%matrix_mod;
                     }
                 }
 
@@ -177,7 +192,7 @@ Object* List::multiplied_by(Object* other) const
             return new List(elems);
         }
         default:
-            return Object::none_result;
+            return new None();
     }
 }
 
@@ -188,13 +203,13 @@ Object* List::powered_by(Object* other) const
     {
         case Type::INTEGER:
         {
-            if (!is_matrix(this)) return Object::none_result;
+            if (!is_matrix(this)) return new None();
             int n = _values.size();
             int m = ((List*)_values[0])->get_size();
-            if (n != m) return Object::none_result;
+            if (n != m) return new None();
 
             long long e = ((Integer*)other)->get_value();
-            if (e < 0) return Object::none_result;
+            if (e < 0) return new None();
 
             // Build identity matrix
             std::vector<Object*> result_elems;
@@ -210,19 +225,35 @@ Object* List::powered_by(Object* other) const
             // Copying the original matrix
             std::vector<Object*> base_elems;
             for (int i = 0; i < n; i++)
-                base_elems.push_back(_values[i]);
+                base_elems.push_back(_values[i]->copy());
 
             List* base = new List(base_elems);
 
             while(e > 0)
             {
-                if (e&1) result = (List*)(result->multiplied_by(base));
-                base = ((List*)base->multiplied_by(base));
+                if (e&1) 
+                {
+                    List* new_result = (List*)(result->multiplied_by(base));
+                    delete result;
+                    result = new_result;
+                }
+                List* new_base = ((List*)base->multiplied_by(base));
+                delete base;
+                base = new_base;
                 e >>= 1;
             }
+            delete base;
             return result;
         }
         default:
-            return Object::none_result;
+            return new None();
     }
+}
+
+Object* List::copy()
+{
+    std::vector<Object*> new_values;
+    for (auto &o : _values)
+        new_values.push_back(o->copy());
+    return new List(new_values);
 }

@@ -32,7 +32,7 @@ Object* Integer::added_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value+((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -45,7 +45,7 @@ Object* Integer::subtracted_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value-((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -61,7 +61,7 @@ Object* Integer::multiplied_by(Object* other) const
             return new Double(_value*((Double*)other)->get_value());
         case Type::STRING:
         {
-            if (_value < 0) return none_result;
+            if (_value < 0) return new None();
             long long e = _value;
             std::string result;
             std::string base = ((String*)other)->get_value();
@@ -74,7 +74,7 @@ Object* Integer::multiplied_by(Object* other) const
             return new String(result);
         }
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -86,17 +86,17 @@ Object* Integer::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return none_result;
+            if (other_int->get_value() == 0) return new None();
             return new Integer(_value/other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
-            if (other_double->get_value() == 0) return none_result;
+            if (other_double->get_value() == 0) return new None();
             return new Double(_value/other_double->get_value());            
         }
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -107,11 +107,11 @@ Object* Integer::modded_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return none_result;
+            if (other_int->get_value() == 0) return new None();
             return new Integer(_value%other_int->get_value());
         }
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -138,7 +138,7 @@ Object* Integer::powered_by(Object* other) const
         case Type::DOUBLE:
             return new Double(powl(_value, ((Double*)other)->get_value()));   
         default:
-            return none_result;         
+            return new None();         
     }
 }
 
@@ -152,7 +152,7 @@ Object* Integer::less_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value<((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -165,7 +165,7 @@ Object* Integer::greater_than(Object* other) const
         case Type::DOUBLE:
             return new Boolean(_value>((Double*)other)->get_value());
         default:
-            return none_result;
+            return new None();
     }
 }
 
@@ -180,4 +180,9 @@ Object* Integer::equals(Object* other) const
         default:
             return new Boolean(false);
     }
+}
+
+Object* Integer::copy()
+{
+    return new Integer(_value);
 }

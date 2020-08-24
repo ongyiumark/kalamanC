@@ -62,3 +62,8 @@ Object* Function::equals(Object* other) const
             return new Boolean(false);
     }
 }
+
+Object* Function::copy()
+{
+    return new Function(_name, _argument_names, _body, _built_in);
+}

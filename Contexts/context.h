@@ -22,7 +22,8 @@ namespace Contexts
         SymbolTable* _parent;
     public:
         SymbolTable(SymbolTable* parent);
-
+        ~SymbolTable();
+        
         ObjectSymbol get_object(const std::string name);
         void set_object(const std::string name, Objects::Object* object);
 
