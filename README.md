@@ -263,11 +263,40 @@ Returns Type::STRING
 
 Reads input from user.
 
+##### size(value)
+Returns Type::INTEGER
+
+Gets the size of a list or string.
+###### value - list or string
+
+##### type(value)
+Returns Type::STRING
+
+Gets the type of the value.
+###### value - any boolean, integer, double, string, list, or function.
+
+##### to_bool(value)
+Returns Type::BOOLEAN.
+
+Converts the value to a Boolean.
+###### value - any boolean, integer, double, or string.
+
 ##### to_int(value)
 Returns Type::INTEGER.
 
-Converts the value to an Integer
+Converts the value to an Integer.
+###### value - any boolean, integer, double, or string.
 
+##### to_double(value)
+Returns Type::DOUBLE.
+
+Converts the value to a Double.
+###### value - any boolean, integer, double, or string.
+
+##### to_string(value)
+Returns Type::STRING.
+
+Converts the value to a String.
 ###### value - any boolean, integer, double, or string.
 
 #### User-defined Functions
