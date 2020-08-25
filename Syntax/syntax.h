@@ -103,7 +103,7 @@ namespace Syntax
         SyntaxNode();
         SyntaxNode(Diagnostics::Position pos);
 
-        virtual Diagnostics::Position* get_pos();
+        virtual Diagnostics::Position get_pos();
 
         virtual ~SyntaxNode(); 
         virtual SyntaxKind kind() const = 0;

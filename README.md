@@ -318,7 +318,6 @@ line comment */
 # Future Plans
 - Add more built in functions
 - Add a mutable list/collection
-- Improve error messages (it's pretty hard to debug if you have the wrong syntax)
 
 <a name=acknowledgements></a>
 # Acknowledgments

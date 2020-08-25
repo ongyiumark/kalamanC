@@ -70,7 +70,7 @@ Object* Evaluator::evaluate(Context& context, SyntaxNode* node)
             break;   
     }
 
-    DiagnosticBag::report_unknown_syntax(kind_to_string(node->kind()), *node->get_pos());
+    DiagnosticBag::report_unknown_syntax(kind_to_string(node->kind()), node->get_pos());
     return new None();
 }
 
@@ -118,7 +118,7 @@ Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
     if (result == nullptr || result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
-            type_to_string(operand->type()), *node->get_pos());
+            type_to_string(operand->type()), node->get_pos());
     } 
 
     delete operand;
@@ -200,7 +200,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
     if (result == nullptr || result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-            kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()), *node->get_pos());
+            kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()), node->get_pos());
     } 
 
     delete left;
@@ -267,7 +267,7 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
     if (result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-            kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()), *node->get_pos());
+            kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()), node->get_pos());
     } 
 
     delete left;
@@ -317,7 +317,7 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
         }
         default:
         {
-            DiagnosticBag::report_unreachable_code("invalid type declaration", *node->get_pos());
+            DiagnosticBag::report_unreachable_code("invalid type declaration", node->get_pos());
             return new None();
         }
     }
@@ -344,7 +344,7 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
     if (orig_value->type() != value->type())
     {
         DiagnosticBag::report_invalid_assign(type_to_string(value->type()), type_to_string(orig_value->type()),
-            *node->get_pos());
+            node->get_pos());
         delete value;
         return new None();
     }
@@ -361,7 +361,7 @@ Object* Evaluator::evaluate_var_access(Context& context, VarAccessExpressionSynt
     if (result->type() == Type::NONE)
     {
         DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text(),
-            *node->get_identifier()->get_pos());
+            node->get_identifier()->get_pos());
         return result;
     }
 
@@ -384,7 +384,7 @@ Object* Evaluator::evaluate_while(Context& context, WhileExpressionSyntax* node)
         if (condition->type() != Type::BOOLEAN)
         {
             DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN),
-                *node->get_condition()->get_pos());
+                node->get_condition()->get_pos());
             delete condition;
             return new None();
         }
@@ -433,7 +433,7 @@ Object* Evaluator::evaluate_if(Context& context, IfExpressionSyntax* node)
         if (condition->type() != Type::BOOLEAN)
         {
             DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN),
-                *node->get_condition(i)->get_pos());
+                node->get_condition(i)->get_pos());
             delete condition;
             return new None();
         }
@@ -487,7 +487,7 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
         if (condition->type() != Type::BOOLEAN)
         {
             DiagnosticBag::report_unexpected_type(type_to_string(condition->type()), type_to_string(Type::BOOLEAN),
-                *node->get_condition()->get_pos());
+                node->get_condition()->get_pos());
             delete condition;
             return new None();
         }
@@ -546,7 +546,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     if (obj->type() != Type::FUNCTION)
     {
         DiagnosticBag::report_unexpected_type(type_to_string(obj->type()), type_to_string(Type::FUNCTION),
-            *node->get_identifier()->get_pos());
+            node->get_identifier()->get_pos());
         delete obj;
         return new None();
     }
@@ -564,9 +564,9 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         Position arg_pos = Position();
         if (m > 0) 
         {
-            Position* first_arg = node->get_arg(0)->get_pos();
-            Position* last_arg = node->get_arg(m-1)->get_pos();
-            arg_pos = Position(first_arg->ln, first_arg->col, first_arg->start, last_arg->end);
+            Position first_arg = node->get_arg(0)->get_pos();
+            Position last_arg = node->get_arg(m-1)->get_pos();
+            arg_pos = Position(first_arg.ln, first_arg.col, first_arg.start, last_arg.end);
         }
         DiagnosticBag::report_illegal_arguments(m, n, func->get_name(), arg_pos);
         delete func;
@@ -599,12 +599,14 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         {
             for (auto &o : args)
                 delete o;
+            delete func;
             return new None();
         }
 
         // I had to cast here because I used a void*.
         Object* body_obj = evaluate(exec_ctx, (SyntaxNode*)(func->get_body()));
         delete body_obj;
+        delete func;
 
         if (should_return() && !return_value) 
         {
@@ -622,7 +624,9 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         else return new None();
     }
 
-    switch (SyntaxFacts::get_keyword_kind(func->get_name()))
+    std::string func_name = func->get_name();
+    delete func;
+    switch (SyntaxFacts::get_keyword_kind(func_name))
     {
         case SyntaxKind::PrintFunction:
             return BuiltInFunctions::BI_PRINT(exec_ctx);
@@ -632,8 +636,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return BuiltInFunctions::BI_TO_INT(exec_ctx);
         default:
         {
-            DiagnosticBag::report_unreachable_code("invalid builtin function", *node->get_identifier()->get_pos());
-            
+            DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());
             for (auto &o : args)
                 delete o;
             return new None();
