@@ -48,7 +48,7 @@ Object* BuiltInFunctions::BI_TO_INT(Context& context)
                 Integer* res = new Integer(x);
                 return res;
             }
-            DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER));
+            DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), Position());
             return new None();
         }
         case Type::INTEGER:

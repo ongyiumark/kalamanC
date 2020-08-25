@@ -97,7 +97,14 @@ namespace Syntax
 
     class SyntaxNode
     {
+    private:
+        Diagnostics::Position _pos;
     public:
+        SyntaxNode();
+        SyntaxNode(Diagnostics::Position pos);
+
+        virtual Diagnostics::Position* get_pos();
+
         virtual ~SyntaxNode(); 
         virtual SyntaxKind kind() const = 0;
     };
@@ -109,10 +116,9 @@ namespace Syntax
     {
     private:
         SyntaxKind _kind;
-        int _position;
         std::string _text;
     public:
-        SyntaxToken(SyntaxKind kind, int position, std::string text);
+        SyntaxToken(SyntaxKind kind, Diagnostics::Position position, std::string text);
         SyntaxToken();
         ~SyntaxToken();
 
@@ -127,7 +133,9 @@ namespace Syntax
     private:
         const std::string _text;
         int _position;
-
+        int _ln;
+        int _col;
+        
         char peek(int offset) const;
         char current() const;
         char look_ahead() const;

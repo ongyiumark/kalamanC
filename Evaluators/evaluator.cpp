@@ -118,7 +118,7 @@ Object* Evaluator::evaluate_unary(Context& context, UnaryExpressionSyntax* node)
     if (result == nullptr || result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_unary_operation(kind_to_string(node->get_op_token()->kind()),
-            type_to_string(operand->type()));
+            type_to_string(operand->type()), *node->get_pos());
     } 
 
     delete operand;
@@ -200,7 +200,7 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
     if (result == nullptr || result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-            kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()));
+            kind_to_string(node->get_op_token()->kind()), type_to_string(right->type()), *node->get_pos());
     } 
 
     delete left;
@@ -267,7 +267,7 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
     if (result->type() == Type::NONE)
     {
         DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-            kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()));
+            kind_to_string(SyntaxKind::IndexExpression), type_to_string(right->type()), *node->get_pos());
     } 
 
     delete left;

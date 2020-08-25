@@ -47,14 +47,17 @@ context.o: Contexts/context.cpp
 symbol-table.o: Contexts/symbol-table.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Contexts/symbol-table.cpp
 
-diagnostics.o: diagnostic.o diagnostic-bag.o
-	ld -r -o diagnostics.o diagnostic.o diagnostic-bag.o
+diagnostics.o: diagnostic.o diagnostic-bag.o position.o
+	ld -r -o diagnostics.o diagnostic.o diagnostic-bag.o position.o
 
 diagnostic.o: Diagnostics/diagnostic.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/diagnostic.cpp
 
 diagnostic-bag.o: Diagnostics/diagnostic-bag.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/diagnostic-bag.cpp
+
+position.o: Diagnostics/position.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/position.cpp
 
 syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o syntax-expressions.o \
 			parser.o

@@ -169,9 +169,9 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::IfExpression:
         {
             IfExpressionSyntax* t = (IfExpressionSyntax*)node;
-            SyntaxToken if_token = SyntaxToken(SyntaxKind::IfKeyword, -1, KT_IF);
-            SyntaxToken elif_token = SyntaxToken(SyntaxKind::ElifKeyword, -1, KT_ELIF);
-            SyntaxToken else_token = SyntaxToken(SyntaxKind::ElseKeyword, -1, KT_ELSE);
+            SyntaxToken if_token = SyntaxToken(SyntaxKind::IfKeyword, Diagnostics::Position(), KT_IF);
+            SyntaxToken elif_token = SyntaxToken(SyntaxKind::ElifKeyword, Diagnostics::Position(), KT_ELIF);
+            SyntaxToken else_token = SyntaxToken(SyntaxKind::ElseKeyword, Diagnostics::Position(), KT_ELSE);
             int m = t->get_size();
             for (int i = 0; i < m; i++)
             {

@@ -5,6 +5,8 @@
 
 using namespace Diagnostics;
 
+std::string DiagnosticBag::script = "";
+
 DiagnosticBag::DiagnosticBag() {}
 
 // I made this static so I just have one bag for the entire program.
@@ -26,9 +28,9 @@ std::vector<Diagnostic> DiagnosticBag::diagnostics()
 }
 
 // Adds an error to the bag.
-void DiagnosticBag::report(std::string message)
+void DiagnosticBag::report(std::string message, Position pos)
 {
-    _diagnostics.push_back(Diagnostic(message));
+    _diagnostics.push_back(Diagnostic(message, pos));
 }
 
 // Prints all the errors.
@@ -46,53 +48,53 @@ void DiagnosticBag::clear()
 }
 
 // Occurs when the lexer encounters an unknown character.
-void DiagnosticBag::report_bad_character(char c)
+void DiagnosticBag::report_bad_character(char c, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: bad character '" << c << "'";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when parsing to an integer or double fails.
-void DiagnosticBag::report_invalid_type(std::string text, std::string type)
+void DiagnosticBag::report_invalid_type(std::string text, std::string type, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: '" << text << "' is not a valid " << type;
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the lexer fails to see an expected character.
-void DiagnosticBag::report_expected_character(char c)
+void DiagnosticBag::report_expected_character(char c, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: expected character '" << c << "'";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the parser encounters a different token than expected.
-void DiagnosticBag::report_unexpected_token(std::string actual, std::string expected)
+void DiagnosticBag::report_unexpected_token(std::string actual, std::string expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unexpected token <" << actual << ">, ";
     os << "expected <" << expected << ">";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when a unary operation fails.
-void DiagnosticBag::report_illegal_unary_operation(std::string operation, std::string operand)
+void DiagnosticBag::report_illegal_unary_operation(std::string operation, std::string operand, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: illegal operation <" << operation << "> for <" << operand << ">"; 
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when a binary operation fails.
-void DiagnosticBag::report_illegal_binary_operation(std::string left, std::string operation, std::string right)
+void DiagnosticBag::report_illegal_binary_operation(std::string left, std::string operation, std::string right, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: illegal operation <" << operation << "> between <" << left << ">"; 
     os << " and <" << right << ">";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the evaluator encounters an unknown syntax.

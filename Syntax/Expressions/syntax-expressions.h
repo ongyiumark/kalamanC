@@ -10,7 +10,7 @@ namespace Syntax
     private:
         Objects::Object* _value;
     public:
-        LiteralExpressionSyntax(Objects::Object* value);
+        LiteralExpressionSyntax(Objects::Object* value, Diagnostics::Position pos);
         ~LiteralExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -24,7 +24,7 @@ namespace Syntax
         SyntaxToken _op_token;
         SyntaxNode* _operand;
     public:
-        UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand);
+        UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand, Diagnostics::Position pos);
         ~UnaryExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -41,7 +41,7 @@ namespace Syntax
         SyntaxToken _op_token;
         SyntaxNode*_right;
     public:
-        BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right);
+        BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right, Diagnostics::Position pos);
         ~BinaryExpressionSyntax();
 
         SyntaxKind kind() const;

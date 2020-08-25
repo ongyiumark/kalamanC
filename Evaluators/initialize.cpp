@@ -23,6 +23,7 @@ void Evaluators::initialize()
 
 void Evaluators::run(std::string &script, bool show_tree, bool show_return)
 {
+    Diagnostics::DiagnosticBag::script = script;
     Syntax::Parser parser(script, show_return);
     Syntax::SyntaxNode* root = parser.parse();
 

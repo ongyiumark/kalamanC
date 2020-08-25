@@ -3,6 +3,7 @@
 #include <iostream>
 using namespace Syntax;
 using namespace Objects;
+using namespace Diagnostics;
 
 // This turns the tokens into a tree of syntax. 
 Parser::Parser(std::string& text, bool show_return) : _position(0), _show_return(show_return)
@@ -56,8 +57,9 @@ SyntaxToken Parser::match_token(SyntaxKind kind)
     if (current().kind() == kind)
         return next_token();
 
-    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(kind));
-    return SyntaxToken(kind, current().get_position(), "\0");
+    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), 
+        kind_to_string(kind), *current().get_pos());
+    return SyntaxToken(kind, *current().get_pos(), "\0");
 }
 
 // Refer to grammar.txt for the full summary of syntax.
@@ -84,7 +86,8 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                 case SyntaxKind::RSquareToken:
                 case SyntaxKind::CommaToken:
                 {
-                    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                    Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), 
+                        kind_to_string(SyntaxKind::SemicolonToken), *current().get_pos());
                     next_token();
                 }
                 case SyntaxKind::EndOfFileToken:
@@ -110,7 +113,8 @@ SyntaxNode* Parser::parse_program(bool sub_program)
             case SyntaxKind::RCurlyToken:
             case SyntaxKind::CommaToken:
             {
-                Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), kind_to_string(SyntaxKind::SemicolonToken));
+                Diagnostics::DiagnosticBag::report_unexpected_token(kind_to_string(current().kind()), 
+                    kind_to_string(SyntaxKind::SemicolonToken), *current().get_pos());
                 next_token();
             }
             default:
@@ -261,7 +265,8 @@ SyntaxNode* Parser::parse_expression(int precedence)
     {
         SyntaxToken op_token = next_token();
         SyntaxNode* expression = parse_expression(unary_precedence);
-        left = new UnaryExpressionSyntax(op_token, expression);
+        left = new UnaryExpressionSyntax(op_token, expression, 
+            Position(op_token.get_pos()->ln, op_token.get_pos()->col, op_token.get_pos()->start, expression->get_pos()->end));
     }
     else 
     {
@@ -311,7 +316,8 @@ SyntaxNode* Parser::parse_expression(int precedence)
         
         SyntaxToken op_token = next_token();
         SyntaxNode* right = parse_expression(binary_precedence);
-        left = new BinaryExpressionSyntax(left, op_token, right);
+        left = new BinaryExpressionSyntax(left, op_token, right, 
+            Position(left->get_pos()->ln, left->get_pos()->col, left->get_pos()->start, right->get_pos()->end));
     }
     return left;
 }
@@ -347,30 +353,30 @@ SyntaxNode* Parser::parse_atom()
             SyntaxToken literal_token = next_token();
             std::istringstream is(literal_token.get_text());
             long long x;
-            if (is >> x) return new LiteralExpressionSyntax(new Integer(x));
+            if (is >> x) return new LiteralExpressionSyntax(new Integer(x), *literal_token.get_pos());
             
-            return new LiteralExpressionSyntax(nullptr);
+            return new LiteralExpressionSyntax(nullptr, Position());
         }
         case SyntaxKind::StringToken:
         {
             SyntaxToken literal_token = next_token();
-            return new LiteralExpressionSyntax(new String(literal_token.get_text()));
+            return new LiteralExpressionSyntax(new String(literal_token.get_text()), *literal_token.get_pos());
         }
         case SyntaxKind::DoubleToken:
         {
             SyntaxToken literal_token = next_token();
             std::istringstream is(literal_token.get_text());
             long double x;
-            if (is >> x) return new LiteralExpressionSyntax(new Double(x));
+            if (is >> x) return new LiteralExpressionSyntax(new Double(x), *literal_token.get_pos());
             
-            return new LiteralExpressionSyntax(nullptr);
+            return new LiteralExpressionSyntax(nullptr, Position());
         }
         case SyntaxKind::TrueKeyword:
         case SyntaxKind::FalseKeyword:
         {
             SyntaxToken keyword = next_token();
             bool value = keyword.kind() == SyntaxKind::TrueKeyword;
-            return new LiteralExpressionSyntax(new Boolean(value));
+            return new LiteralExpressionSyntax(new Boolean(value), *keyword.get_pos());
         }
         case SyntaxKind::LParenToken:
         {
