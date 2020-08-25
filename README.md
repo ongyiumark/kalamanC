@@ -47,7 +47,7 @@ while(i < 1000000) i = i + 1;
 
 That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
 
-Note that this test was done on a **Linux compiler using WSL**. When I compiled it with a Windows compiler, it runs in **about 1.0 seconds**.
+Note that this test was done on a **Linux compiler using WSL**. When I compiled it with a **Windows compiler**, it runs in **about 1.0 seconds**.
 
 <a name=code_example></a>
 # Code Example
@@ -256,9 +256,7 @@ These two loops do the same thing. The body of the loops have the same syntax as
 Returns Type::NONE.
 
 Prints the value to the screen.
-
-###### Parameters
-value - any boolean, integer, double, string, list, or function.
+###### value - any boolean, integer, double, string, list, or function.
 
 ##### input()
 Returns Type::STRING
@@ -270,8 +268,7 @@ Returns Type::INTEGER.
 
 Converts the value to an Integer
 
-###### Parameters
-value - any boolean, integer, double, or string.
+###### value - any boolean, integer, double, or string.
 
 #### User-defined Functions
 This works very similar to python functions. The keywords are:
