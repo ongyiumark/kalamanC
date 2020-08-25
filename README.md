@@ -47,6 +47,8 @@ while(i < 1000000) i = i + 1;
 
 That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
 
+Note that this test was done on a **Linux compiler using WSL**. When I compiled it with a Windows compiler, it runs in **about 1.0 seconds**.
+
 <a name=code_example></a>
 # Code Example
 
@@ -121,7 +123,7 @@ KalamanC currently has 6 data type:
 - doble (double)
 - mgawords (string)
 - lista (list)
-- func
+- function
 
 KalamanC is staticly typed like C++, so delaring and initializing variables have the same syntax as C++.
 ```
@@ -161,7 +163,7 @@ We have the following operators:
 ```
 (2+1)^2*2;    // Evaluates to 18
 1+1 > 32;     // Evaluates to false
-12 > 6 > 3;   // The incurs an error.
+12 > 6 > 3;   // The incurs an error (I might implement this in the future)
 
 13 at 0;      // This incurs an error because logical operators can only be used on booleans
 ```
@@ -250,20 +252,26 @@ These two loops do the same thing. The body of the loops have the same syntax as
 
 ### Functions
 #### Builtin Functions
-##### lathala() 
-Arguments: Any literal or variable <br>
-Returns: NullType <br>
-Prints the value to the screen 
+##### lathala(value) 
+Returns Type::NONE.
+
+Prints the value to the screen.
+
+###### Parameters
+value - any boolean, integer, double, string, list, or function.
 
 ##### input()
-Arguments: None <br>
-Returns: StringType <br>
+Returns Type::STRING
+
 Reads input from user.
 
-##### to_int()
-Arguments: string, integer, double, or boolean <br>
-Returns: IntegerType <br>
-Coverts the given value to an integer
+##### to_int(value)
+Returns Type::INTEGER.
+
+Converts the value to an Integer
+
+###### Parameters
+value - any boolean, integer, double, or string.
 
 #### User-defined Functions
 This works very similar to python functions. The keywords are:
@@ -301,7 +309,7 @@ lathala(a[-1][-1]);     // Prints 3.5
 Lists and strings are immutable, so you can't reassign their values like this.
 
 ```
-a[0] = 3;   // This will incur a runtime error
+a[0] = 3;   // This will incur an error
 ```
 
 ### Comments
@@ -322,5 +330,4 @@ line comment */
 <a name=acknowledgements></a>
 # Acknowledgments
 
-This was largely based on CodePulse's [Make YOUR OWN Programming Language](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) Series on YouTube.
-The series was written in python so I had to make a couple of adjustments. I also implemented my own syntax.
+This project was inspired by CodePulse's [Make YOUR OWN Programming Language](https://www.youtube.com/playlist?list=PLZQftyCk7_SdoVexSmwy_tBgs7P0b97yD) and Immo Landwerth's [Building a Compiler](https://www.youtube.com/playlist?list=PLRAdsfhKI4OWNOSfS7EUu5GRAVmze1t2y).
