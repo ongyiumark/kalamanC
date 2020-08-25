@@ -6,5 +6,5 @@
 namespace Evaluators
 {
     void initialize();
-    void run(std::string &script, bool show_tree=false, bool show_return=false);
+    void run(std::string &script, bool show_tree=false, bool show_return=false, bool is_shell=false);
 }

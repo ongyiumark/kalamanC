@@ -21,7 +21,7 @@ void Evaluators::initialize()
     add_builtin_function(BI_TO_INT, {"value"});
 }
 
-void Evaluators::run(std::string &script, bool show_tree, bool show_return)
+void Evaluators::run(std::string &script, bool show_tree, bool show_return, bool is_shell)
 {
     Diagnostics::DiagnosticBag::script = script;
     Syntax::Parser parser(script, show_return);
@@ -45,7 +45,7 @@ void Evaluators::run(std::string &script, bool show_tree, bool show_return)
     }
 
     delete answer;
-    delete root;
+    if (!is_shell) delete root;
     Diagnostics::DiagnosticBag::clear();
     Evaluator::clear();
 }

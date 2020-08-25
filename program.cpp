@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
                 continue;
             }
             
-            run(line, show_tree, show_return);
+            run(line, show_tree, show_return, true);
         }
     }
 
