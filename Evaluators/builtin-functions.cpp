@@ -6,8 +6,8 @@
 using namespace Objects;
 using namespace Diagnostics;
 using namespace Contexts;
-using namespace Syntax;
 using namespace Evaluators;
+using Syntax::is_digit;
 
 // Prints to the screen.
 Object* BuiltInFunctions::BI_PRINT(Context& context)

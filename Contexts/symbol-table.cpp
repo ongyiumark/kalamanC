@@ -3,7 +3,7 @@
 using namespace Contexts;
 using namespace Objects;
 
-// I didn't want to use a pair
+// I didn't want to use a pair.
 ObjectSymbol::ObjectSymbol(Object* _object, SymbolTable* _symbol) : object(_object), symbol(_symbol) {}
 
 // This basically compartmentalizes variables to allow for local variables within functions.
