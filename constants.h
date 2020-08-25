@@ -26,4 +26,10 @@ const std::string KT_CONTINUE   = "continue";
 
 const std::string BI_PRINT      = "print";
 const std::string BI_INPUT      = "input";
+const std::string BI_SIZE       = "size";
+const std::string BI_TYPE       = "type";
+const std::string BI_TO_BOOL    = "to_bool";
 const std::string BI_TO_INT     = "to_int";
+const std::string BI_TO_DOUBLE  = "to_double";
+const std::string BI_TO_STRING  = "to_string";
+

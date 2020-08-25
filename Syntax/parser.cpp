@@ -431,7 +431,12 @@ SyntaxNode* Parser::parse_atom()
         }
         case SyntaxKind::PrintFunction:
         case SyntaxKind::InputFunction:
+        case SyntaxKind::SizeFunction:
+        case SyntaxKind::TypeFunction:
+        case SyntaxKind::ToBoolFunction:
         case SyntaxKind::ToIntFunction:
+        case SyntaxKind::ToDoubleFunction:
+        case SyntaxKind::ToStringFunction:
         {
             Position start = current().get_pos();
             SyntaxToken identifier = next_token();

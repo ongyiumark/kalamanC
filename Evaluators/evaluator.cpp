@@ -624,11 +624,21 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     switch (SyntaxFacts::get_keyword_kind(func_name))
     {
         case SyntaxKind::PrintFunction:
-            return BuiltInFunctions::BI_PRINT(exec_ctx);
+            return BuiltInFunctions::PRINT(exec_ctx);
         case SyntaxKind::InputFunction:
-            return BuiltInFunctions::BI_INPUT(exec_ctx);
+            return BuiltInFunctions::INPUT(exec_ctx);
+        case SyntaxKind::SizeFunction:
+            return BuiltInFunctions::SIZE(exec_ctx);
+        case SyntaxKind::TypeFunction:
+            return BuiltInFunctions::TYPE(exec_ctx);
+        case SyntaxKind::ToBoolFunction:
+            return BuiltInFunctions::TO_BOOL(exec_ctx);
         case SyntaxKind::ToIntFunction:
-            return BuiltInFunctions::BI_TO_INT(exec_ctx);
+            return BuiltInFunctions::TO_INT(exec_ctx);
+        case SyntaxKind::ToDoubleFunction:
+            return BuiltInFunctions::TO_DOUBLE(exec_ctx);
+        case SyntaxKind::ToStringFunction:
+            return BuiltInFunctions::TO_STRING(exec_ctx);
         default:
         {
             DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());

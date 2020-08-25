@@ -154,6 +154,6 @@ void DiagnosticBag::report_unreachable_code(std::string info, Position pos)
 void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
+    os << "ERROR: argument " << i << " of '" << name << "' cannot be <" << type << ">" ;
     report(os.str(), pos);    
 }
