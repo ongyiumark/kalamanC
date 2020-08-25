@@ -23,8 +23,7 @@ Object* BuiltInFunctions::INPUT(Context& context)
 {
     std::string val;
     getline(std::cin, val);
-    String* res = new String(val);
-    return res;
+    return new String(val);
 }
 
 // Returns the size of the list or string.

@@ -18,6 +18,7 @@ void Evaluator::clear()
 {
     to_continue = false;
     to_break = false;
+    delete return_value;
     return_value = nullptr;
 }
 
@@ -662,6 +663,7 @@ Object* Evaluator::evaluate_return(Context& context, ReturnExpressionSyntax* nod
             return new None();
         }
 
+        if (return_value != nullptr) delete return_value;
         return_value = result;
         return new None();
     }

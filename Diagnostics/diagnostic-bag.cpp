@@ -5,12 +5,13 @@
 
 using namespace Diagnostics;
 
+// The current script that's being interpreted.
 std::string DiagnosticBag::script = "";
-
-DiagnosticBag::DiagnosticBag() {}
 
 // I made this static so I just have one bag for the entire program.
 std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>(); 
+
+DiagnosticBag::DiagnosticBag() {}
 
 int DiagnosticBag::size()
 {

@@ -106,7 +106,12 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         // Builtin Functions   
         PROCESS_VAL(SyntaxKind::PrintFunction);  
         PROCESS_VAL(SyntaxKind::InputFunction);  
+        PROCESS_VAL(SyntaxKind::SizeFunction);  
+        PROCESS_VAL(SyntaxKind::TypeFunction);  
+        PROCESS_VAL(SyntaxKind::ToBoolFunction);  
         PROCESS_VAL(SyntaxKind::ToIntFunction);  
+        PROCESS_VAL(SyntaxKind::ToDoubleFunction);  
+        PROCESS_VAL(SyntaxKind::ToStringFunction);  
     }
 #undef PROCESS_VAL
     return s;
@@ -147,6 +152,12 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         {
             ForExpressionSyntax* t = (ForExpressionSyntax*)node;
             children = {t->get_init(), t->get_condition(), t->get_update(), t->get_body()};
+            break;
+        }
+        case SyntaxKind::WhileExpression:
+        {
+            WhileExpressionSyntax* t = (WhileExpressionSyntax*)node;
+            children = {t->get_condition(), t->get_body()};
             break;
         }
         case SyntaxKind::FuncCallExpression:
@@ -225,6 +236,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
             break;
         }
         case SyntaxKind::NoneExpression:
+        case SyntaxKind::BreakExpression:
+        case SyntaxKind::ContinueExpression:
             break;
         default:
         {
@@ -237,10 +250,7 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 
     std::cout << std::endl;
 
-    SyntaxNode* last_child = nullptr;
     int n = children.size();
-    if (n) last_child = children[n-1];
-
     for (int i = 0; i < n; i++)
-        pretty_print(children[i], indent, last_child == children[i]);
+        pretty_print(children[i], indent, i == n-1);
 }
