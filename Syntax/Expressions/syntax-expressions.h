@@ -57,7 +57,7 @@ namespace Syntax
         std::vector<SyntaxNode*> _nodes;
         bool _to_return;
     public:
-        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, bool to_return=false);
+        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false);
         ~SequenceExpressionSyntax();
         SyntaxKind kind() const;    
 
@@ -74,7 +74,7 @@ namespace Syntax
         SyntaxNode* _condition;
         SyntaxNode* _body;
     public:
-        WhileExpressionSyntax(SyntaxNode* condition, SyntaxNode* body);
+        WhileExpressionSyntax(SyntaxNode* condition, SyntaxNode* body, Diagnostics::Position pos);
         ~WhileExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -89,7 +89,7 @@ namespace Syntax
     private:
         SyntaxNode *_init, *_condition, *_update, *_body;
     public:
-        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body);\
+        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body, Diagnostics::Position pos);
         ~ForExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -106,7 +106,7 @@ namespace Syntax
         SyntaxToken _var_keyword;
         SyntaxToken _identifier;
     public:
-        VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier);
+        VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, Diagnostics::Position pos);
         ~VarDeclareExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -121,7 +121,7 @@ namespace Syntax
         SyntaxToken _identifier;
         SyntaxNode* _value;
     public:
-        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value);
+        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value, Diagnostics::Position pos);
         ~VarAssignExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -135,7 +135,7 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
     public:
-        VarAccessExpressionSyntax(SyntaxToken identifier);
+        VarAccessExpressionSyntax(SyntaxToken identifier, Diagnostics::Position pos);
         ~VarAccessExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -150,7 +150,8 @@ namespace Syntax
         std::vector<SyntaxNode*> _bodies;
         SyntaxNode* _else_body;
     public:
-        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body);
+        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body, 
+            Diagnostics::Position pos);
         ~IfExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -172,7 +173,8 @@ namespace Syntax
         std::vector<SyntaxToken> _arg_names;
         SyntaxNode* _body;
     public:
-        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body);
+        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body, 
+            Diagnostics::Position pos);
         ~FuncDefineExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -190,7 +192,7 @@ namespace Syntax
         SyntaxToken _identifier;
         std::vector<SyntaxNode*> _args;
     public:
-        FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args);
+        FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
         ~FuncCallExpressionSyntax();
 
         SyntaxKind kind() const;
@@ -207,7 +209,7 @@ namespace Syntax
         SyntaxNode* _to_access;
         SyntaxNode* _indexer;
     public:
-        IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer);
+        IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer, Diagnostics::Position pos);
         ~IndexExpressionSyntax();
 
         SyntaxKind kind() const;

@@ -99,60 +99,60 @@ void DiagnosticBag::report_illegal_binary_operation(std::string left, std::strin
 
 // Occurs when the evaluator encounters an unknown syntax.
 // Realistically this should never occur unless I messed up.
-void DiagnosticBag::report_unknown_syntax(std::string syntax)
+void DiagnosticBag::report_unknown_syntax(std::string syntax, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unknown syntax <" << syntax << ">";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the evaluator encounters a different type than expected.
-void DiagnosticBag::report_unexpected_type(std::string actual, std::string expected)
+void DiagnosticBag::report_unexpected_type(std::string actual, std::string expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unexpected type <" << actual << ">, ";
     os << "expected <" << expected << ">";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the evaluator tries to assign a value to a variable of a different type.
-void DiagnosticBag::report_invalid_assign(std::string actual, std::string expected)
+void DiagnosticBag::report_invalid_assign(std::string actual, std::string expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: invalid assignment of <" << actual << "> ";
     os << "to <" << expected << ">";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the evaluator tries to access an undeclared identifier.
-void DiagnosticBag::report_undeclared_identifier(std::string identifier)
+void DiagnosticBag::report_undeclared_identifier(std::string identifier, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: undeclared identifier '" << identifier << "'";
-    report(os.str());
+    report(os.str(), pos);
 }
 
 // Occurs when the wrong number of arguments are given when calling a function.
-void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name)
+void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: provided with " << actual << "argument(s), expected " << expected;
-    report(os.str());    
+    os << "ERROR: provided with " << actual << " argument(s), expected " << expected;
+    report(os.str(), pos);    
 }
 
 // Occurs when supposedly unreachable code is reached.
 // Again, this should never occur unless I messed up.
-void DiagnosticBag::report_unreachable_code(std::string info)
+void DiagnosticBag::report_unreachable_code(std::string info, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: reached unreachable code, " << info;
-    report(os.str());    
+    report(os.str(), pos);    
 }
 
 // Occurs when invalid arguments are passed to a builtin function.
-void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type)
+void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
-    report(os.str());    
+    report(os.str(), pos);    
 }

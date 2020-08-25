@@ -1,10 +1,10 @@
 #include "syntax-expressions.h"
 
 using namespace Syntax;
-
+using Diagnostics::Position;
 // Accesses an existing variable.
-VarAccessExpressionSyntax::VarAccessExpressionSyntax(SyntaxToken identifier)
-    : _identifier(identifier) {}
+VarAccessExpressionSyntax::VarAccessExpressionSyntax(SyntaxToken identifier, Position pos)
+    : SyntaxNode(pos), _identifier(identifier) {}
     
 VarAccessExpressionSyntax::~VarAccessExpressionSyntax() {}
 

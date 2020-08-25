@@ -3,8 +3,8 @@
 using namespace Syntax;
 
 // This is for while-loops. Just your standard while loop.
-WhileExpressionSyntax::WhileExpressionSyntax(SyntaxNode *condition, SyntaxNode* body)
-    : _condition(condition), _body(body) {}
+WhileExpressionSyntax::WhileExpressionSyntax(SyntaxNode *condition, SyntaxNode* body, Diagnostics::Position pos)
+    : SyntaxNode(pos), _condition(condition), _body(body) {}
     
 WhileExpressionSyntax::~WhileExpressionSyntax()
 {

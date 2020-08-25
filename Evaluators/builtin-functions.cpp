@@ -65,7 +65,7 @@ Object* BuiltInFunctions::BI_TO_INT(Context& context)
         }
         default:
         {
-            DiagnosticBag::report_invalid_builtin_arguments("BI_TO_INT", 1, type_to_string(obj->type()));
+            DiagnosticBag::report_invalid_builtin_arguments("BI_TO_INT", 1, type_to_string(obj->type()), Position());
             return new None();
         }
     }
