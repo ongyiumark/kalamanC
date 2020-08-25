@@ -1,10 +1,10 @@
 #include "syntax-expressions.h"
-#include <iostream>
-using namespace Syntax;
 
+using namespace Syntax;
+using Diagnostics::Position;
 // This is for conditional statements. Just your standard C-style conditional statements.
 IfExpressionSyntax::IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std::vector<SyntaxNode*>& bodies, 
-    SyntaxNode* else_body) : _conditions(conditions), _bodies(bodies), _else_body(else_body) {}
+    SyntaxNode* else_body, Position pos) : SyntaxNode(pos), _conditions(conditions), _bodies(bodies), _else_body(else_body) {}
 
 IfExpressionSyntax::~IfExpressionSyntax()
 {

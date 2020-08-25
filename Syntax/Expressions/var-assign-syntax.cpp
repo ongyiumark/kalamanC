@@ -1,10 +1,10 @@
 #include "syntax-expressions.h"
 
 using namespace Syntax;
-
+using Diagnostics::Position;
 // Assigns a value to an existing variable.
-VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value)
-    : _identifier(identifier), _value(value) {}
+VarAssignExpressionSyntax::VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value, Position pos)
+    : SyntaxNode(pos), _identifier(identifier), _value(value) {}
 
 VarAssignExpressionSyntax::~VarAssignExpressionSyntax()
 {

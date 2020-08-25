@@ -1,10 +1,10 @@
 #include "syntax-expressions.h"
 
 using namespace Syntax;
-
+using Diagnostics::Position;
 // This indexes a string or a list.
-IndexExpressionSyntax::IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer)
-    : _to_access(to_access), _indexer(indexer)  {}
+IndexExpressionSyntax::IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer, Position pos)
+    : SyntaxNode(pos), _to_access(to_access), _indexer(indexer)  {}
 
 IndexExpressionSyntax::~IndexExpressionSyntax()
 {

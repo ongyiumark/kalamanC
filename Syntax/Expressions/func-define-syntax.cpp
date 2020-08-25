@@ -1,10 +1,11 @@
 #include "syntax-expressions.h"
 
 using namespace Syntax;
-
+using Diagnostics::Position;
 // Defines a function. This behaves more like a python function.
-FuncDefineExpressionSyntax::FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body)
-    : _identifier(identifier), _arg_names(arg_names), _body(body) {}
+FuncDefineExpressionSyntax::FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, 
+    SyntaxNode* body, Position pos)
+    : SyntaxNode(pos), _identifier(identifier), _arg_names(arg_names), _body(body) {}
 
 FuncDefineExpressionSyntax::~FuncDefineExpressionSyntax()
 {

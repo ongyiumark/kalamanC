@@ -1,5 +1,5 @@
-kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
-	g++ -O2 -march=native -Wall -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluator.o builtin-functions.o
+kalman: program.o objects.o contexts.o diagnostics.o syntax.o evaluators.o
+	g++ -O2 -march=native -Wall -std=c++17 -o kalman program.o objects.o contexts.o diagnostics.o syntax.o evaluators.o 
 
 program.o: program.cpp 
 	g++ -O2 -march=native -Wall -std=c++17 -c program.cpp 
@@ -47,14 +47,17 @@ context.o: Contexts/context.cpp
 symbol-table.o: Contexts/symbol-table.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Contexts/symbol-table.cpp
 
-diagnostics.o: diagnostic.o diagnostic-bag.o
-	ld -r -o diagnostics.o diagnostic.o diagnostic-bag.o
+diagnostics.o: diagnostic.o diagnostic-bag.o position.o
+	ld -r -o diagnostics.o diagnostic.o diagnostic-bag.o position.o
 
 diagnostic.o: Diagnostics/diagnostic.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/diagnostic.cpp
 
 diagnostic-bag.o: Diagnostics/diagnostic-bag.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/diagnostic-bag.cpp
+
+position.o: Diagnostics/position.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Diagnostics/position.cpp
 
 syntax.o: lexer.o syntax-facts.o syntax-helpers.o syntax-node.o syntax-token.o syntax-expressions.o \
 			parser.o
@@ -139,11 +142,17 @@ continue-syntax.o: Syntax/Expressions/continue-syntax.cpp
 break-syntax.o: Syntax/Expressions/break-syntax.cpp
 	g++ -O2 -march=native -Wall -std=c++17 -c Syntax/Expressions/break-syntax.cpp
 
-evaluator.o: Evaluator/evaluator.cpp
-	g++ -O2 -march=native -Wall -std=c++17 -c Evaluator/evaluator.cpp
+evaluators.o: evaluator.o builtin-functions.o initialize.o
+	ld -r -o evaluators.o evaluator.o builtin-functions.o initialize.o
 
-builtin-functions.o: Evaluator/builtin-functions.cpp
-	g++ -O2 -march=native -Wall -std=c++17 -c Evaluator/builtin-functions.cpp
+evaluator.o: Evaluators/evaluator.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/evaluator.cpp
+
+builtin-functions.o: Evaluators/builtin-functions.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/builtin-functions.cpp
+
+initialize.o: Evaluators/initialize.cpp
+	g++ -O2 -march=native -Wall -std=c++17 -c Evaluators/initialize.cpp
 
 make clean:
 	rm *.o 

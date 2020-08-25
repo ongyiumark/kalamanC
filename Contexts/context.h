@@ -6,6 +6,7 @@
 namespace Contexts
 {
     class SymbolTable;
+    
     // Refer to symbol-table.cpp.
     struct ObjectSymbol
     {

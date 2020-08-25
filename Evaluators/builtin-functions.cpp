@@ -7,8 +7,7 @@ using namespace Objects;
 using namespace Diagnostics;
 using namespace Contexts;
 using namespace Syntax;
-
-Diagnostics::DiagnosticBag* BuiltInFunctions::_diagnostics;
+using namespace Evaluators;
 
 // Prints to the screen.
 Object* BuiltInFunctions::BI_PRINT(Context& context)
@@ -49,7 +48,7 @@ Object* BuiltInFunctions::BI_TO_INT(Context& context)
                 Integer* res = new Integer(x);
                 return res;
             }
-            _diagnostics->report_invalid_type(text, type_to_string(Type::INTEGER));
+            DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), Position());
             return new None();
         }
         case Type::INTEGER:
@@ -66,7 +65,7 @@ Object* BuiltInFunctions::BI_TO_INT(Context& context)
         }
         default:
         {
-            _diagnostics->report_invalid_builtin_arguments("BI_TO_INT", 1, type_to_string(obj->type()));
+            DiagnosticBag::report_invalid_builtin_arguments("BI_TO_INT", 1, type_to_string(obj->type()), Position());
             return new None();
         }
     }

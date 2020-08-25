@@ -2,9 +2,11 @@
 
 using namespace Syntax;
 
+using Diagnostics::Position;
+
 // This is for literals such at booleans, integers, doubles, and strings.
-LiteralExpressionSyntax::LiteralExpressionSyntax(Objects::Object* value)
-    : _value(value) {}
+LiteralExpressionSyntax::LiteralExpressionSyntax(Objects::Object* value, Position pos)
+    : SyntaxNode(pos), _value(value) {}
 
 LiteralExpressionSyntax::~LiteralExpressionSyntax()
 {

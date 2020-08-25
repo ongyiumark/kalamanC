@@ -1,10 +1,10 @@
 #include "syntax-expressions.h"
 
 using namespace Syntax;
-
+using Diagnostics::Position;
 // Calls the function.
-FuncCallExpressionSyntax::FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args)
-    : _identifier(identifier), _args(args) {}
+FuncCallExpressionSyntax::FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args, Position pos)
+    : SyntaxNode(pos), _identifier(identifier), _args(args) {}
 
 FuncCallExpressionSyntax::~FuncCallExpressionSyntax()
 {

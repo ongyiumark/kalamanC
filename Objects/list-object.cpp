@@ -33,7 +33,7 @@ std::vector<Object*> List::get_values() const
     return _values;
 }
 
-// Comma delimited values, enclose in square brackets.
+// Comma delimited values, enclosed in square brackets.
 std::string List::to_string() const
 {
     std::ostringstream os;

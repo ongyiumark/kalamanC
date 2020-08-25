@@ -3,8 +3,8 @@
 using namespace Syntax;
 
 // This is for for-loops. Just your standard C-style for-loop.
-ForExpressionSyntax::ForExpressionSyntax(SyntaxNode *init, SyntaxNode* condition, SyntaxNode *update, SyntaxNode* body)
-    : _init(init), _condition(condition), _update(update), _body(body) {}
+ForExpressionSyntax::ForExpressionSyntax(SyntaxNode *init, SyntaxNode* condition, SyntaxNode *update, SyntaxNode* body, Diagnostics::Position pos)
+    : SyntaxNode(pos), _init(init), _condition(condition), _update(update), _body(body) {}
 
 ForExpressionSyntax::~ForExpressionSyntax()
 {

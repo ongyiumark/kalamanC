@@ -2,9 +2,11 @@
 
 using namespace Syntax;
 
+using Diagnostics::Position;
+
 // This is for unary operations.
-UnaryExpressionSyntax::UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand)
-    : _op_token(op_token), _operand(operand) {}
+UnaryExpressionSyntax::UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand, Position pos)
+    : SyntaxNode(pos), _op_token(op_token), _operand(operand) {}
     
 UnaryExpressionSyntax::~UnaryExpressionSyntax()
 {

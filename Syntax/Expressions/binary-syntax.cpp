@@ -2,9 +2,11 @@
 
 using namespace Syntax;
 
+using Diagnostics::Position;
+
 // This is for binary operations.
-BinaryExpressionSyntax::BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right)
-    : _left(left), _op_token(op_token), _right(right) {}
+BinaryExpressionSyntax::BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right, Position pos)
+    : SyntaxNode(pos), _left(left), _op_token(op_token), _right(right) {}
 
 BinaryExpressionSyntax::~BinaryExpressionSyntax()
 {
