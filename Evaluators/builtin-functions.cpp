@@ -52,7 +52,7 @@ Object* BuiltInFunctions::BI_TO_INT(Context& context)
             return new None();
         }
         case Type::INTEGER:
-            return obj;
+            return obj->copy();
         case Type::BOOLEAN:
         {
             Integer* res = new Integer(((Boolean*)obj)->get_value());
