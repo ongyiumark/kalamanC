@@ -39,6 +39,7 @@ void DiagnosticBag::print()
     int n = _diagnostics.size();
     for (int i = 0; i < n; i++)
         std::cout << _diagnostics[i].get_message() << std::endl;
+    if (n) std::cout << std::endl;
 }
 
 // Resets everything.

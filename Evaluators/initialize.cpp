@@ -41,7 +41,7 @@ void Evaluators::run(std::string &script, bool show_tree, bool show_return, bool
         if (answer->type() == Objects::Type::LIST && ((Objects::List*)answer)->get_size() == 1)
             std::cout << ((Objects::List*)answer)->get_value(0)->to_string();
         else std::cout << answer->to_string();
-        std::cout << std::endl;
+        std::cout << "\n" << std::endl;
     }
 
     delete answer;
