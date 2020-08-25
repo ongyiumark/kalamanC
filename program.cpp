@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
     if (argc == 1)
     {
         std::cout << "KalamanC 1.0 (Aug 25, 2020, 18:38)" << std::endl;
-        std::cout << "Type '#help' for more information\n" << std::endl;
+        std::cout << "Type \"#help\" for more information\n" << std::endl;
         bool show_tree = false;
         bool show_return = true;
         while(true)
@@ -23,8 +23,8 @@ int main(int argc, char ** argv)
             if (line == "#help")
             {
                 std::cout << "Shell commands begin with '#'\n" << std::endl;
-                std::cout << "#showtree - toggles to show the parse tree" << std::endl;
-                std::cout << "#showreturn - toggles to show the return values of expressions" << std::endl;
+                std::cout << "#showtree - toggles to show the parse tree (default: false)" << std::endl;
+                std::cout << "#showreturn - toggles to show the return values of expressions (default: true)" << std::endl;
                 std::cout << "#cls - clears the screen (windows only)\n" << std::endl; 
                 continue;
             }
