@@ -597,8 +597,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         
         if (func->get_body() == nullptr)
         {
-            for (auto &o : args)
-                delete o;
             delete func;
             return new None();
         }
@@ -609,10 +607,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         delete func;
 
         if (should_return() && !return_value) 
-        {
-            for (auto &o : args) delete o;
             return new None();
-        }
 
         if (return_value)
         {
@@ -637,14 +632,10 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         default:
         {
             DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());
-            for (auto &o : args)
-                delete o;
             return new None();
         }
     }
 
-    for (auto &o : args)
-        delete o;
     return new None();
 }
 
