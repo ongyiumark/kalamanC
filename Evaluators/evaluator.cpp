@@ -628,6 +628,8 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return BuiltInFunctions::PRINT(exec_ctx);
         case SyntaxKind::InputFunction:
             return BuiltInFunctions::INPUT(exec_ctx);
+        case SyntaxKind::SplitFunction:
+            return BuiltInFunctions::SPLIT(exec_ctx);    
         case SyntaxKind::SizeFunction:
             return BuiltInFunctions::SIZE(exec_ctx);
         case SyntaxKind::TypeFunction:
@@ -640,6 +642,8 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return BuiltInFunctions::TO_DOUBLE(exec_ctx);
         case SyntaxKind::ToStringFunction:
             return BuiltInFunctions::TO_STRING(exec_ctx);
+        case SyntaxKind::SetIndexFunction:
+            return BuiltInFunctions::SET_INDEX(exec_ctx);
         default:
         {
             DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());

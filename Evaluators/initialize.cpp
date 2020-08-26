@@ -18,12 +18,14 @@ void Evaluators::initialize()
 {
     add_builtin_function(BI_INPUT, {});
     add_builtin_function(BI_PRINT, {"value"});
+    add_builtin_function(BI_SPLIT, {"value", "delimiter"});
     add_builtin_function(BI_SIZE, {"value"});
     add_builtin_function(BI_TYPE, {"value"});
     add_builtin_function(BI_TO_BOOL, {"value"});
     add_builtin_function(BI_TO_INT, {"value"});
     add_builtin_function(BI_TO_DOUBLE, {"value"});
     add_builtin_function(BI_TO_STRING, {"value"});
+    add_builtin_function(BI_SET_INDEX, {"collection", "index", "value"});
 }
 
 void Evaluators::run(std::string &script, bool show_tree, bool show_return, bool is_shell)

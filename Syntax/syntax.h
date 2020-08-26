@@ -90,12 +90,14 @@ namespace Syntax
         // Builtin Functions
         PrintFunction,
         InputFunction,
+        SplitFunction,
         SizeFunction,
         TypeFunction,
         ToBoolFunction,
         ToIntFunction,
         ToDoubleFunction,
-        ToStringFunction
+        ToStringFunction,
+        SetIndexFunction,
     };
 
     std::string kind_to_string(SyntaxKind kind);

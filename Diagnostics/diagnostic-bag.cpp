@@ -138,7 +138,7 @@ void DiagnosticBag::report_undeclared_identifier(std::string identifier, Positio
 void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: provided with " << actual << " argument(s), expected " << expected;
+    os << "ERROR: function '"<< name << "' provided with " << actual << " argument(s), expected " << expected;
     report(os.str(), pos);    
 }
 

@@ -26,9 +26,13 @@ const std::string KT_CONTINUE   = "tuloy";
 
 const std::string BI_PRINT      = "lathala";
 const std::string BI_INPUT      = "input";
+const std::string BI_SPLIT      = "hatiin";
 const std::string BI_SIZE       = "sukat";
 const std::string BI_TYPE       = "uri";
+
 const std::string BI_TO_BOOL    = "gawing_bool";
 const std::string BI_TO_INT     = "gawing_bilang";
 const std::string BI_TO_DOUBLE  = "gawing_doble";
 const std::string BI_TO_STRING  = "gawing_mgawords";
+
+const std::string BI_SET_INDEX  = "palitan";

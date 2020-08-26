@@ -8,7 +8,7 @@ using namespace Objects;
 using namespace Diagnostics;
 using namespace Contexts;
 using namespace Evaluators;
-using Syntax::is_digit;
+using namespace Syntax;
 
 // Prints to the screen.
 Object* BuiltInFunctions::PRINT(Context& context)
@@ -24,6 +24,40 @@ Object* BuiltInFunctions::INPUT(Context& context)
     std::string val;
     getline(std::cin, val);
     return new String(val);
+}
+
+// Splits the string into a list of words
+Object* BuiltInFunctions::SPLIT(Context& context)
+{
+    Object* obj = context.get_symbol_table()->get_object("value").object;
+    Object* delimiter = context.get_symbol_table()->get_object("delimiter").object;
+
+    switch(obj->type())
+    {
+        case Type::STRING:
+        {
+            if (delimiter->type() != Type::STRING)
+            {
+                DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 2, type_to_string(delimiter->type()), Position());
+                return new None();
+            }
+            std::string sep = ((String*)delimiter)->get_value();
+            if (sep.size() == 0) sep = " ";
+            std::string words = ((String*)obj)->get_value();
+            std::vector<Object*> elems;
+            size_t pos = 0;
+            while ((pos = words.find(sep)) != std::string::npos)
+            {
+                if (pos != 0) elems.push_back(new String(words.substr(0, pos)));
+                words.erase(0, pos+sep.size());
+            }
+            if (words.size() > 0) elems.push_back(new String(words));
+            return new List(elems);
+        }
+        default:
+            DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 1, type_to_string(obj->type()), Position());
+            return new None();
+    }    
 }
 
 // Returns the size of the list or string.
@@ -156,5 +190,42 @@ Object* BuiltInFunctions::TO_DOUBLE(Context& context)
 Object* BuiltInFunctions::TO_STRING(Context& context)
 {
     Object* obj = context.get_symbol_table()->get_object("value").object;
+    if (obj->type() == Type::STRING) return obj->copy(); 
     return new String(obj->to_string());
+}
+
+// Changes the value of a list index.
+Object* BuiltInFunctions::SET_INDEX(Context& context)
+{
+    Object* collection = context.get_symbol_table()->get_object("collection").object;
+    Object* index = context.get_symbol_table()->get_object("index").object;
+    Object* value = context.get_symbol_table()->get_object("value").object;
+    switch (collection->type())
+    {
+        case Type::LIST:
+        {
+            List* list = (List*)(collection->copy());
+            if (index->type() != Type::INTEGER)
+            {
+                DiagnosticBag::report_invalid_builtin_arguments(BI_SET_INDEX, 2, type_to_string(index->type()), Position());
+                delete list;
+                return new None();     
+            }
+            long long idx = ((Integer*)index)->get_value();
+            int n = list->get_size();
+            if (idx < 0) idx += n;
+            if (idx < 0 || idx >= n) 
+            {
+                DiagnosticBag::report_illegal_binary_operation(type_to_string(list->type()),
+                kind_to_string(SyntaxKind::IndexExpression), type_to_string(index->type()), Position());
+                delete list;
+                return new None();
+            }
+            list->set_value(idx, value->copy());
+            return list;
+        }
+        default:
+            DiagnosticBag::report_invalid_builtin_arguments(BI_SET_INDEX, 1, type_to_string(collection->type()), Position());
+            return new None();            
+    }
 }

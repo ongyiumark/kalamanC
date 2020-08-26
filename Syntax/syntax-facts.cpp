@@ -53,6 +53,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::PrintFunction;
     else if (text == BI_INPUT)
         return SyntaxKind::InputFunction;
+    else if (text == BI_SPLIT)
+        return SyntaxKind::SplitFunction;
     else if (text == BI_SIZE)
         return SyntaxKind::SizeFunction;
     else if (text == BI_TYPE)
@@ -65,6 +67,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
         return SyntaxKind::ToDoubleFunction;
     else if (text == BI_TO_STRING)
         return SyntaxKind::ToStringFunction;
+    else if (text == BI_SET_INDEX)
+        return SyntaxKind::SetIndexFunction;
     else
         return SyntaxKind::IdentifierToken;
 }

@@ -106,12 +106,14 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         // Builtin Functions   
         PROCESS_VAL(SyntaxKind::PrintFunction);  
         PROCESS_VAL(SyntaxKind::InputFunction);  
+        PROCESS_VAL(SyntaxKind::SplitFunction);
         PROCESS_VAL(SyntaxKind::SizeFunction);  
         PROCESS_VAL(SyntaxKind::TypeFunction);  
         PROCESS_VAL(SyntaxKind::ToBoolFunction);  
         PROCESS_VAL(SyntaxKind::ToIntFunction);  
         PROCESS_VAL(SyntaxKind::ToDoubleFunction);  
         PROCESS_VAL(SyntaxKind::ToStringFunction);  
+        PROCESS_VAL(SyntaxKind::SetIndexFunction);
     }
 #undef PROCESS_VAL
     return s;
