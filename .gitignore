@@ -2,3 +2,4 @@
 *.o
 kalman
 kalman.exe
+*.kal
