@@ -153,6 +153,7 @@ namespace Objects
 
         int get_size() const;
         Object* get_value(int i) const;
+        void set_value(int i, Objects::Object* val);
         std::vector<Object*> get_values() const;
 
         Object* added_by(Object* other) const;

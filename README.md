@@ -263,12 +263,57 @@ Returns Type::STRING
 
 Reads input from user.
 
+##### split(value, delimiter)
+Returns Type::LIST
+
+Splits the string into a list of words, separated by the delimiter.
+###### value - string
+###### delimiter - string
+
+##### size(value)
+Returns Type::INTEGER
+
+Gets the size of a list or string.
+###### value - list or string
+
+##### type(value)
+Returns Type::STRING
+
+Gets the type of the value.
+###### value - any boolean, integer, double, string, list, or function.
+
+##### to_bool(value)
+Returns Type::BOOLEAN.
+
+Converts the value to a Boolean.
+###### value - any boolean, integer, double, or string.
+
 ##### to_int(value)
 Returns Type::INTEGER.
 
-Converts the value to an Integer
-
+Converts the value to an Integer.
 ###### value - any boolean, integer, double, or string.
+
+##### to_double(value)
+Returns Type::DOUBLE.
+
+Converts the value to a Double.
+###### value - any boolean, integer, double, or string.
+
+##### to_string(value)
+Returns Type::STRING.
+
+Converts the value to a String.
+###### value - any boolean, integer, double, list, string, or function.
+
+##### set(collection, index, value)
+Returns Type::LIST.
+
+Changes the value of a list member.
+###### collection - list
+###### index - integer
+###### value - any boolean, integer, double, list, string, or function.
+
 
 #### User-defined Functions
 This works very similar to python functions. The keywords are:

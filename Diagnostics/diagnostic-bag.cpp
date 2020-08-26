@@ -5,12 +5,13 @@
 
 using namespace Diagnostics;
 
+// The current script that's being interpreted.
 std::string DiagnosticBag::script = "";
-
-DiagnosticBag::DiagnosticBag() {}
 
 // I made this static so I just have one bag for the entire program.
 std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>(); 
+
+DiagnosticBag::DiagnosticBag() {}
 
 int DiagnosticBag::size()
 {
@@ -137,7 +138,7 @@ void DiagnosticBag::report_undeclared_identifier(std::string identifier, Positio
 void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: provided with " << actual << " argument(s), expected " << expected;
+    os << "ERROR: function '"<< name << "' provided with " << actual << " argument(s), expected " << expected;
     report(os.str(), pos);    
 }
 
@@ -154,6 +155,6 @@ void DiagnosticBag::report_unreachable_code(std::string info, Position pos)
 void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: argument " << i << " of " << name << " cannot be <" << type << ">" ;
+    os << "ERROR: argument " << i << " of '" << name << "' cannot be <" << type << ">" ;
     report(os.str(), pos);    
 }

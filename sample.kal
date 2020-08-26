@@ -28,3 +28,7 @@ for (int i = 0; i < 10; i = i + 1)
 }
 print(a);
 
+list a = split(input());
+print(a);
+a = set(a, 1, 42);
+print(a);

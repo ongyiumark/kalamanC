@@ -28,6 +28,12 @@ Object* List::get_value(int i) const
     return _values[i];
 }
 
+void List::set_value(int i, Object* val)
+{
+    delete _values[i];
+    _values[i] = val;
+}
+
 std::vector<Object*> List::get_values() const
 {
     return _values;

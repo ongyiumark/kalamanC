@@ -22,7 +22,7 @@ std::string String::get_value() const
 std::string String::to_string() const
 {
     std::ostringstream os;
-    os << _value;
+    os << "'" << _value << "'";
     return os.str();
 }
 
