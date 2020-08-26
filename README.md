@@ -334,7 +334,7 @@ Notice that I didn't need to enclose it in curly braces because the conditional 
 You can also store functions into a variable
 
 ```
-func f = gcd;
+function f = gcd;
 lathala(f(10,25));      // This prints 5
 ```
 
