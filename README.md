@@ -26,12 +26,21 @@ Classes just ended and I wanted to try my hand on a technical project, and I cam
 - **Rich Error Diagnostics**: Clear error messages with source line previews, `^~~~` caret indicators, and function call stack tracebacks.
 
 ### Benchmark
-The following 1,000,000-iteration loop runs in **~0.033 seconds** (`i++`) / **~0.085 seconds** (`i = i + 1`), outperforming Python (~0.125 seconds):
+Evaluated across **30 trials** ($N = 30$, 95% confidence intervals) on the same machine for a 1,000,000-iteration loop:
 
 ```cpp
 int i = 0;
 while (i < 1000000) i++;
 ```
+
+| Benchmark (`1,000,000` iterations) | In-Language Loop Time (Mean ± 95% CI) | End-to-End CLI Wall Time (Mean ± 95% CI) |
+| :--- | :--- | :--- |
+| **KalamanC 2.0** (`i++`) | **32.56 ms ± 0.43 ms** (`[32.13, 32.99] ms`) | **34.79 ms ± 0.46 ms** (`[34.32, 35.25] ms`) |
+| **KalamanC 2.0** (`i = i + 1`) | **58.77 ms ± 0.56 ms** (`[58.21, 59.33] ms`) | **61.07 ms ± 0.89 ms** (`[60.18, 61.95] ms`) |
+| **Python 3.9.6** (`i += 1` / `i = i + 1`) | **31.79 ms ± 0.32 ms** (`[31.47, 32.11] ms`) | **40.57 ms ± 0.98 ms** (`[39.59, 41.55] ms`) |
+| **KalamanC 1.0** (`i = i + 1`) | — | **199.30 ms ± 51.35 ms** (`[147.95, 250.65] ms`) |
+
+KalamanC 2.0 matches CPython's in-language loop speed with `i++` and finishes **~14% faster end-to-end** from the CLI due to lighter native startup overhead (and **3.3x–5.7x faster** than KalamanC 1.0).
 
 <a name=code_example></a>
 # Code Example
