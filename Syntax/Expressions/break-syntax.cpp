@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 // This breaks a loop. Just your standard break keyword.
-BreakExpressionSyntax::BreakExpressionSyntax() {}
+BreakExpressionSyntax::BreakExpressionSyntax(Diagnostics::Position pos) : SyntaxNode(pos) {}
 
 BreakExpressionSyntax::~BreakExpressionSyntax() {}
 

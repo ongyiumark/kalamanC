@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 // This does nothing.
-NoneExpressionSyntax::NoneExpressionSyntax() {}
+NoneExpressionSyntax::NoneExpressionSyntax(Diagnostics::Position pos) : SyntaxNode(pos) {}
 
 NoneExpressionSyntax::~NoneExpressionSyntax() {}
 

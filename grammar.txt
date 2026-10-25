@@ -1,10 +1,11 @@
 program                 : statement*
 
-statement               :  '{' program '}'
-                        : IF '(' expression ')' statement (ELIF '(' expression ')' statement )* (ELSE statement)?
+statement               : '{' program '}'
+                        : IF '(' expression ')' statement (ELIF '(' expression ')' statement)* (ELSE statement)?
                         : WHILE '(' expression ')' statement
-                        : FOR '(' expression ';' expression ';' expression ')' statement
-                        : DEF IDENTIFIER '( (IDENTIFIER (',' IDENTIFIER)*)? ')' statement
+                        : FOR '(' expression? ';' expression? ';' expression? ')' statement
+                        : FOR '(' VARKEYWORD? IDENTIFIER ('in' | 'sa' | ':') expression ')' statement
+                        : DEF IDENTIFIER '(' (VARKEYWORD? IDENTIFIER (',' VARKEYWORD? IDENTIFIER)*)? ')' statement
                         : expression ';'
                         : RETURN expression? ';'
                         : CONTINUE ';'
@@ -28,23 +29,28 @@ expression              : expression '||' expression    %prec 1
                         : expression '/' expression    
                         : expression '%' expression  
                         : '!' expression                %prec 6
+                        : NOT expression
                         : '-' expression    
                         : '+' expression 
-                        : expression '^' expression     %prec 7
-                        : VARKEYWORD IDENTIFIER 
-                        : VARKEYWORD IDENTIFIER '=' expression
-                        : IDENTIFIER = expression
+                        : ('++' | '--') molecule
+                        : expression '^' expression     %prec 7 (right-associative)
+                        : VARKEYWORD IDENTIFIER ('=' expression)?
+                        : lvalue ('=' | '+=' | '-=' | '*=' | '/=' | '%=' | '^=') expression
+                        : lvalue ('++' | '--')
                         : molecule
 
-molecule                : atom (('[' expression ']')*)
+lvalue                  : IDENTIFIER
+                        : molecule '[' expression ']'
+
+molecule                : atom (('[' (expression | expression? ':' expression?) ']')*)
                         : atom
 
-atom:                   : STRING
+atom                    : STRING
                         : INTEGER
                         : BOOLEAN
                         : DOUBLE
                         : IDENTIFIER
-                        : IDENTIFIER '(' (expression (',' expression)*)?  ')' 
-                        : BUILTIN-FUNCTION '(' (expression (',' expression)*)?  ')' 
+                        : IDENTIFIER '(' (expression (',' expression)*)? ')' 
+                        : BUILTIN-FUNCTION '(' (expression (',' expression)*)? ')' 
                         : '(' expression ')'
-                        : '[' (expression (COMMA expression)*)? ']'
+                        : '[' (expression (',' expression)* ','?)? ']'

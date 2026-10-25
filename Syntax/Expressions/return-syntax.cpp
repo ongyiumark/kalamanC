@@ -3,7 +3,8 @@
 using namespace Syntax;
 
 // This returns a value. Just your standard return keyword.
-ReturnExpressionSyntax::ReturnExpressionSyntax(SyntaxNode* to_return) : _to_return(to_return) {}
+ReturnExpressionSyntax::ReturnExpressionSyntax(SyntaxNode* to_return, Diagnostics::Position pos)
+    : SyntaxNode(pos), _to_return(to_return) {}
 
 ReturnExpressionSyntax::~ReturnExpressionSyntax()
 {

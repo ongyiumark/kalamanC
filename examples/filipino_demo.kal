@@ -1,0 +1,32 @@
+// Filipino Demo Script for KalamanC 2.0
+// Run with: ./kalman examples/filipino_demo.kal
+
+aka gumawa_ng_lista(n)
+{
+    lista a = [];
+    para (bilang i = 0; i < n; i++)
+    {
+        kung (i == 4) tuloy;
+        idagdag(a, i * i);
+    }
+    ibalik a;
+}
+
+lathala("=== KalamanC Filipino Demo ===");
+lista resulta = gumawa_ng_lista(8);
+lathala("Mga paris (maliban sa i=4):", resulta);
+lathala("Unang tatlo (slice):", resulta[:3]);
+
+// In-place mutation at compound assignment
+resulta[0] = 100;
+resulta[-1] += 1;
+lathala("Matapos baguhin:", resulta);
+
+// Foreach loop gamit ang 'para ... sa'
+bilang kabuuan = 0;
+para (bilang x sa resulta)
+{
+    kabuuan += x;
+}
+lathala("Kabuuan:", kabuuan);
+lathala("Ayos ba?", kabuuan > 100 at hindi mali);

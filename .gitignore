@@ -1,5 +1,8 @@
 .vscode
+build/
 *.o
+*.d
 kalman
 kalman.exe
 *.kal
+!examples/*.kal

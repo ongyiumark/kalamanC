@@ -4,6 +4,11 @@ using namespace Objects;
 
 Object::~Object() {}
 
+std::string Object::to_display_string() const
+{
+    return to_string();
+}
+
 // Return none type as default. This will tell me when an illegal operation has occured.
 Object* Object::added_by(Object* other) const
 {
@@ -78,18 +83,24 @@ Object* Object::equals(Object* other) const
 // These can be derived from the other operations.
 Object* Object::not_equals(Object* other) const
 {
-    return equals(other)->notted();
+    Object* eq = equals(other);
+    Object* res = eq->notted();
+    delete eq;
+    return res;
 }
 
 Object* Object::less_equals(Object* other) const
 {
-    return greater_than(other)->notted();
+    Object* gt = greater_than(other);
+    Object* res = gt->notted();
+    delete gt;
+    return res;
 }
 
 Object* Object::greater_equals(Object* other) const
 {
-    return less_than(other)->notted();
+    Object* lt = less_than(other);
+    Object* res = lt->notted();
+    delete lt;
+    return res;
 }
-
-
-

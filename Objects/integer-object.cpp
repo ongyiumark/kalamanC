@@ -1,7 +1,27 @@
 #include "object.h"
-#include <math.h>
+#include <cmath>
 
 using namespace Objects;
+
+Integer* Integer::_free_list = nullptr;
+
+void* Integer::operator new(size_t size)
+{
+    if (_free_list)
+    {
+        Integer* p = _free_list;
+        _free_list = *reinterpret_cast<Integer**>(p);
+        return p;
+    }
+    return ::operator new(size);
+}
+
+void Integer::operator delete(void* p) noexcept
+{
+    if (!p) return;
+    *reinterpret_cast<Integer**>(p) = _free_list;
+    _free_list = static_cast<Integer*>(p);
+}
 
 Integer::Integer(long long value) : _value(value) {}
 
@@ -15,11 +35,14 @@ long long Integer::get_value() const
     return _value;
 }
 
+void Integer::set_value(long long value)
+{
+    _value = value;
+}
+
 std::string Integer::to_string() const
 {
-    std::ostringstream os;
-    os << _value;
-    return os.str();
+    return std::to_string(_value);
 }
 
 // The result becomes a double when the other operand is a double.
@@ -28,9 +51,9 @@ Object* Integer::added_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Integer(_value+((Integer*)other)->get_value());
+            return new Integer(_value + ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value+((Double*)other)->get_value());
+            return new Double(_value + ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -41,37 +64,50 @@ Object* Integer::subtracted_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Integer(_value-((Integer*)other)->get_value());
+            return new Integer(_value - ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value-((Double*)other)->get_value());
+            return new Double(_value - ((Double*)other)->get_value());
         default:
             return new None();
     }
 }
 
-// Multiplying an integer to a string duplicates the string to that integer number to times.
-// I used binary multiplication (derived from binary exponentiation).
+// Multiplying an integer to a string or list duplicates it that integer number of times.
+// I used binary multiplication (derived from binary exponentiation) for strings.
 Object* Integer::multiplied_by(Object* other) const
 {
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Integer(_value*((Integer*)other)->get_value());
+            return new Integer(_value * ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value*((Double*)other)->get_value());
+            return new Double(_value * ((Double*)other)->get_value());
         case Type::STRING:
         {
             if (_value < 0) return new None();
             long long e = _value;
             std::string result;
             std::string base = ((String*)other)->get_value();
+            result.reserve(base.size() * (size_t)e);
             while (e > 0)
             {
-                if (e&1) result += base;
-                base += base;
+                if (e & 1) result += base;
                 e >>= 1;
+                if (e > 0) base += base;
             }
             return new String(result);
+        }
+        case Type::LIST:
+        {
+            if (_value < 0) return new None();
+            List* list = (List*)other;
+            int n = list->get_size();
+            std::vector<Object*> elems;
+            elems.reserve((size_t)_value * n);
+            for (long long k = 0; k < _value; k++)
+                for (int i = 0; i < n; i++)
+                    elems.push_back(list->get_value(i)->copy());
+            return new List(elems);
         }
         default:
             return new None();
@@ -87,13 +123,13 @@ Object* Integer::divided_by(Object* other) const
         {
             Integer* other_int = (Integer*)other;
             if (other_int->get_value() == 0) return new None();
-            return new Integer(_value/other_int->get_value());
+            return new Integer(_value / other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
             if (other_double->get_value() == 0) return new None();
-            return new Double(_value/other_double->get_value());            
+            return new Double(_value / other_double->get_value());            
         }
         default:
             return new None();
@@ -108,14 +144,20 @@ Object* Integer::modded_by(Object* other) const
         {
             Integer* other_int = (Integer*)other;
             if (other_int->get_value() == 0) return new None();
-            return new Integer(_value%other_int->get_value());
+            return new Integer(_value % other_int->get_value());
+        }
+        case Type::DOUBLE:
+        {
+            Double* other_double = (Double*)other;
+            if (other_double->get_value() == 0) return new None();
+            return new Double(fmodl(_value, other_double->get_value()));
         }
         default:
             return new None();
     }
 }
 
-// I used binary exponentiaion here if the exponent is a non-negative integer.
+// I used binary exponentiation here if the exponent is a non-negative integer.
 Object* Integer::powered_by(Object* other) const
 {
     switch (other->type())
@@ -124,12 +166,12 @@ Object* Integer::powered_by(Object* other) const
         {
             long long b = _value;
             long long e = ((Integer*)other)->get_value();
-            if (e < 0) return new Double(powl(b,e));
+            if (e < 0) return new Double(powl(b, e));
 
             long long ans = 1;
             while (e > 0)
             {
-                if (e&1) ans *= b;
+                if (e & 1) ans *= b;
                 b *= b;
                 e >>= 1;
             }
@@ -148,9 +190,9 @@ Object* Integer::less_than(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value<((Integer*)other)->get_value());
+            return new Boolean(_value < ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value<((Double*)other)->get_value());
+            return new Boolean(_value < ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -161,9 +203,9 @@ Object* Integer::greater_than(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value>((Integer*)other)->get_value());
+            return new Boolean(_value > ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value>((Double*)other)->get_value());
+            return new Boolean(_value > ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -174,9 +216,9 @@ Object* Integer::equals(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value==((Integer*)other)->get_value());
+            return new Boolean(_value == ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value==((Double*)other)->get_value());
+            return new Boolean(_value == ((Double*)other)->get_value());
         default:
             return new Boolean(false);
     }

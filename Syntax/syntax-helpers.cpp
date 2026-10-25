@@ -11,7 +11,7 @@ bool Syntax::is_digit(char c)
 // Check if a character is a letter.
 bool Syntax::is_letter(char c)
 {
-    return ('a' <= c && c <= 'z')||('A' <= c && c <='Z');
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
 // Check if a character is a letter, digit, or underscore.
@@ -20,10 +20,10 @@ bool Syntax::is_valid_identifier(char c)
     return is_digit(c) || is_letter(c) || c == '_';
 }
 
-// Helper function to convert the kind to a string.
+// Helper function to convert the kind to a string (used by parse tree printer).
 std::string Syntax::kind_to_string(SyntaxKind kind)
 {
-    const char* s = 0;
+    const char* s = "SyntaxKind::Unknown";
 #define PROCESS_VAL(p) case(p): s = #p; break;
     switch(kind)
     {
@@ -41,7 +41,15 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::SlashToken);
         PROCESS_VAL(SyntaxKind::PowerToken);
         PROCESS_VAL(SyntaxKind::ModuloToken);
+        PROCESS_VAL(SyntaxKind::PlusPlusToken);
+        PROCESS_VAL(SyntaxKind::MinusMinusToken);
         PROCESS_VAL(SyntaxKind::EqualsToken);
+        PROCESS_VAL(SyntaxKind::PlusEqualsToken);
+        PROCESS_VAL(SyntaxKind::MinusEqualsToken);
+        PROCESS_VAL(SyntaxKind::StarEqualsToken);
+        PROCESS_VAL(SyntaxKind::SlashEqualsToken);
+        PROCESS_VAL(SyntaxKind::ModuloEqualsToken);
+        PROCESS_VAL(SyntaxKind::PowerEqualsToken);
         PROCESS_VAL(SyntaxKind::BangToken);
         PROCESS_VAL(SyntaxKind::DAmpersandToken);
         PROCESS_VAL(SyntaxKind::DPipeToken);
@@ -58,10 +66,11 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::LCurlyToken);
         PROCESS_VAL(SyntaxKind::RCurlyToken);
         PROCESS_VAL(SyntaxKind::CommaToken);
+        PROCESS_VAL(SyntaxKind::ColonToken);
         PROCESS_VAL(SyntaxKind::SemicolonToken);
         PROCESS_VAL(SyntaxKind::IdentifierToken);
 
-        //Keywords
+        // Keywords
         PROCESS_VAL(SyntaxKind::TrueKeyword);
         PROCESS_VAL(SyntaxKind::FalseKeyword);
         PROCESS_VAL(SyntaxKind::BooleanKeyword);
@@ -76,6 +85,7 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::ElseKeyword);
         PROCESS_VAL(SyntaxKind::WhileKeyword);
         PROCESS_VAL(SyntaxKind::ForKeyword);
+        PROCESS_VAL(SyntaxKind::InKeyword);
         PROCESS_VAL(SyntaxKind::AndKeyword);
         PROCESS_VAL(SyntaxKind::OrKeyword);
         PROCESS_VAL(SyntaxKind::XorKeyword);
@@ -114,28 +124,102 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::ToDoubleFunction);  
         PROCESS_VAL(SyntaxKind::ToStringFunction);  
         PROCESS_VAL(SyntaxKind::SetIndexFunction);
+        PROCESS_VAL(SyntaxKind::PushFunction);
+        PROCESS_VAL(SyntaxKind::PopFunction);
+        PROCESS_VAL(SyntaxKind::RangeFunction);
+        PROCESS_VAL(SyntaxKind::SortFunction);
+        PROCESS_VAL(SyntaxKind::ReverseFunction);
+        PROCESS_VAL(SyntaxKind::JoinFunction);
+        PROCESS_VAL(SyntaxKind::AbsFunction);
+        PROCESS_VAL(SyntaxKind::MinFunction);
+        PROCESS_VAL(SyntaxKind::MaxFunction);
+        PROCESS_VAL(SyntaxKind::SqrtFunction);
+        PROCESS_VAL(SyntaxKind::PowModFunction);
+        PROCESS_VAL(SyntaxKind::SetModFunction);
+        PROCESS_VAL(SyntaxKind::ReadFileFunction);
+        PROCESS_VAL(SyntaxKind::WriteFileFunction);
+        PROCESS_VAL(SyntaxKind::ClockFunction);
+        PROCESS_VAL(SyntaxKind::ExitFunction);
     }
 #undef PROCESS_VAL
     return s;
 }
 
+std::string Syntax::kind_to_display_string(SyntaxKind kind)
+{
+    switch (kind)
+    {
+        case SyntaxKind::EndOfFileToken:    return "end of file";
+        case SyntaxKind::IntegerToken:      return "int literal";
+        case SyntaxKind::DoubleToken:       return "double literal";
+        case SyntaxKind::StringToken:       return "string literal";
+        case SyntaxKind::PlusToken:         return "+";
+        case SyntaxKind::MinusToken:        return "-";
+        case SyntaxKind::StarToken:         return "*";
+        case SyntaxKind::SlashToken:        return "/";
+        case SyntaxKind::PowerToken:        return "^";
+        case SyntaxKind::ModuloToken:       return "%";
+        case SyntaxKind::PlusPlusToken:     return "++";
+        case SyntaxKind::MinusMinusToken:   return "--";
+        case SyntaxKind::EqualsToken:       return "=";
+        case SyntaxKind::PlusEqualsToken:   return "+=";
+        case SyntaxKind::MinusEqualsToken:  return "-=";
+        case SyntaxKind::StarEqualsToken:   return "*=";
+        case SyntaxKind::SlashEqualsToken:  return "/=";
+        case SyntaxKind::ModuloEqualsToken: return "%=";
+        case SyntaxKind::PowerEqualsToken:  return "^=";
+        case SyntaxKind::BangToken:         return "!";
+        case SyntaxKind::DAmpersandToken:   return "&&";
+        case SyntaxKind::DPipeToken:        return "||";
+        case SyntaxKind::DEqualsToken:      return "==";
+        case SyntaxKind::BangEqualsToken:   return "!=";
+        case SyntaxKind::LessThanToken:     return "<";
+        case SyntaxKind::LessEqualsToken:   return "<=";
+        case SyntaxKind::GreaterThanToken:  return ">";
+        case SyntaxKind::GreaterEqualsToken:return ">=";
+        case SyntaxKind::LParenToken:       return "(";
+        case SyntaxKind::RParenToken:       return ")";
+        case SyntaxKind::LSquareToken:      return "[";
+        case SyntaxKind::RSquareToken:      return "]";
+        case SyntaxKind::LCurlyToken:       return "{";
+        case SyntaxKind::RCurlyToken:       return "}";
+        case SyntaxKind::CommaToken:        return ",";
+        case SyntaxKind::ColonToken:        return ":";
+        case SyntaxKind::SemicolonToken:    return ";";
+        case SyntaxKind::IdentifierToken:   return "identifier";
+        case SyntaxKind::AndKeyword:        return "and";
+        case SyntaxKind::OrKeyword:         return "or";
+        case SyntaxKind::XorKeyword:        return "xor";
+        case SyntaxKind::NotKeyword:        return "not";
+        case SyntaxKind::IndexExpression:   return "[]";
+        default:                            return kind_to_string(kind);
+    }
+}
+
 // Prints the parse tree in a pretty way. This is purely for debugging purposes.
 void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 {
-    std::string marker = is_last ? "|--" : "|--";
+    if (!node) return;
+    std::string marker = "|--";
 
     std::cout << indent << marker;
     indent += is_last ? "   " : "|  ";
 
     std::cout << kind_to_string(node->kind());
     
+    // Keep synthetic tokens in function scope so their addresses remain valid during child traversal!
+    SyntaxToken if_token(SyntaxKind::IfKeyword, Diagnostics::Position(), KT_IF);
+    SyntaxToken elif_token(SyntaxKind::ElifKeyword, Diagnostics::Position(), KT_ELIF);
+    SyntaxToken else_token(SyntaxKind::ElseKeyword, Diagnostics::Position(), KT_ELSE);
+
     std::vector<SyntaxNode*> children;
     switch(node->kind())
     {
         case SyntaxKind::LiteralExpression:
         {
             LiteralExpressionSyntax* t = (LiteralExpressionSyntax*)node;
-            std::cout << " " << t->get_object()->to_string();
+            if (t->get_object())
+                std::cout << " " << t->get_object()->to_string();
             break;
         }
         case SyntaxKind::UnaryExpression:
@@ -153,7 +237,10 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::ForExpression:
         {
             ForExpressionSyntax* t = (ForExpressionSyntax*)node;
-            children = {t->get_init(), t->get_condition(), t->get_update(), t->get_body()};
+            if (t->get_init()) children.push_back(t->get_init());
+            if (t->get_condition()) children.push_back(t->get_condition());
+            if (t->get_update()) children.push_back(t->get_update());
+            if (t->get_body()) children.push_back(t->get_body());
             break;
         }
         case SyntaxKind::WhileExpression:
@@ -182,9 +269,6 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::IfExpression:
         {
             IfExpressionSyntax* t = (IfExpressionSyntax*)node;
-            SyntaxToken if_token = SyntaxToken(SyntaxKind::IfKeyword, Diagnostics::Position(), KT_IF);
-            SyntaxToken elif_token = SyntaxToken(SyntaxKind::ElifKeyword, Diagnostics::Position(), KT_ELIF);
-            SyntaxToken else_token = SyntaxToken(SyntaxKind::ElseKeyword, Diagnostics::Position(), KT_ELSE);
             int m = t->get_size();
             for (int i = 0; i < m; i++)
             {
@@ -204,7 +288,9 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::IndexExpression:
         {
             IndexExpressionSyntax* t = (IndexExpressionSyntax*)node;
-            children = {t->get_to_access(), t->get_indexer()};
+            if (t->get_to_access()) children.push_back(t->get_to_access());
+            if (t->get_indexer()) children.push_back(t->get_indexer());
+            if (t->get_slice_end()) children.push_back(t->get_slice_end());
             break;
         }
         case SyntaxKind::ReturnExpression:
@@ -228,7 +314,9 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::VarAssignExpression:
         {
             VarAssignExpressionSyntax* t = (VarAssignExpressionSyntax*)node;
-            children = {t->get_identifier(), t->get_value()};
+            if (t->get_target()) children.push_back(t->get_target());
+            else children.push_back(t->get_identifier());
+            if (t->get_value()) children.push_back(t->get_value());
             break;
         }
         case SyntaxKind::VarDeclareExpression:
@@ -254,5 +342,5 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
 
     int n = children.size();
     for (int i = 0; i < n; i++)
-        pretty_print(children[i], indent, i == n-1);
+        pretty_print(children[i], indent, i == n - 1);
 }

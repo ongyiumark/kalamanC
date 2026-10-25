@@ -3,7 +3,7 @@
 using namespace Syntax;
 
 // This continues a loop. Just your standard continue keyword.
-ContinueExpressionSyntax::ContinueExpressionSyntax() {}
+ContinueExpressionSyntax::ContinueExpressionSyntax(Diagnostics::Position pos) : SyntaxNode(pos) {}
 
 ContinueExpressionSyntax::~ContinueExpressionSyntax() {}
 

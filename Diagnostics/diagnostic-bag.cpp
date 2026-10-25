@@ -10,6 +10,7 @@ std::string DiagnosticBag::script = "";
 
 // I made this static so I just have one bag for the entire program.
 std::vector<Diagnostic> DiagnosticBag::_diagnostics = std::vector<Diagnostic>(); 
+std::vector<std::string> DiagnosticBag::_call_stack = std::vector<std::string>();
 
 DiagnosticBag::DiagnosticBag() {}
 
@@ -23,15 +24,30 @@ Diagnostic DiagnosticBag::diagnostic(int i)
     return _diagnostics[i];
 }
 
-std::vector<Diagnostic> DiagnosticBag::diagnostics()
+const std::vector<Diagnostic>& DiagnosticBag::diagnostics()
 {
     return _diagnostics;
 }
 
-// Adds an error to the bag.
-void DiagnosticBag::report(std::string message, Position pos)
+void DiagnosticBag::push_call(const std::string& func_name, Position call_pos)
 {
-    _diagnostics.push_back(Diagnostic(message, pos));
+    std::ostringstream os;
+    os << func_name << "()";
+    if (call_pos.ln != -1)
+        os << " (line " << call_pos.ln + 1 << ", col " << call_pos.col + 1 << ")";
+    _call_stack.push_back(os.str());
+}
+
+void DiagnosticBag::pop_call()
+{
+    if (!_call_stack.empty())
+        _call_stack.pop_back();
+}
+
+// Adds an error to the bag.
+void DiagnosticBag::report(const std::string& message, Position pos)
+{
+    _diagnostics.emplace_back(message, pos, _call_stack);
 }
 
 // Prints all the errors.
@@ -47,6 +63,7 @@ void DiagnosticBag::print()
 void DiagnosticBag::clear()
 {
     _diagnostics.clear();
+    _call_stack.clear();
 }
 
 // Occurs when the lexer encounters an unknown character.
@@ -58,7 +75,7 @@ void DiagnosticBag::report_bad_character(char c, Position pos)
 }
 
 // Occurs when parsing to an integer or double fails.
-void DiagnosticBag::report_invalid_type(std::string text, std::string type, Position pos)
+void DiagnosticBag::report_invalid_type(const std::string& text, const std::string& type, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: '" << text << "' is not a valid " << type;
@@ -74,7 +91,7 @@ void DiagnosticBag::report_expected_character(char c, Position pos)
 }
 
 // Occurs when the parser encounters a different token than expected.
-void DiagnosticBag::report_unexpected_token(std::string actual, std::string expected, Position pos)
+void DiagnosticBag::report_unexpected_token(const std::string& actual, const std::string& expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unexpected token <" << actual << ">, ";
@@ -83,7 +100,7 @@ void DiagnosticBag::report_unexpected_token(std::string actual, std::string expe
 }
 
 // Occurs when a unary operation fails.
-void DiagnosticBag::report_illegal_unary_operation(std::string operation, std::string operand, Position pos)
+void DiagnosticBag::report_illegal_unary_operation(const std::string& operation, const std::string& operand, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: illegal operation <" << operation << "> for <" << operand << ">"; 
@@ -91,7 +108,7 @@ void DiagnosticBag::report_illegal_unary_operation(std::string operation, std::s
 }
 
 // Occurs when a binary operation fails.
-void DiagnosticBag::report_illegal_binary_operation(std::string left, std::string operation, std::string right, Position pos)
+void DiagnosticBag::report_illegal_binary_operation(const std::string& left, const std::string& operation, const std::string& right, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: illegal operation <" << operation << "> between <" << left << ">"; 
@@ -101,7 +118,7 @@ void DiagnosticBag::report_illegal_binary_operation(std::string left, std::strin
 
 // Occurs when the evaluator encounters an unknown syntax.
 // Realistically this should never occur unless I messed up.
-void DiagnosticBag::report_unknown_syntax(std::string syntax, Position pos)
+void DiagnosticBag::report_unknown_syntax(const std::string& syntax, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unknown syntax <" << syntax << ">";
@@ -109,7 +126,7 @@ void DiagnosticBag::report_unknown_syntax(std::string syntax, Position pos)
 }
 
 // Occurs when the evaluator encounters a different type than expected.
-void DiagnosticBag::report_unexpected_type(std::string actual, std::string expected, Position pos)
+void DiagnosticBag::report_unexpected_type(const std::string& actual, const std::string& expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: unexpected type <" << actual << ">, ";
@@ -118,7 +135,7 @@ void DiagnosticBag::report_unexpected_type(std::string actual, std::string expec
 }
 
 // Occurs when the evaluator tries to assign a value to a variable of a different type.
-void DiagnosticBag::report_invalid_assign(std::string actual, std::string expected, Position pos)
+void DiagnosticBag::report_invalid_assign(const std::string& actual, const std::string& expected, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: invalid assignment of <" << actual << "> ";
@@ -127,7 +144,7 @@ void DiagnosticBag::report_invalid_assign(std::string actual, std::string expect
 }
 
 // Occurs when the evaluator tries to access an undeclared identifier.
-void DiagnosticBag::report_undeclared_identifier(std::string identifier, Position pos)
+void DiagnosticBag::report_undeclared_identifier(const std::string& identifier, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: undeclared identifier '" << identifier << "'";
@@ -135,16 +152,34 @@ void DiagnosticBag::report_undeclared_identifier(std::string identifier, Positio
 }
 
 // Occurs when the wrong number of arguments are given when calling a function.
-void DiagnosticBag::report_illegal_arguments(int actual, int expected, std::string name, Position pos)
+void DiagnosticBag::report_illegal_arguments(int actual, int expected, const std::string& name, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: function '"<< name << "' provided with " << actual << " argument(s), expected " << expected;
+    os << "ERROR: function '" << name << "' provided with " << actual << " argument(s), expected " << expected;
     report(os.str(), pos);    
+}
+
+void DiagnosticBag::report_illegal_arguments_range(int actual, int min_expected, int max_expected, const std::string& name, Position pos)
+{
+    std::ostringstream os;
+    if (min_expected == max_expected)
+    {
+        os << "ERROR: function '" << name << "' provided with " << actual << " argument(s), expected " << min_expected;
+    }
+    else if (max_expected == -1)
+    {
+        os << "ERROR: function '" << name << "' provided with " << actual << " argument(s), expected at least " << min_expected;
+    }
+    else
+    {
+        os << "ERROR: function '" << name << "' provided with " << actual << " argument(s), expected " << min_expected << " to " << max_expected;
+    }
+    report(os.str(), pos);
 }
 
 // Occurs when supposedly unreachable code is reached.
 // Again, this should never occur unless I messed up.
-void DiagnosticBag::report_unreachable_code(std::string info, Position pos)
+void DiagnosticBag::report_unreachable_code(const std::string& info, Position pos)
 {
     std::ostringstream os;
     os << "ERROR: reached unreachable code, " << info;
@@ -152,9 +187,16 @@ void DiagnosticBag::report_unreachable_code(std::string info, Position pos)
 }
 
 // Occurs when invalid arguments are passed to a builtin function.
-void DiagnosticBag::report_invalid_builtin_arguments(std::string name, int i, std::string type, Position pos)
+void DiagnosticBag::report_invalid_builtin_arguments(const std::string& name, int i, const std::string& type, Position pos)
 {
     std::ostringstream os;
-    os << "ERROR: argument " << i << " of '" << name << "' cannot be <" << type << ">" ;
+    os << "ERROR: argument " << i << " of '" << name << "' cannot be <" << type << ">";
     report(os.str(), pos);    
+}
+
+void DiagnosticBag::report_runtime_error(const std::string& message, Position pos)
+{
+    std::ostringstream os;
+    os << "ERROR: " << message;
+    report(os.str(), pos);
 }

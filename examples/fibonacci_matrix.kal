@@ -1,0 +1,24 @@
+// Matrix Exponentiation & Dynamic Programming Demo
+// Computes Fibonacci numbers in O(log N) matrix operations!
+// Run with: ./kalman examples/fibonacci_matrix.kal
+
+def fib_matrix(int n)
+{
+    if (n == 0) return 0;
+    list T = [[1, 1], [1, 0]];
+    list res = T ^ n;
+    return res[0][1];
+}
+
+print("=== Fast Fibonacci via Matrix Exponentiation ===");
+set_mod(0); // Disable modulo for exact 64-bit integer results
+for (int i in range(0, 15))
+{
+    print("F(" + to_string(i) + ") =", fib_matrix(i));
+}
+
+print("\nF(50) exact =", fib_matrix(50));
+
+// Restore 10^9 + 7 modulo for huge N
+set_mod(1000000007);
+print("F(1000000) mod 1e9+7 =", fib_matrix(1000000));

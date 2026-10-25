@@ -1,76 +1,222 @@
 #include "syntax.h"
 #include "../constants.h"
+#include <unordered_map>
+#include <unordered_set>
 
 using namespace Syntax;
 
-// Yes, I'm using an if statements here. Switches only work for integers, so I'm out of options.
-// I'm just hoping that the C++ compiler optimizes this.
-SyntaxKind SyntaxFacts::get_keyword_kind(std::string text)
+// Fast hash-map lookup supporting both English and Filipino keywords and built-in functions.
+SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
 {
-    if (text == KT_TRUE)
-        return SyntaxKind::TrueKeyword;
-    else if (text == KT_FALSE)
-        return SyntaxKind::FalseKeyword;
-    else if (text == KT_BOOL)
-        return SyntaxKind::BooleanKeyword;
-    else if (text == KT_INTEGER)
-        return SyntaxKind::IntegerKeyword;
-    else if (text == KT_DOUBLE)
-        return SyntaxKind::DoubleKeyword;
-    else if (text == KT_LIST)
-        return SyntaxKind::ListKeyword;
-    else if (text == KT_STRING)
-        return SyntaxKind::StringKeyword;
-    else if (text == KT_FUNCTION)
-        return SyntaxKind::FunctionKeyword;
-    else if (text == KT_DEFINE)
-        return SyntaxKind::DefineFunctionKeyword;
-    else if (text == KT_IF)
-        return SyntaxKind::IfKeyword;
-    else if (text == KT_ELIF)
-        return SyntaxKind::ElifKeyword;
-    else if (text == KT_ELSE)
-        return SyntaxKind::ElseKeyword;
-    else if (text == KT_WHILE)
-        return SyntaxKind::WhileKeyword;
-    else if (text == KT_FOR)
-        return SyntaxKind::ForKeyword;
-    else if (text == KT_AND)
-        return SyntaxKind::AndKeyword;
-    else if (text == KT_OR)
-        return SyntaxKind::OrKeyword;
-    else if (text == KT_XOR)
-        return SyntaxKind::XorKeyword;
-    else if (text == KT_NOT)
-        return SyntaxKind::NotKeyword;
-    else if (text == KT_RETURN)
-        return SyntaxKind::ReturnKeyword;
-    else if (text == KT_BREAK)
-        return SyntaxKind::BreakKeyword;
-    else if (text == KT_CONTINUE)
-        return SyntaxKind::ContinueKeyword;
-    else if (text == BI_PRINT)
-        return SyntaxKind::PrintFunction;
-    else if (text == BI_INPUT)
-        return SyntaxKind::InputFunction;
-    else if (text == BI_SPLIT)
-        return SyntaxKind::SplitFunction;
-    else if (text == BI_SIZE)
-        return SyntaxKind::SizeFunction;
-    else if (text == BI_TYPE)
-        return SyntaxKind::TypeFunction;
-    else if (text == BI_TO_BOOL)
-        return SyntaxKind::ToBoolFunction;
-    else if (text == BI_TO_INT)
-        return SyntaxKind::ToIntFunction;
-    else if (text == BI_TO_DOUBLE)
-        return SyntaxKind::ToDoubleFunction;
-    else if (text == BI_TO_STRING)
-        return SyntaxKind::ToStringFunction;
-    else if (text == BI_SET_INDEX)
-        return SyntaxKind::SetIndexFunction;
-    else
-        return SyntaxKind::IdentifierToken;
+    static const std::unordered_map<std::string, SyntaxKind> keyword_map = {
+        // English Keywords
+        {KT_TRUE,       SyntaxKind::TrueKeyword},
+        {KT_FALSE,      SyntaxKind::FalseKeyword},
+        {KT_BOOL,       SyntaxKind::BooleanKeyword},
+        {KT_BOOL_SHORT, SyntaxKind::BooleanKeyword},
+        {KT_INTEGER,    SyntaxKind::IntegerKeyword},
+        {KT_DOUBLE,     SyntaxKind::DoubleKeyword},
+        {KT_LIST,       SyntaxKind::ListKeyword},
+        {KT_STRING,     SyntaxKind::StringKeyword},
+        {KT_FUNCTION,   SyntaxKind::FunctionKeyword},
+        {KT_FUNC_SHORT, SyntaxKind::FunctionKeyword},
+        {KT_DEFINE,     SyntaxKind::DefineFunctionKeyword},
+        {KT_DEF_SHORT,  SyntaxKind::DefineFunctionKeyword},
+        {KT_IF,         SyntaxKind::IfKeyword},
+        {KT_ELIF,       SyntaxKind::ElifKeyword},
+        {KT_ELSE,       SyntaxKind::ElseKeyword},
+        {KT_WHILE,      SyntaxKind::WhileKeyword},
+        {KT_FOR,        SyntaxKind::ForKeyword},
+        {KT_IN,         SyntaxKind::InKeyword},
+        {KT_AND,        SyntaxKind::AndKeyword},
+        {KT_OR,         SyntaxKind::OrKeyword},
+        {KT_XOR,        SyntaxKind::XorKeyword},
+        {KT_NOT,        SyntaxKind::NotKeyword},
+        {KT_RETURN,     SyntaxKind::ReturnKeyword},
+        {KT_BREAK,      SyntaxKind::BreakKeyword},
+        {KT_CONTINUE,   SyntaxKind::ContinueKeyword},
+
+        // Filipino Keywords
+        {KT_TRUE_FIL,     SyntaxKind::TrueKeyword},
+        {KT_FALSE_FIL,    SyntaxKind::FalseKeyword},
+        {KT_BOOL_FIL,     SyntaxKind::BooleanKeyword},
+        {KT_INTEGER_FIL,  SyntaxKind::IntegerKeyword},
+        {KT_DOUBLE_FIL,   SyntaxKind::DoubleKeyword},
+        {KT_LIST_FIL,     SyntaxKind::ListKeyword},
+        {KT_STRING_FIL,   SyntaxKind::StringKeyword},
+        {KT_FUNCTION_FIL, SyntaxKind::FunctionKeyword},
+        {KT_DEFINE_FIL,   SyntaxKind::DefineFunctionKeyword},
+        {KT_IF_FIL,       SyntaxKind::IfKeyword},
+        {KT_ELIF_FIL,     SyntaxKind::ElifKeyword},
+        {KT_ELSE_FIL,     SyntaxKind::ElseKeyword},
+        {KT_WHILE_FIL,    SyntaxKind::WhileKeyword},
+        {KT_FOR_FIL,      SyntaxKind::ForKeyword},
+        {KT_IN_FIL,       SyntaxKind::InKeyword},
+        {KT_AND_FIL,      SyntaxKind::AndKeyword},
+        {KT_OR_FIL,       SyntaxKind::OrKeyword},
+        {KT_XOR_FIL,      SyntaxKind::XorKeyword},
+        {KT_NOT_FIL,      SyntaxKind::NotKeyword},
+        {KT_RETURN_FIL,   SyntaxKind::ReturnKeyword},
+        {KT_BREAK_FIL,    SyntaxKind::BreakKeyword},
+        {KT_CONTINUE_FIL, SyntaxKind::ContinueKeyword},
+
+        // English Built-in Functions
+        {BI_PRINT,      SyntaxKind::PrintFunction},
+        {BI_INPUT,      SyntaxKind::InputFunction},
+        {BI_SPLIT,      SyntaxKind::SplitFunction},
+        {BI_SIZE,       SyntaxKind::SizeFunction},
+        {BI_LEN,        SyntaxKind::SizeFunction},
+        {BI_TYPE,       SyntaxKind::TypeFunction},
+        {BI_TO_BOOL,    SyntaxKind::ToBoolFunction},
+        {BI_TO_INT,     SyntaxKind::ToIntFunction},
+        {BI_TO_DOUBLE,  SyntaxKind::ToDoubleFunction},
+        {BI_TO_STRING,  SyntaxKind::ToStringFunction},
+        {BI_SET_INDEX,  SyntaxKind::SetIndexFunction},
+        {BI_PUSH,       SyntaxKind::PushFunction},
+        {BI_APPEND,     SyntaxKind::PushFunction},
+        {BI_POP,        SyntaxKind::PopFunction},
+        {BI_RANGE,      SyntaxKind::RangeFunction},
+        {BI_SORT,       SyntaxKind::SortFunction},
+        {BI_REVERSE,    SyntaxKind::ReverseFunction},
+        {BI_JOIN,       SyntaxKind::JoinFunction},
+        {BI_ABS,        SyntaxKind::AbsFunction},
+        {BI_MIN,        SyntaxKind::MinFunction},
+        {BI_MAX,        SyntaxKind::MaxFunction},
+        {BI_SQRT,       SyntaxKind::SqrtFunction},
+        {BI_POW_MOD,    SyntaxKind::PowModFunction},
+        {BI_SET_MOD,    SyntaxKind::SetModFunction},
+        {BI_READ_FILE,  SyntaxKind::ReadFileFunction},
+        {BI_WRITE_FILE, SyntaxKind::WriteFileFunction},
+        {BI_CLOCK,      SyntaxKind::ClockFunction},
+        {BI_EXIT,       SyntaxKind::ExitFunction},
+
+        // Filipino Built-in Functions
+        {BI_PRINT_FIL,      SyntaxKind::PrintFunction},
+        {BI_INPUT_FIL,      SyntaxKind::InputFunction},
+        {BI_SPLIT_FIL,      SyntaxKind::SplitFunction},
+        {BI_SIZE_FIL,       SyntaxKind::SizeFunction},
+        {BI_TYPE_FIL,       SyntaxKind::TypeFunction},
+        {BI_TO_BOOL_FIL,    SyntaxKind::ToBoolFunction},
+        {BI_TO_INT_FIL,     SyntaxKind::ToIntFunction},
+        {BI_TO_DOUBLE_FIL,  SyntaxKind::ToDoubleFunction},
+        {BI_TO_STRING_FIL,  SyntaxKind::ToStringFunction},
+        {BI_SET_INDEX_FIL,  SyntaxKind::SetIndexFunction},
+        {BI_PUSH_FIL,       SyntaxKind::PushFunction},
+        {BI_POP_FIL,        SyntaxKind::PopFunction},
+        {BI_RANGE_FIL,      SyntaxKind::RangeFunction},
+        {BI_SORT_FIL,       SyntaxKind::SortFunction},
+        {BI_REVERSE_FIL,    SyntaxKind::ReverseFunction},
+        {BI_JOIN_FIL,       SyntaxKind::JoinFunction},
+        {BI_ABS_FIL,        SyntaxKind::AbsFunction},
+        {BI_MIN_FIL,        SyntaxKind::MinFunction},
+        {BI_MAX_FIL,        SyntaxKind::MaxFunction},
+        {BI_SQRT_FIL,       SyntaxKind::SqrtFunction},
+        {BI_POW_MOD_FIL,    SyntaxKind::PowModFunction},
+        {BI_SET_MOD_FIL,    SyntaxKind::SetModFunction},
+        {BI_READ_FILE_FIL,  SyntaxKind::ReadFileFunction},
+        {BI_WRITE_FILE_FIL, SyntaxKind::WriteFileFunction},
+        {BI_CLOCK_FIL,      SyntaxKind::ClockFunction},
+        {BI_EXIT_FIL,       SyntaxKind::ExitFunction},
+    };
+
+    static const std::unordered_set<std::string> filipino_markers = {
+        KT_TRUE_FIL, KT_FALSE_FIL, KT_INTEGER_FIL, KT_DOUBLE_FIL, KT_LIST_FIL,
+        KT_STRING_FIL, KT_DEFINE_FIL, KT_IF_FIL, KT_ELIF_FIL, KT_ELSE_FIL,
+        KT_WHILE_FIL, KT_FOR_FIL, KT_IN_FIL, KT_AND_FIL, KT_OR_FIL, KT_XOR_FIL,
+        KT_NOT_FIL, KT_RETURN_FIL, KT_BREAK_FIL, KT_CONTINUE_FIL,
+        BI_PRINT_FIL, BI_INPUT_FIL, BI_SPLIT_FIL, BI_SIZE_FIL, BI_TYPE_FIL,
+        BI_TO_BOOL_FIL, BI_TO_INT_FIL, BI_TO_DOUBLE_FIL, BI_TO_STRING_FIL,
+        BI_SET_INDEX_FIL, BI_PUSH_FIL, BI_POP_FIL, BI_RANGE_FIL, BI_SORT_FIL,
+        BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_SQRT_FIL, BI_SET_MOD_FIL
+    };
+
+    static const std::unordered_set<std::string> english_markers = {
+        KT_TRUE, KT_FALSE, KT_INTEGER, KT_DOUBLE, KT_LIST, KT_STRING,
+        KT_DEFINE, KT_DEF_SHORT, KT_IF, KT_ELIF, KT_ELSE, KT_WHILE, KT_FOR,
+        KT_RETURN, KT_BREAK, KT_CONTINUE, BI_PRINT, BI_SPLIT, BI_SIZE
+    };
+
+    if (!Objects::Boolean::lang_locked)
+    {
+        if (filipino_markers.count(text))
+            Objects::Boolean::use_filipino = true;
+        else if (english_markers.count(text))
+            Objects::Boolean::use_filipino = false;
+    }
+
+    auto it = keyword_map.find(text);
+    if (it != keyword_map.end())
+        return it->second;
+    return SyntaxKind::IdentifierToken;
+}
+
+bool SyntaxFacts::is_builtin_function(SyntaxKind kind)
+{
+    switch (kind)
+    {
+        case SyntaxKind::PrintFunction:
+        case SyntaxKind::InputFunction:
+        case SyntaxKind::SplitFunction:
+        case SyntaxKind::SizeFunction:
+        case SyntaxKind::TypeFunction:
+        case SyntaxKind::ToBoolFunction:
+        case SyntaxKind::ToIntFunction:
+        case SyntaxKind::ToDoubleFunction:
+        case SyntaxKind::ToStringFunction:
+        case SyntaxKind::SetIndexFunction:
+        case SyntaxKind::PushFunction:
+        case SyntaxKind::PopFunction:
+        case SyntaxKind::RangeFunction:
+        case SyntaxKind::SortFunction:
+        case SyntaxKind::ReverseFunction:
+        case SyntaxKind::JoinFunction:
+        case SyntaxKind::AbsFunction:
+        case SyntaxKind::MinFunction:
+        case SyntaxKind::MaxFunction:
+        case SyntaxKind::SqrtFunction:
+        case SyntaxKind::PowModFunction:
+        case SyntaxKind::SetModFunction:
+        case SyntaxKind::ReadFileFunction:
+        case SyntaxKind::WriteFileFunction:
+        case SyntaxKind::ClockFunction:
+        case SyntaxKind::ExitFunction:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool SyntaxFacts::is_type_keyword(SyntaxKind kind)
+{
+    switch (kind)
+    {
+        case SyntaxKind::IntegerKeyword:
+        case SyntaxKind::DoubleKeyword:
+        case SyntaxKind::BooleanKeyword:
+        case SyntaxKind::ListKeyword:
+        case SyntaxKind::FunctionKeyword:
+        case SyntaxKind::StringKeyword:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool SyntaxFacts::is_assignment_operator(SyntaxKind kind)
+{
+    switch (kind)
+    {
+        case SyntaxKind::EqualsToken:
+        case SyntaxKind::PlusEqualsToken:
+        case SyntaxKind::MinusEqualsToken:
+        case SyntaxKind::StarEqualsToken:
+        case SyntaxKind::SlashEqualsToken:
+        case SyntaxKind::ModuloEqualsToken:
+        case SyntaxKind::PowerEqualsToken:
+            return true;
+        default:
+            return false;
+    }
 }
 
 Objects::Type SyntaxFacts::get_keyword_type(SyntaxKind kind)
@@ -117,10 +263,10 @@ int SyntaxFacts::get_binary_precedence(SyntaxKind kind)
             return 7;
         case SyntaxKind::StarToken:
         case SyntaxKind::SlashToken:
+        case SyntaxKind::ModuloToken:
             return 5;
         case SyntaxKind::PlusToken:
         case SyntaxKind::MinusToken:
-        case SyntaxKind::ModuloToken:
             return 4;
         case SyntaxKind::DEqualsToken:
         case SyntaxKind::BangEqualsToken:

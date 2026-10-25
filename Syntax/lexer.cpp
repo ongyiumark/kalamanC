@@ -10,8 +10,8 @@ Lexer::Lexer(const std::string& text) : _text(text), _position(0), _ln(0), _col(
 
 char Lexer::peek(int offset) const
 {
-    unsigned int index = _position+offset;
-    if (index >= _text.size()) return '\0';
+    int index = _position + offset;
+    if (index < 0 || index >= (int)_text.size()) return '\0';
     return _text[index];
 }
 
@@ -44,16 +44,14 @@ SyntaxToken Lexer::lex()
 
     // Inserts an end of file token at the end.
     if (_position >= (int)_text.size())
-        return SyntaxToken(SyntaxKind::EndOfFileToken, Position(_ln, _col, start, start+1), "\0");
-    
-    
+        return SyntaxToken(SyntaxKind::EndOfFileToken, Position(_ln, _col, start, start), "\0");
 
-    if (is_letter(current()))
+    if (is_letter(current()) || current() == '_')
     {
         while(is_valid_identifier(current()))
             next();
         
-        int length = _position-start;
+        int length = _position - start;
         std::string text = _text.substr(start, length);
         SyntaxKind kind = SyntaxFacts::get_keyword_kind(text);
         return SyntaxToken(kind, Position(start_ln, start_col, start, _position), text);
@@ -65,13 +63,15 @@ SyntaxToken Lexer::lex()
         while(is_digit(current()) || current() == '.')
         {
             if (current() == '.')
+            {
+                if (dot_count >= 1)
+                    break;
                 dot_count++;
-            if (dot_count > 1)
-                break;
+            }
             next();
         }
 
-        int length = _position-start;
+        int length = _position - start;
         std::string text = _text.substr(start, length);
         Position curr_pos = Position(start_ln, start_col, start, _position);
         if (dot_count == 0)
@@ -96,12 +96,12 @@ SyntaxToken Lexer::lex()
         }
     }
 
-    if (std::isspace(current()))
+    if (std::isspace(static_cast<unsigned char>(current())))
     {
-        while(std::isspace(current()))
+        while(std::isspace(static_cast<unsigned char>(current())))
             next();
 
-        int length = _position-start;
+        int length = _position - start;
         std::string text = _text.substr(start, length);
         return SyntaxToken(SyntaxKind::WhitespaceToken, Position(start_ln, start_col, start, _position), text);
     }
@@ -109,12 +109,37 @@ SyntaxToken Lexer::lex()
     switch(current())
     {
         case '+':
+            if (look_ahead() == '+')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::PlusPlusToken, Position(start_ln, start_col, start, _position), "++");
+            }
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::PlusEqualsToken, Position(start_ln, start_col, start, _position), "+=");
+            }
             next();
             return SyntaxToken(SyntaxKind::PlusToken, Position(start_ln, start_col, start, _position), "+");
         case '-':
+            if (look_ahead() == '-')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::MinusMinusToken, Position(start_ln, start_col, start, _position), "--");
+            }
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::MinusEqualsToken, Position(start_ln, start_col, start, _position), "-=");
+            }
             next();
             return SyntaxToken(SyntaxKind::MinusToken, Position(start_ln, start_col, start, _position), "-");
         case '*':
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::StarEqualsToken, Position(start_ln, start_col, start, _position), "*=");
+            }
             next();
             return SyntaxToken(SyntaxKind::StarToken, Position(start_ln, start_col, start, _position), "*");
         case '/':
@@ -123,34 +148,54 @@ SyntaxToken Lexer::lex()
                 while(current() && current() != '\n')
                     next();
                 
-                int length = _position-start;
+                int length = _position - start;
                 std::string text = _text.substr(start, length);
                 return SyntaxToken(SyntaxKind::CommentToken, Position(start_ln, start_col, start, _position), text);
             }
             else if (look_ahead() == '*')
             {
                 next(); next();
+                bool closed = false;
                 while(true)
                 {
                     if (current() == '*' && look_ahead() == '/')
                     {
                         next(); next();
+                        closed = true;
                         break;
                     }
                     if (!current())
                         break;
                     next();
                 }
-                int length = _position-start;
+                int length = _position - start;
                 std::string text = _text.substr(start, length);
-                return SyntaxToken(SyntaxKind::CommentToken, Position(start_ln, start_col, start, _position), text);
+                Position curr_pos = Position(start_ln, start_col, start, _position);
+                if (!closed)
+                    Diagnostics::DiagnosticBag::report_expected_character('/', curr_pos);
+                return SyntaxToken(SyntaxKind::CommentToken, curr_pos, text);
+            }
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::SlashEqualsToken, Position(start_ln, start_col, start, _position), "/=");
             }
             next();
             return SyntaxToken(SyntaxKind::SlashToken, Position(start_ln, start_col, start, _position), "/");
         case '%':
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::ModuloEqualsToken, Position(start_ln, start_col, start, _position), "%=");
+            }
             next();
             return SyntaxToken(SyntaxKind::ModuloToken, Position(start_ln, start_col, start, _position), "%");
         case '^':
+            if (look_ahead() == '=')
+            {
+                next(); next();
+                return SyntaxToken(SyntaxKind::PowerEqualsToken, Position(start_ln, start_col, start, _position), "^=");
+            }
             next();
             return SyntaxToken(SyntaxKind::PowerToken, Position(start_ln, start_col, start, _position), "^");
         case '=':
@@ -232,35 +277,62 @@ SyntaxToken Lexer::lex()
         case ',':
             next();
             return SyntaxToken(SyntaxKind::CommaToken, Position(start_ln, start_col, start, _position), ",");
+        case ':':
+            next();
+            return SyntaxToken(SyntaxKind::ColonToken, Position(start_ln, start_col, start, _position), ":");
         case ';':
             next();
             return SyntaxToken(SyntaxKind::SemicolonToken, Position(start_ln, start_col, start, _position), ";");
         case '"':
+        case '\'':
         {
+            char quote = current();
             next();
-            while(current() && current() != '"')
-                next();
-            
-            int length = _position-start;
-            std::string text = _text.substr(start+1, length-1);
-            Position curr_pos = Position(start_ln, start_col, start, _position);
-            if (current() != '"')
+            std::string decoded;
+            while(current() && current() != quote)
             {
-                Diagnostics::DiagnosticBag::report_expected_character('"', curr_pos);
-                return SyntaxToken(SyntaxKind::StringToken, curr_pos, text);
+                if (current() == '\\' && look_ahead())
+                {
+                    next();
+                    char esc = current();
+                    switch (esc)
+                    {
+                        case 'n':  decoded += '\n'; break;
+                        case 't':  decoded += '\t'; break;
+                        case 'r':  decoded += '\r'; break;
+                        case '\\': decoded += '\\'; break;
+                        case '"':  decoded += '"';  break;
+                        case '\'': decoded += '\''; break;
+                        case '0':  decoded += '\0'; break;
+                        default:   decoded += esc;  break;
+                    }
+                    next();
+                }
+                else
+                {
+                    decoded += current();
+                    next();
+                }
+            }
+            
+            if (current() != quote)
+            {
+                Position curr_pos = Position(start_ln, start_col, start, _position);
+                Diagnostics::DiagnosticBag::report_expected_character(quote, curr_pos);
+                return SyntaxToken(SyntaxKind::StringToken, curr_pos, decoded);
             }
             next();
-                       
-            return SyntaxToken(SyntaxKind::StringToken, curr_pos, text);
+            Position curr_pos = Position(start_ln, start_col, start, _position);
+            return SyntaxToken(SyntaxKind::StringToken, curr_pos, decoded);
         }
     }
 
     // Report and return a bad character.
+    char bad_char = current();
     std::string text = _text.substr(start, 1);
     next();
     Position curr_pos = Position(start_ln, start_col, start, _position);
-    Diagnostics::DiagnosticBag::report_bad_character(current(), curr_pos);
+    Diagnostics::DiagnosticBag::report_bad_character(bad_char, curr_pos);
 
     return SyntaxToken(SyntaxKind::BadToken, curr_pos, text);
 }
-

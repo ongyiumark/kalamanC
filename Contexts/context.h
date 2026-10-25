@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Objects/object.h"
-#include <map>
+#include <unordered_map>
+#include <string>
 
 namespace Contexts
 {
@@ -19,15 +20,21 @@ namespace Contexts
     class SymbolTable final
     {
     private:
-        std::map<std::string, Objects::Object*> _table;
+        std::unordered_map<std::string, Objects::Object*> _table;
         SymbolTable* _parent;
     public:
-        SymbolTable(SymbolTable* parent);
+        SymbolTable(SymbolTable* parent = nullptr);
+        SymbolTable(const SymbolTable&) = delete;
+        SymbolTable& operator=(const SymbolTable&) = delete;
+        SymbolTable(SymbolTable&& other) noexcept;
+        SymbolTable& operator=(SymbolTable&& other) noexcept;
         ~SymbolTable();
         
-        ObjectSymbol get_object(const std::string name);
-        void set_object(const std::string name, Objects::Object* object);
+        ObjectSymbol get_object(const std::string& name);
+        void set_object(const std::string& name, Objects::Object* object);
+        void clear();
 
+        const std::unordered_map<std::string, Objects::Object*>& get_table() const;
         SymbolTable* get_parent() const;
     };
 
@@ -39,9 +46,10 @@ namespace Contexts
         Context* _parent;
         SymbolTable _symbol_table;
     public:
-        Context(std::string name, Context* parent, SymbolTable symbol_table);
+        Context(const std::string& name, Context* parent, SymbolTable* parent_symbol_table = nullptr);
+        Context(const std::string& name, Context* parent, SymbolTable&& symbol_table);
 
-        std::string get_name() const;
+        const std::string& get_name() const;
         Context* get_parent() const;
         SymbolTable* get_symbol_table();
     };

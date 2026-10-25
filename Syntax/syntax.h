@@ -25,7 +25,15 @@ namespace Syntax
         SlashToken,
         PowerToken,
         ModuloToken,
+        PlusPlusToken,
+        MinusMinusToken,
         EqualsToken,
+        PlusEqualsToken,
+        MinusEqualsToken,
+        StarEqualsToken,
+        SlashEqualsToken,
+        ModuloEqualsToken,
+        PowerEqualsToken,
         BangToken,
         DAmpersandToken,
         DPipeToken,
@@ -42,6 +50,7 @@ namespace Syntax
         LCurlyToken,
         RCurlyToken,
         CommaToken,
+        ColonToken,
         SemicolonToken,
         IdentifierToken,
         
@@ -59,6 +68,7 @@ namespace Syntax
         ElifKeyword,
         ElseKeyword,
         ForKeyword,
+        InKeyword,
         WhileKeyword,
         AndKeyword,
         OrKeyword,
@@ -98,9 +108,26 @@ namespace Syntax
         ToDoubleFunction,
         ToStringFunction,
         SetIndexFunction,
+        PushFunction,
+        PopFunction,
+        RangeFunction,
+        SortFunction,
+        ReverseFunction,
+        JoinFunction,
+        AbsFunction,
+        MinFunction,
+        MaxFunction,
+        SqrtFunction,
+        PowModFunction,
+        SetModFunction,
+        ReadFileFunction,
+        WriteFileFunction,
+        ClockFunction,
+        ExitFunction,
     };
 
     std::string kind_to_string(SyntaxKind kind);
+    std::string kind_to_display_string(SyntaxKind kind);
 
     class SyntaxNode
     {
@@ -125,20 +152,19 @@ namespace Syntax
         SyntaxKind _kind;
         std::string _text;
     public:
-        SyntaxToken(SyntaxKind kind, Diagnostics::Position position, std::string text);
+        SyntaxToken(SyntaxKind kind, Diagnostics::Position position, const std::string& text);
         SyntaxToken();
-        ~SyntaxToken();
+        ~SyntaxToken() override;
 
-        SyntaxKind kind() const;
-        int get_position() const;
-        std::string get_text() const;
+        SyntaxKind kind() const override;
+        const std::string& get_text() const;
     };
 
     // Refer to lexer.cpp.
     class Lexer final
     {
     private:
-        const std::string _text;
+        const std::string& _text;
         int _position;
         int _ln;
         int _col;
@@ -156,7 +182,10 @@ namespace Syntax
     class SyntaxFacts final
     {
     public:
-        static SyntaxKind get_keyword_kind(std::string text);
+        static SyntaxKind get_keyword_kind(const std::string& text);
+        static bool is_builtin_function(SyntaxKind kind);
+        static bool is_type_keyword(SyntaxKind kind);
+        static bool is_assignment_operator(SyntaxKind kind);
         static int get_binary_precedence(SyntaxKind kind);
         static int get_unary_precedence(SyntaxKind kind);
         static Objects::Type get_keyword_type(SyntaxKind kind);

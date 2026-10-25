@@ -1,9 +1,29 @@
 #include "object.h"
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include <limits>
 
 using namespace Objects;
+
+Double* Double::_free_list = nullptr;
+
+void* Double::operator new(size_t size)
+{
+    if (_free_list)
+    {
+        Double* p = _free_list;
+        _free_list = *reinterpret_cast<Double**>(p);
+        return p;
+    }
+    return ::operator new(size);
+}
+
+void Double::operator delete(void* p) noexcept
+{
+    if (!p) return;
+    *reinterpret_cast<Double**>(p) = _free_list;
+    _free_list = static_cast<Double*>(p);
+}
 
 Double::Double(long double value) : _value(value) {}
 
@@ -30,9 +50,9 @@ Object* Double::added_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Double(_value+((Integer*)other)->get_value());
+            return new Double(_value + ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value+((Double*)other)->get_value());
+            return new Double(_value + ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -43,9 +63,9 @@ Object* Double::subtracted_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Double(_value-((Integer*)other)->get_value());
+            return new Double(_value - ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value-((Double*)other)->get_value());
+            return new Double(_value - ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -56,9 +76,9 @@ Object* Double::multiplied_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Double(_value*((Integer*)other)->get_value());
+            return new Double(_value * ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Double(_value*((Double*)other)->get_value());
+            return new Double(_value * ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -72,13 +92,34 @@ Object* Double::divided_by(Object* other) const
         {
             Integer* other_int = (Integer*)other;
             if (other_int->get_value() == 0) return new None();
-            return new Double(_value/other_int->get_value());
+            return new Double(_value / other_int->get_value());
         }
         case Type::DOUBLE:
         {
             Double* other_double = (Double*)other;
             if (other_double->get_value() == 0) return new None();
-            return new Double(_value/other_double->get_value());            
+            return new Double(_value / other_double->get_value());            
+        }
+        default:
+            return new None();
+    }
+}
+
+Object* Double::modded_by(Object* other) const
+{
+    switch (other->type())
+    {
+        case Type::INTEGER:
+        {
+            Integer* other_int = (Integer*)other;
+            if (other_int->get_value() == 0) return new None();
+            return new Double(fmodl(_value, other_int->get_value()));
+        }
+        case Type::DOUBLE:
+        {
+            Double* other_double = (Double*)other;
+            if (other_double->get_value() == 0) return new None();
+            return new Double(fmodl(_value, other_double->get_value()));
         }
         default:
             return new None();
@@ -104,9 +145,9 @@ Object* Double::less_than(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value<((Integer*)other)->get_value());
+            return new Boolean(_value < ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value<((Double*)other)->get_value());
+            return new Boolean(_value < ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -117,9 +158,9 @@ Object* Double::greater_than(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value>((Integer*)other)->get_value());
+            return new Boolean(_value > ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value>((Double*)other)->get_value());
+            return new Boolean(_value > ((Double*)other)->get_value());
         default:
             return new None();
     }
@@ -130,9 +171,9 @@ Object* Double::equals(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Boolean(_value==((Integer*)other)->get_value());
+            return new Boolean(_value == ((Integer*)other)->get_value());
         case Type::DOUBLE:
-            return new Boolean(_value==((Double*)other)->get_value());
+            return new Boolean(_value == ((Double*)other)->get_value());
         default:
             return new Boolean(false);
     }

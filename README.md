@@ -1,11 +1,5 @@
-# KalamanC
-Basically, it's an **interpreted programming language** written in C++. 
-
-The **keywords** are **easily replacable**, so you it can be ported to a different language. 
-
-This is my second attempt at a programming language. You can find my first attempt [here](https://github.com/ongyiumark/kalamansi-old). 
-It's essentially the same project, but this is much more optimized.
-I still don't really know what I'm doing though.
+# KalamanC 2.0
+**KalamanC** is a fast, lightweight **interpreted programming language** written in C++17 with **native bilingual support** (both **Filipino** and **English** keywords work out of the box), C++-style blocks, Python-style lists & slicing, and built-in **matrix operations** for competitive programming and dynamic programming.
 
 ### Name origins
 I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi++', but it felt too long so I shortened it to 'KalamanC'. 
@@ -14,360 +8,238 @@ I just asked a friend and they said 'Kalamansi++'. It was originally 'Kalamansi+
 - [Motivation](#motivation)
 - [Features](#features)
 - [Code Example](#code_example)
-- [Installation](#installation)
+- [Installation & Usage](#installation)
 - [Language Tutorial](#tutorial)
-- [Future Plans](#plans)
+- [Built-in Functions](#builtins)
 - [Acknowledgements](#acknowledgements)
 
 <a name=motivation></a>
 # Motivation
-Classes just ended and I wanted to try my hand on a technical project, and I came up with this. I wanted to see if I could write a programming language. 
-This is actually my very **first personal project** (my first attempt on this doesn't count because they're basically the same thing), so I'm not sure what I'm doing. 
-If you're reading this and you know what I'm doing wrong, I'm open to criticsm.
+Classes just ended and I wanted to try my hand on a technical project, and I came up with this. I wanted to see if I could write a programming language.
 
 <a name=features></a>
 # Features
-All the programming languages I know have english keywords, so I wanted to make my own programming language where I could **easily change the keywords**. This can be done by changing a few values in [this](constants.h) header file. 
-
-Right now, I have a Filipino version of the keywords. Just paste the contents of [constants-filipino.h](constants-filipino.h) into the [constants.h](constants.h) file.
-
-As for the syntax, the grammar of the language is summarized in [this](grammar.txt) text file, but it's basically **C++ syntax with python lists and functions**. 
-
-I wanted to make an original language, but I'm not that great at language design. I picked this combination of syntax because I didn't like how whitespace mattered in python, and functions with definite return types in C++ felt too restrictive. I'm open to ideas though.
-
-Also, I implemented builtin matrix operations, so KalamanC can be used to prototype or solve constant space DP problems or linear reccurences. Refer to [this](https://www.youtube.com/watch?v=eMXNWcbw75E) video for more information. You can see how it works in the [tutorial](#tutorial) below.
+- **Bilingual Keywords Out of the Box**: Write scripts in **Filipino** (`aka`, `bilang`, `lista`, `kung`, `para`, `lathala`, ...) or **English** (`def`/`define`, `int`, `list`, `if`, `for`, `print`, ...) without recompiling! You can also customize keywords in [`constants-english.h`](constants-english.h) and [`constants-filipino.h`](constants-filipino.h).
+- **C++ Syntax + Python Lists & Slicing**: Whitespace-independent C++ block syntax combined with dynamic lists, negative indexing (`a[-1]`), slicing (`a[1:4]`, `a[:3]`), and `for (x in list)` / `para (x sa lista)` iteration.
+- **Built-in Matrix Operations**: 2D integer lists support matrix multiplication (`A * B`) and fast binary matrix exponentiation (`A ^ n`) with configurable modulo via `set_mod(m)`, ideal for solving linear recurrences and constant-space DP problems (see [Errichto's Matrix Exponentiation](https://www.youtube.com/watch?v=eMXNWcbw75E)).
+- **Interactive REPL Shell**: Supports multi-line blocks, arrow-key command history, session inspection (`#vars`), AST visualization (`#showtree`), and language mode switching (`#lang`).
+- **Rich Error Diagnostics**: Clear error messages with source line previews, `^~~~` caret indicators, and function call stack tracebacks.
 
 ### Benchmark
-The following script runs in **0.490 seconds** while an equivalent script wrtten in python runs in **0.125 seconds**.
+The following 1,000,000-iteration loop runs in **~0.033 seconds** (`i++`) / **~0.085 seconds** (`i = i + 1`), outperforming Python (~0.125 seconds):
 
-```
+```cpp
 int i = 0;
-while(i < 1000000) i = i + 1;
+while (i < 1000000) i++;
 ```
-
-That's about **4 times slower than python**, which is actually pretty decent. My first attempt was over 100 times slower.
-
-Note that this test was done on a **Linux compiler using WSL**. When I compiled it with a **Windows compiler**, it runs in **about 1.0 seconds**.
 
 <a name=code_example></a>
 # Code Example
 
-### In Filipino
+### In Filipino (`examples/filipino_demo.kal`)
 
-```
+```cpp
 aka make_list()
 {
   lista a = [];
-  para (bilang i = 0; i < 10; i = i + 1)
+  para (bilang i = 0; i < 10; i++)
   {
     kung (i == 4) tuloy;
-    a = a + i;
+    idagdag(a, i);
   }
   ibalik a;
 }
 
-lathala(make_list());    // This will print [0,1,2,3,5,6,7,8,9]
+lathala(make_list());    // Prints [0, 1, 2, 3, 5, 6, 7, 8, 9]
 ```
 
 ### In English
 
-```
+```cpp
 def make_list()
 {
   list a = [];
-  for (int i = 0; i < 10; i = i + 1)
+  for (int i = 0; i < 10; i++)
   {
     if (i == 4) continue;
-    a = a + i;
+    push(a, i);
   }
   return a;
 }
 
-print(make_list());    // This will print [0,1,2,3,5,6,7,8,9]
+print(make_list());    // Prints [0, 1, 2, 3, 5, 6, 7, 8, 9]
 ```
 
-I'll be going over the syntax in more detail below, but if you're familiar C++ and python, you can probably already guess from the example above.
-
 <a name=installation></a>
-# Installation
+# Installation & Usage
 
-### Clone
-Clone this by to your local machine by running
+### Build & Test
+```bash
+git clone https://github.com/ongyiumark/kalamanC.git
+cd kalamanC
+make -j4
+make test
+```
 
-`$ git clone https://github.com/ongyiumark/kalamansi.git`
+### Run Interactive Shell (REPL)
+```bash
+./kalman
+```
 
-### Compile
-I included a makefile so all you need to do is run 
+Inside the REPL, you can write single-line or multi-line statements and use shell commands:
+- `#help` — show available REPL commands
+- `#showtree` — toggle syntax parse tree visualization
+- `#showreturn` — toggle printing expression return values
+- `#lang [english|filipino|auto]` — set boolean display language (`true`/`false` vs `totoo`/`mali`)
+- `#vars` — inspect all defined variables and functions
+- `#reset` — reset the session state
+- `#cls` / `#clear` — clear the screen
+- `#exit` / `#quit` — exit the shell
 
-`$ make`
+### Run a Script or Inline Code
+```bash
+# Run a script file
+./kalman examples/filipino_demo.kal
+./kalman examples/fibonacci_matrix.kal
+./kalman examples/algorithms.kal
 
-Assuming you have a C++ compiler, you should now have a `kalman` file which you can run.
-
-### Run
-You can run the file without any arguments to run a shell.
-
-`$ ./kalman`
-
-You can also run it with a file containing a **KalamanC script** to run that script.
-
-`$ ./kalman sample.kal`
-
-I chose a `.kal` file extension, but really it can be anything as long as it contains the text of the script.
+# Execute inline code directly
+./kalman -e 'print([[1, 1], [1, 0]] ^ 10);'
+```
 
 <a name=tutorial></a>
 # Language Tutorial
-### Data Types
-KalamanC currently has 6 data type:
-- bool (boolean)
-- bilang (integer) 
-- doble (double)
-- mgawords (string)
-- lista (list)
-- function
 
-KalamanC is staticly typed like C++, so delaring and initializing variables have the same syntax as C++.
-```
-bool b = totoo;               // Declares a boolean 'b', sets to true;
+### Data Types
+KalamanC has 6 data types (usable with either Filipino or English keywords):
+
+| Type | Filipino Keyword | English Keyword(s) | Default Value |
+| :--- | :--- | :--- | :--- |
+| Boolean | `bool` | `bool`, `boolean` | `mali` / `false` |
+| Integer (64-bit) | `bilang` | `int` | `0` |
+| Double | `doble` | `double` | `0` |
+| String | `mgawords` | `string` | `""` |
+| List | `lista` | `list` | `[]` |
+| Function | `function` | `function`, `func` | uninitialized |
+
+```cpp
+bool b = totoo;               // Declares a boolean 'b', sets to true
 bilang x;                     // Declares an integer 'x', initializes to 0
 x = 4;                        // Sets 'x' to 4
 doble y = 3.14;               // Declares a double 'y', sets to 3.14
-mgawords s = "Hello world!";  // Declares a string 's',  sets to "Hello world!"
-lista l = [x, s, y];          // Declares a list 'l', sets to [4, "Hello world", 3.14]
-```
-Make sure to end your statments with a semicolon. 
-This is because I designed KalamanC to completely ignore whitespace (no more python indenting errors).
-
-I'll discuss 'func' later when we get to functions, but basically, it can be used to store functions.
-It works the same as the data types above.
-
-If you don't initialize the variables, they have a default value (except for 'func'). 
-Integers and doubles initialize to 0, and string and lists initialize to an empty string and an empty list respectively.
-
-Note that you cannot set an integer variable to a different data type. The following will incur a runtime error:
-
-```
-bilang x = "Hi";
+mgawords s = "Hello world!";  // Declares a string 's', sets to "Hello world!"
+lista l = [x, s, y];          // Declares a list 'l', sets to [4, 'Hello world!', 3.14]
 ```
 
 ### Operators
-We have the following operators: 
-- \+, \-, \*, \/, \% (standard arithmetic operators)
-- \^  (power operator)
-- \<, \>, \<=, \>=, \!=, == (standard comparison operators)
-- hindi, ! (standard NOT operator)
-- at, && (standard AND operator)
-- o, || (standard OR operator)
-- xo (standard XOR operator)
-
-##### Arithmetic operations
-```
-(2+1)^2*2;    // Evaluates to 18
-1+1 > 32;     // Evaluates to false
-12 > 6 > 3;   // The incurs an error (I might implement this in the future)
-
-13 at 0;      // This incurs an error because logical operators can only be used on booleans
-```
-
-The third example is an error because it first evaluates (12 > 6) as true, and evaluates (true > 3), which is an illegal operation.
+- **Arithmetic**: `+`, `-`, `*`, `/`, `%`, `^` (right-associative power)
+- **Compound Assignment & Increment**: `+=`, `-=`, `*=`, `/=`, `%=`, `^=`, `++`, `--`
+- **Comparison**: `<`, `>`, `<=`, `>=`, `!=`, `==`
+- **Logical** (with short-circuit evaluation for AND/OR):
+  - NOT: `hindi`, `not`, `!`
+  - AND: `at`, `and`, `&&`
+  - OR: `o`, `or`, `||`
+  - XOR: `xo`, `xor`
 
 ##### String operations
-String concatination and multiplication works just like python.
-```
-"Yes" + "no";       // Evaluates to "Yesno"
-"yes"*3;            // Evaluates to "yesyesyes"         
+Both double-quoted (`"..."`) and single-quoted (`'...'`) strings are supported with escape sequences (`\n`, `\t`, `\"`, `\'`, `\\`).
+```cpp
+"Yes" + "no";       // Evaluates to 'Yesno'
+"yes" * 3;          // Evaluates to 'yesyesyes'
 ```
 
 ##### Matrix operations
-If a list is a 2D array of integers, then it is a valid matrix. These only apply for valid matrices. 
-
+Any 2D list of integers is treated as a matrix for `List * List` (matrix multiplication) and `List ^ Integer` (matrix exponentiation):
+```cpp
+[[1, 1]] * [[2], [1]];    // Evaluates to [[3]]
+[[1, 1], [1, 0]] ^ 10;    // Evaluates to [[89, 55], [55, 34]] (10th Fibonacci number!)
 ```
-[[1,1]]*[[2],[1]];    // Evaluates to [[3]]
+By default, matrix operations are computed modulo `1,000,000,007` (`1e9 + 7`). You can change the modulus at any time with `set_mod(m)` (or `itakda_mod(m)`), or pass `set_mod(0)` for exact un-modded 64-bit integer arithmetic!
 
-[[1,1],[1,0]]^10;     // Evaluates to [[89, 55], [55, 34]]
+### Indexing, Mutation, and Slicing
+Lists and strings support 0-based indexing, negative indices, and `[start:end]` slicing. Lists also support in-place index assignment (`a[i] = val`):
+```cpp
+lista a = ["Yes", "No", 3, [3, 1, 3.5]];
+lathala(a[0][-1]);      // Prints s
+lathala(a[-1][-1]);     // Prints 3.5
+lathala(a[1:3]);        // Prints ['No', 3]
 
+a[0] = "Maybe";         // Mutates element 0 in-place
+a[2] += 10;             // Updates a[2] to 13
 ```
-
-The second example is actually the matrix representation of the fibonacci sequence. Notice that the last 10th fibonacci number appears in the result.
-
-Additionally, large numbers tend to overflow, so I set the default to output the result in mod 1e9+7. Currently, there's no way to change that, but It shouldn't take 30 minutes to add a builtin function that does just that. I'm just lazy. If for some reason, you're actually using KalamanC and need it, just inform me.
 
 ### Conditionals
-Conditionals in kalamanC work the same in C++. The keywords are:
-- kung (standard IF)
-- ehkung (standard ELIF)
-- kundi (standard ELSE)
+- Filipino: `kung` (`if`), `ehkung` (`elif`), `kundi` (`else`)
+- English: `if`, `elif`, `else`
 
-```
+```cpp
 bilang x = 5;
-kung (x > 5) lathala("x is greater than 5"); // This is a builtin function that prints
+kung (x > 5) lathala("x is greater than 5");
 ehkung (x > 3) lathala("x is greater than 3");
-kundi lathala("I don't care");
-```
-
-Remember that whitespace don't matter in this language so this is completely legal too. 
-You can even choose to write everything in one line, but that's ugly.
-
-```
-kung (x > 5)
-  lathala(x);
-```
-
-However, if you want to have multiple statements, you must enclose then in block.
-
-```
-kung (x > 5)
-{
-    int y = x;
-    lathala(y);
-}
-```
-
-If for some reason, you want to do nothing, you can put a semicolon. This is equivalent to `pass` in python.
-
-```
-kung (x > 5);
-ehkung (x > 3) lathala("Yes");
+kundi lathala("x is 3 or less");
 ```
 
 ### Loops
-Loops in kalamanC work the same in C++. The keywords are:
-- habang (standard WHILE)
-- para (C++ FOR)
-- tuloy (standard CONTINUE)
-- hinto (standard BREAK)
+- Filipino: `habang` (`while`), `para` (`for`), `sa` (`in`), `tuloy` (`continue`), `hinto` (`break`)
+- English: `while`, `for`, `in`, `continue`, `break`
 
-```
-bilang i = 0;
-habang(i < 10)
-{
-    lathala(i);
-    i = i + 1;
-}
+```cpp
+// C-style for loop
+para (bilang i = 0; i < 5; i++) lathala(i);
 
-para (bilang i = 0; i < 10; i = i + 1) lathala(i);
+// Foreach loop over a list or range
+for (int x in range(0, 5)) print(x);
+para (bilang x sa [10, 20, 30]) lathala(x);
 ```
 
-These two loops do the same thing. The body of the loops have the same syntax as the body of the conditionals.
+### User-defined Functions
+- Filipino: `aka` (`def` / `define`), `ibalik` (`return`)
+- English: `def` (or `define`), `return`
 
-
-### Functions
-#### Builtin Functions
-##### lathala(value) 
-Returns Type::NONE.
-
-Prints the value to the screen.
-###### value - any boolean, integer, double, string, list, or function.
-
-##### input()
-Returns Type::STRING
-
-Reads input from user.
-
-##### split(value, delimiter)
-Returns Type::LIST
-
-Splits the string into a list of words, separated by the delimiter.
-###### value - string
-###### delimiter - string
-
-##### size(value)
-Returns Type::INTEGER
-
-Gets the size of a list or string.
-###### value - list or string
-
-##### type(value)
-Returns Type::STRING
-
-Gets the type of the value.
-###### value - any boolean, integer, double, string, list, or function.
-
-##### to_bool(value)
-Returns Type::BOOLEAN.
-
-Converts the value to a Boolean.
-###### value - any boolean, integer, double, or string.
-
-##### to_int(value)
-Returns Type::INTEGER.
-
-Converts the value to an Integer.
-###### value - any boolean, integer, double, or string.
-
-##### to_double(value)
-Returns Type::DOUBLE.
-
-Converts the value to a Double.
-###### value - any boolean, integer, double, or string.
-
-##### to_string(value)
-Returns Type::STRING.
-
-Converts the value to a String.
-###### value - any boolean, integer, double, list, string, or function.
-
-##### set(collection, index, value)
-Returns Type::LIST.
-
-Changes the value of a list member.
-###### collection - list
-###### index - integer
-###### value - any boolean, integer, double, list, string, or function.
-
-
-#### User-defined Functions
-This works very similar to python functions. The keywords are:
-- aka (python DEF)
-- ibalik (standard RETURN)
-
-```
-aka gcd(a,b)
+```cpp
+aka gcd(a, b)
   kung (b == 0) ibalik a;
-  kundi ibalik gcd(b, a%b);
-  
-lathala(gcd(10,25));      // This prints 5
-```
+  kundi ibalik gcd(b, a % b);
 
-This is an implentation of a gcd function in KalamanC. 
-Notice that I didn't need to enclose it in curly braces because the conditional is a single statement.
+lathala(gcd(10, 25));   // Prints 5
 
-You can also store functions into a variable
-
-```
 function f = gcd;
-lathala(f(10,25));      // This prints 5
+lathala(f(10, 25));     // Prints 5
 ```
 
-### Indexing
+<a name=builtins></a>
+# Built-in Functions
 
-You can access elements of a list or a string with square brackets. They work similar to python where you can provide a negative index.
+All built-in functions can be called using either their English or Filipino names:
 
-```
-lista a = ["Yes", "No", 3, [3,1,3.5]];
-lathala(a[0][-1]);      // Prints "s"
-lathala(a[-1][-1]);     // Prints 3.5
-```
-
-Lists and strings are immutable, so you can't reassign their values like this.
-
-```
-a[0] = 3;   // This will incur an error
-```
-
-### Comments
-Comments work the same as C++.
-
-```
-// This is a single line comment
-/* This
-is a multi
-line comment */
-```
-
-<a name=plans></a>
-# Future Plans
-- Add more built in functions
-- Add a mutable list/collection
+| English | Filipino | Description |
+| :--- | :--- | :--- |
+| `print(val1, val2, ...)` | `lathala(...)` | Prints space-separated values followed by a newline |
+| `input([prompt])` | `basahin([prompt])` | Reads a line of input from the user as a `string` |
+| `size(val)` / `len(val)` | `sukat(val)` | Returns the length of a `list` or `string` |
+| `push(list, val)` / `append(list, val)` | `idagdag(list, val)` | Appends `val` to `list` in-place |
+| `pop(list, [index])` | `alisin(list, [index])` | Removes and returns the element at `index` (default `-1`) |
+| `set(list, index, val)` | `palitan(list, index, val)` | Returns a copy of `list` with `list[index]` set to `val` |
+| `range([start], stop, [step])` | `saklaw(...)` | Generates a `list` of integers |
+| `sort(list)` | `ayusin(list)` | Returns a sorted copy of `list` |
+| `reverse(val)` | `baliktadin(val)` | Returns a reversed copy of a `list` or `string` |
+| `split(str, [delim])` | `hatiin(str, [delim])` | Splits `str` by `delim` (default `" "`) into a `list` |
+| `join(list, [delim])` | `pagdugtungin(list, [delim])` | Joins elements of `list` into a `string` |
+| `type(val)` | `uri(val)` | Returns the type name of `val` as a `string` |
+| `to_bool(val)` | `gawing_bool(val)` | Converts `val` to `bool` |
+| `to_int(val)` | `gawing_bilang(val)` | Converts `val` to `int` |
+| `to_double(val)` | `gawing_doble(val)` | Converts `val` to `double` |
+| `to_string(val)` | `gawing_mgawords(val)` | Converts `val` to `string` |
+| `abs(x)` | `ganap(x)` | Absolute value of an `int` or `double` |
+| `min(a, b, ...)` / `min(list)` | `pinakamaliit(...)` | Minimum value |
+| `max(a, b, ...)` / `max(list)` | `pinakamalaki(...)` | Maximum value |
+| `sqrt(x)` | `ugat(x)` | Square root of `x` as a `double` |
+| `pow_mod(base, exp, mod)` | `pow_mod(base, exp, mod)` | Computes `(base ^ exp) % mod` |
+| `set_mod(mod)` | `itakda_mod(mod)` | Sets matrix modulus (`0` disables modulo) |
+| `read_file(path)` | `basahin_file(path)` | Reads a file's contents as a `string` |
+| `write_file(path, content)` | `isulat_file(path, content)` | Writes `content` to `path` |
+| `clock()` | `oras()` | Returns elapsed seconds since program start (`double`) |
+| `exit([code])` | `lumabas([code])` | Exits the interpreter with status `code` |
 
 <a name=acknowledgements></a>
 # Acknowledgments
