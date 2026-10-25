@@ -1,0 +1,34 @@
+// Algorithms & Modern Features Demo
+// Run with: ./kalman examples/algorithms.kal
+
+def gcd(int a, int b)
+{
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}
+
+def quicksort(list arr)
+{
+    if (size(arr) <= 1) return arr;
+    int pivot = arr[size(arr) / 2];
+    list left = [];
+    list mid = [];
+    list right = [];
+
+    for (int x in arr)
+    {
+        if (x < pivot) push(left, x);
+        elif (x == pivot) push(mid, x);
+        else push(right, x);
+    }
+    return quicksort(left) + mid + quicksort(right);
+}
+
+print("GCD(48, 180) =", gcd(48, 180));
+
+list data = [42, 15, 8, 99, 23, 4, 16, 15];
+print("Original:", data);
+print("Quicksorted:", quicksort(data));
+print("Built-in sort:", sort(data));
+print("Reversed:", reverse(sort(data)));
+print("Min:", min(data), "Max:", max(data));

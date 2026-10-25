@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../syntax.h"
+#include <memory>
 
 namespace Syntax
 {
@@ -11,9 +12,9 @@ namespace Syntax
         Objects::Object* _value;
     public:
         LiteralExpressionSyntax(Objects::Object* value, Diagnostics::Position pos);
-        ~LiteralExpressionSyntax();
+        ~LiteralExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         Objects::Object* get_object();
     };
 
@@ -25,9 +26,9 @@ namespace Syntax
         SyntaxNode* _operand;
     public:
         UnaryExpressionSyntax(SyntaxToken op_token, SyntaxNode* operand, Diagnostics::Position pos);
-        ~UnaryExpressionSyntax();
+        ~UnaryExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         
         SyntaxToken* get_op_token();
         SyntaxNode* get_operand();
@@ -39,12 +40,12 @@ namespace Syntax
     private:
         SyntaxNode* _left;
         SyntaxToken _op_token;
-        SyntaxNode*_right;
+        SyntaxNode* _right;
     public:
         BinaryExpressionSyntax(SyntaxNode* left, SyntaxToken op_token, SyntaxNode* right, Diagnostics::Position pos);
-        ~BinaryExpressionSyntax();
+        ~BinaryExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxNode* get_left();
         SyntaxToken* get_op_token();
         SyntaxNode* get_right();
@@ -58,8 +59,8 @@ namespace Syntax
         bool _to_return;
     public:
         SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false);
-        ~SequenceExpressionSyntax();
-        SyntaxKind kind() const;    
+        ~SequenceExpressionSyntax() override;
+        SyntaxKind kind() const override;    
 
         int get_nodes_size() const;
         SyntaxNode* get_node(int i);
@@ -75,9 +76,9 @@ namespace Syntax
         SyntaxNode* _body;
     public:
         WhileExpressionSyntax(SyntaxNode* condition, SyntaxNode* body, Diagnostics::Position pos);
-        ~WhileExpressionSyntax();
+        ~WhileExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
 
         SyntaxNode* get_condition();
         SyntaxNode* get_body();
@@ -88,15 +89,17 @@ namespace Syntax
     {
     private:
         SyntaxNode *_init, *_condition, *_update, *_body;
+        bool _is_foreach;
     public:
-        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body, Diagnostics::Position pos);
-        ~ForExpressionSyntax();
+        ForExpressionSyntax(SyntaxNode* init, SyntaxNode* condition, SyntaxNode* update, SyntaxNode* body, Diagnostics::Position pos, bool is_foreach = false);
+        ~ForExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxNode* get_init();     
         SyntaxNode* get_condition();      
         SyntaxNode* get_update();      
-        SyntaxNode* get_body();            
+        SyntaxNode* get_body();
+        bool is_foreach() const;
     };
 
     // Refer to var-declare-syntax.cpp.
@@ -107,9 +110,9 @@ namespace Syntax
         SyntaxToken _identifier;
     public:
         VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, Diagnostics::Position pos);
-        ~VarDeclareExpressionSyntax();
+        ~VarDeclareExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxToken* get_var_keyword();
         SyntaxToken* get_identifier();
     };
@@ -119,13 +122,19 @@ namespace Syntax
     {
     private:
         SyntaxToken _identifier;
+        SyntaxToken _op_token;
+        SyntaxNode* _target;
         SyntaxNode* _value;
     public:
         VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value, Diagnostics::Position pos);
-        ~VarAssignExpressionSyntax();
+        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
+        VarAssignExpressionSyntax(SyntaxNode* target, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
+        ~VarAssignExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
+        SyntaxToken* get_op_token();
+        SyntaxNode* get_target();
         SyntaxNode* get_value();
     };
 
@@ -136,9 +145,9 @@ namespace Syntax
         SyntaxToken _identifier;
     public:
         VarAccessExpressionSyntax(SyntaxToken identifier, Diagnostics::Position pos);
-        ~VarAccessExpressionSyntax();
+        ~VarAccessExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
     };
 
@@ -150,11 +159,11 @@ namespace Syntax
         std::vector<SyntaxNode*> _bodies;
         SyntaxNode* _else_body;
     public:
-        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions,std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body, 
+        IfExpressionSyntax(std::vector<SyntaxNode*>& conditions, std::vector<SyntaxNode*>& bodies, SyntaxNode* else_body, 
             Diagnostics::Position pos);
-        ~IfExpressionSyntax();
+        ~IfExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxNode* get_else_body();
         
         int get_size();
@@ -171,18 +180,19 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
         std::vector<SyntaxToken> _arg_names;
-        SyntaxNode* _body;
+        std::shared_ptr<SyntaxNode> _body;
     public:
         FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body, 
             Diagnostics::Position pos);
-        ~FuncDefineExpressionSyntax();
+        ~FuncDefineExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
         int get_arg_size();
         SyntaxToken* get_arg_name(int i);
         std::vector<SyntaxToken> get_arg_names();
         SyntaxNode* get_body();
+        std::shared_ptr<SyntaxNode> get_body_shared();
     };
 
     // Refer to func-call-syntax.cpp.
@@ -193,9 +203,9 @@ namespace Syntax
         std::vector<SyntaxNode*> _args;
     public:
         FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
-        ~FuncCallExpressionSyntax();
+        ~FuncCallExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
         int get_arg_size();
         SyntaxNode* get_arg(int i);
@@ -208,13 +218,18 @@ namespace Syntax
     private:
         SyntaxNode* _to_access;
         SyntaxNode* _indexer;
+        SyntaxNode* _slice_end;
+        bool _is_slice;
     public:
         IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* indexer, Diagnostics::Position pos);
-        ~IndexExpressionSyntax();
+        IndexExpressionSyntax(SyntaxNode* to_access, SyntaxNode* start, SyntaxNode* end, bool is_slice, Diagnostics::Position pos);
+        ~IndexExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxNode* get_to_access();
         SyntaxNode* get_indexer();
+        SyntaxNode* get_slice_end();
+        bool is_slice() const;
     };
 
     // Refer to return-syntax.cpp.
@@ -223,10 +238,10 @@ namespace Syntax
     private:
         SyntaxNode* _to_return;
     public:
-        ReturnExpressionSyntax(SyntaxNode* to_return);
-        ~ReturnExpressionSyntax();
+        ReturnExpressionSyntax(SyntaxNode* to_return, Diagnostics::Position pos = Diagnostics::Position());
+        ~ReturnExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
         SyntaxNode* get_to_return();
     };
 
@@ -234,30 +249,30 @@ namespace Syntax
     class ContinueExpressionSyntax final : public SyntaxNode
     {
     public:
-        ContinueExpressionSyntax();
-        ~ContinueExpressionSyntax();
+        ContinueExpressionSyntax(Diagnostics::Position pos = Diagnostics::Position());
+        ~ContinueExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
     };
 
     // Refer to break-syntax.cpp.
     class BreakExpressionSyntax final : public SyntaxNode
     {
     public:
-        BreakExpressionSyntax();
-        ~BreakExpressionSyntax();
+        BreakExpressionSyntax(Diagnostics::Position pos = Diagnostics::Position());
+        ~BreakExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
     };
 
     // Refer to none-syntax.cpp.
     class NoneExpressionSyntax final : public SyntaxNode
     {
     public:
-        NoneExpressionSyntax();
-        ~NoneExpressionSyntax();
+        NoneExpressionSyntax(Diagnostics::Position pos = Diagnostics::Position());
+        ~NoneExpressionSyntax() override;
 
-        SyntaxKind kind() const;
+        SyntaxKind kind() const override;
     };
 
     // Refer to parser.cpp.
@@ -266,7 +281,6 @@ namespace Syntax
     private:
         std::vector<SyntaxToken> _tokens;
         int _position;
-        bool _show_return;
 
         SyntaxToken peek(int offset) const;
         SyntaxToken current() const;
@@ -280,7 +294,7 @@ namespace Syntax
         SyntaxNode* parse_statement();
         SyntaxNode* parse_program(bool sub_program=false);
     public:
-        Parser(std::string& text, bool show_return);
+        Parser(std::string& text, bool show_return = false);
         SyntaxNode* parse();
     };
 }

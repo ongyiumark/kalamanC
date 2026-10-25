@@ -2,15 +2,13 @@
 
 using namespace Syntax;
 using Diagnostics::Position;
+
 // Defines a function. This behaves more like a python function.
 FuncDefineExpressionSyntax::FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, 
     SyntaxNode* body, Position pos)
     : SyntaxNode(pos), _identifier(identifier), _arg_names(arg_names), _body(body) {}
 
-FuncDefineExpressionSyntax::~FuncDefineExpressionSyntax()
-{
-    delete _body;
-}
+FuncDefineExpressionSyntax::~FuncDefineExpressionSyntax() {}
 
 SyntaxKind FuncDefineExpressionSyntax::kind() const
 {
@@ -38,6 +36,11 @@ SyntaxToken* FuncDefineExpressionSyntax::get_identifier()
 }
 
 SyntaxNode* FuncDefineExpressionSyntax::get_body()
+{
+    return _body.get();
+}
+
+std::shared_ptr<SyntaxNode> FuncDefineExpressionSyntax::get_body_shared()
 {
     return _body;
 }

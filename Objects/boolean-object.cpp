@@ -3,6 +3,28 @@
 
 using namespace Objects;
 
+Boolean* Boolean::_free_list = nullptr;
+bool Boolean::use_filipino = false;
+bool Boolean::lang_locked = false;
+
+void* Boolean::operator new(size_t size)
+{
+    if (_free_list)
+    {
+        Boolean* p = _free_list;
+        _free_list = *reinterpret_cast<Boolean**>(p);
+        return p;
+    }
+    return ::operator new(size);
+}
+
+void Boolean::operator delete(void* p) noexcept
+{
+    if (!p) return;
+    *reinterpret_cast<Boolean**>(p) = _free_list;
+    _free_list = static_cast<Boolean*>(p);
+}
+
 Boolean::Boolean(bool value) : _value(value) {}
 
 Type Boolean::type() const
@@ -15,12 +37,12 @@ bool Boolean::get_value() const
     return _value;
 }
 
-// I decided to use the keyword used for the boolean values. Refer to constants.h.
+// Uses the keyword for boolean values based on active language mode. Refer to constants.h.
 std::string Boolean::to_string() const
 {
-    std::ostringstream os;
-    os << (_value ? KT_TRUE : KT_FALSE);
-    return os.str();
+    if (use_filipino)
+        return _value ? KT_TRUE_FIL : KT_FALSE_FIL;
+    return _value ? KT_TRUE : KT_FALSE;
 }
 
 // Boolean operations. These are self explanatory.

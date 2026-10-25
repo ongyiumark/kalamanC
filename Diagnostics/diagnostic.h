@@ -13,39 +13,47 @@ namespace Diagnostics
     private:
         std::string _message;
         Position _pos;
+        std::vector<std::string> _call_stack;
     public:
-        Diagnostic(std::string& message, Position pos);
+        Diagnostic(const std::string& message, Position pos, const std::vector<std::string>& call_stack = {});
         std::string get_message() const;
+        Position get_pos() const;
     };
     
-    // Refer to diagnostic-bag.ccp.
+    // Refer to diagnostic-bag.cpp.
     class DiagnosticBag final
     {
     private:
         static std::vector<Diagnostic> _diagnostics;
-        static void report(std::string message, Position pos);
+        static std::vector<std::string> _call_stack;
+        static void report(const std::string& message, Position pos);
     public:
         DiagnosticBag();
         static std::string script;
 
         static int size();
         static Diagnostic diagnostic(int i);
-        static std::vector<Diagnostic> diagnostics();
+        static const std::vector<Diagnostic>& diagnostics();
         static void print();
         static void clear();
+
+        static void push_call(const std::string& func_name, Position call_pos);
+        static void pop_call();
         
         static void report_bad_character(char c, Position pos);
-        static void report_invalid_type(std::string text, std::string type, Position pos);
+        static void report_invalid_type(const std::string& text, const std::string& type, Position pos);
         static void report_expected_character(char c, Position pos);
-        static void report_unexpected_token(std::string actual, std::string expected, Position pos);
-        static void report_illegal_binary_operation(std::string left, std::string operation, std::string right, Position pos);
-        static void report_illegal_unary_operation(std::string operation, std::string operand, Position pos);
-        static void report_unknown_syntax(std::string syntax, Position pos);
-        static void report_unexpected_type(std::string acutal, std::string expected, Position pos);
-        static void report_invalid_assign(std::string actual, std::string expected, Position pos);
-        static void report_undeclared_identifier(std::string identifier, Position pos);
-        static void report_illegal_arguments(int actual, int expected, std::string name, Position pos);
-        static void report_unreachable_code(std::string info, Position pos);
-        static void report_invalid_builtin_arguments(std::string name, int i, std::string type, Position pos);
+        static void report_unexpected_token(const std::string& actual, const std::string& expected, Position pos);
+        static void report_illegal_binary_operation(const std::string& left, const std::string& operation, const std::string& right, Position pos);
+        static void report_illegal_unary_operation(const std::string& operation, const std::string& operand, Position pos);
+        static void report_unknown_syntax(const std::string& syntax, Position pos);
+        static void report_unexpected_type(const std::string& actual, const std::string& expected, Position pos);
+        static void report_invalid_assign(const std::string& actual, const std::string& expected, Position pos);
+        static void report_undeclared_identifier(const std::string& identifier, Position pos);
+        static void report_illegal_arguments(int actual, int expected, const std::string& name, Position pos);
+        static void report_illegal_arguments_range(int actual, int min_expected, int max_expected, const std::string& name, Position pos);
+        static void report_unreachable_code(const std::string& info, Position pos);
+        static void report_invalid_builtin_arguments(const std::string& name, int i, const std::string& type, Position pos);
+        static void report_runtime_error(const std::string& message, Position pos);
     };
 }
