@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <vector>
 
 #if defined(__APPLE__) || defined(__unix__)
 #include <unistd.h>
@@ -19,11 +20,13 @@ using Evaluators::run;
 
 static void print_help(const char* prog_name)
 {
-    std::cout << "Usage: " << prog_name << " [options] [script.kal]\n\n"
+    std::cout << "Usage: " << prog_name << " [options] [script.kal] [args...]\n\n"
               << "Options:\n"
               << "  -e, -c <code>       Execute inline KalamanC code\n"
               << "  -t, --tree          Display the syntax parse tree\n"
               << "  --lang=<en|fil>     Set output language for booleans (english or filipino)\n"
+              << "  --recursion-limit=<N> Set maximum recursion call depth (default: 1000)\n"
+              << "  --                  Terminate options list\n"
               << "  -h, --help          Show this help message\n"
               << "  -v, --version       Show version information\n\n"
               << "Run without a script file to launch the interactive shell (REPL)." << std::endl;
@@ -102,7 +105,7 @@ static bool needs_more_input(const std::string& buffer)
         else if (c == ']') square--;
     }
 
-    return in_block_comment || curly > 0 || paren > 0 || square > 0;
+    return in_block_comment || in_string || curly > 0 || paren > 0 || square > 0;
 }
 
 static std::string trim_copy(const std::string& s)
@@ -149,11 +152,41 @@ int main(int argc, char ** argv)
     std::string inline_code;
     bool has_inline_code = false;
     std::string filename;
+    std::vector<std::string> script_args;
 
     for (int i = 1; i < argc; i++)
     {
         std::string arg = argv[i];
-        if (arg == "-h" || arg == "--help")
+        if (arg == "--")
+        {
+            if (has_inline_code)
+            {
+                while (++i < argc)
+                {
+                    script_args.push_back(argv[i]);
+                }
+            }
+            else if (filename.empty())
+            {
+                if (i + 1 < argc)
+                {
+                    filename = argv[++i];
+                    while (++i < argc)
+                    {
+                        script_args.push_back(argv[i]);
+                    }
+                }
+            }
+            else
+            {
+                while (++i < argc)
+                {
+                    script_args.push_back(argv[i]);
+                }
+            }
+            break;
+        }
+        else if (arg == "-h" || arg == "--help")
         {
             print_help(argv[0]);
             return 0;
@@ -200,6 +233,24 @@ int main(int argc, char ** argv)
                 return 1;
             }
         }
+        else if (arg.rfind("--recursion-limit=", 0) == 0)
+        {
+            try
+            {
+                int limit = std::stoi(arg.substr(18));
+                if (limit < 1)
+                {
+                    std::cerr << "ERROR: recursion limit must be at least 1" << std::endl;
+                    return 1;
+                }
+                Evaluators::Evaluator::max_recursion_depth = limit;
+            }
+            catch (...)
+            {
+                std::cerr << "ERROR: invalid recursion limit value in '" << arg << "'" << std::endl;
+                return 1;
+            }
+        }
         else if (!arg.empty() && arg[0] == '-')
         {
             std::cerr << "ERROR: unknown option '" << arg << "'. Use --help for usage." << std::endl;
@@ -207,13 +258,32 @@ int main(int argc, char ** argv)
         }
         else
         {
-            filename = arg;
+            if (has_inline_code)
+            {
+                script_args.push_back(arg);
+                while (++i < argc)
+                {
+                    script_args.push_back(argv[i]);
+                }
+            }
+            else
+            {
+                filename = arg;
+                while (++i < argc)
+                {
+                    script_args.push_back(argv[i]);
+                }
+            }
+            break;
         }
     }
+
+    Evaluators::set_script_args(script_args);
 
     if (has_inline_code)
     {
         bool ok = run(inline_code, show_tree, false, false);
+        Objects::drain_free_lists();
         return ok ? 0 : 1;
     }
 
@@ -231,6 +301,7 @@ int main(int argc, char ** argv)
         file.close();
 
         bool ok = run(script, show_tree, false, false);
+        Objects::drain_free_lists();
         return ok ? 0 : 1;
     }
 
@@ -350,5 +421,6 @@ int main(int argc, char ** argv)
         run(buffer, show_tree, show_return, true);
     }
 
+    Objects::drain_free_lists();
     return 0;
 }

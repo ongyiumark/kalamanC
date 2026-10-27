@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <limits>
+#include <new>
 using namespace Objects;
 
 long long List::matrix_mod = 1'000'000'007;
@@ -56,21 +58,29 @@ const std::vector<Object*>& List::get_values() const
     return _values;
 }
 
+std::vector<Object*> List::release_values()
+{
+    std::vector<Object*> result = std::move(_values);
+    _values.clear();
+    return result;
+}
+
 // Comma delimited values, enclosed in square brackets.
 std::string List::to_string() const
 {
-    std::ostringstream os;
-    bool is_mat = is_matrix(this);
     int n = _values.size();
-    os << "[";
+    if (n == 0) return "[]";
+
+    bool is_mat = (_values[0]->type() == Type::LIST && is_matrix(this));
+    std::string result = "[";
     for (int i = 0; i < n; i++)
     {
-        os << _values[i]->to_string();
+        result += _values[i]->to_string();
         if (i != n - 1) 
-            os << (is_mat ? ",\n " : ", ");
+            result += (is_mat ? ",\n " : ", ");
     }
-    os << "]";
-    return os.str();
+    result += "]";
+    return result;
 }
 
 // Checks if a given list is a valid matrix.
@@ -86,9 +96,15 @@ bool List::is_matrix(const List* list)
             return false;
         
         List* child_list = (List*)(list->get_value(i));
-        if (m == -1) m = child_list->get_size();
-        if (m != child_list->get_size()) return false;
-        if (m == 0) return false;
+        if (m == -1)
+        {
+            m = child_list->get_size();
+            if (m == 0) return false;
+        }
+        else if (m != child_list->get_size())
+        {
+            return false;
+        }
         for (int j = 0; j < m; j++)
             if (child_list->get_value(j)->type() != Type::INTEGER)
                 return false;
@@ -97,7 +113,8 @@ bool List::is_matrix(const List* list)
 }
 
 // Concatenates the two lists.
-// If the other operand is not a list, it appends it to the list.
+// If the other operand is a list, it concatenates both lists.
+// Non-list operands return None (disallows asymmetric list + item addition).
 Object* List::added_by(Object* other) const
 {
     switch (other->type())
@@ -117,15 +134,7 @@ Object* List::added_by(Object* other) const
             return new List(result);
         }
         default:
-        {
-            int n = _values.size();
-            std::vector<Object*> result;
-            result.reserve(n + 1);
-            for (int i = 0; i < n; i++)
-                result.push_back(_values[i]->copy());
-            result.push_back(other->copy());
-            return new List(result);    
-        }
+            return new None();
     }
 }
 
@@ -205,12 +214,23 @@ Object* List::multiplied_by(Object* other) const
             long long count = ((Integer*)other)->get_value();
             if (count < 0) return new None();
             int n = _values.size();
+            if (n > 0 && (size_t)count > std::numeric_limits<size_t>::max() / (size_t)n)
+                return new None();
             std::vector<Object*> elems;
-            elems.reserve((size_t)count * n);
-            for (long long k = 0; k < count; k++)
-                for (int i = 0; i < n; i++)
-                    elems.push_back(_values[i]->copy());
-            return new List(elems);
+            try
+            {
+                elems.reserve((size_t)count * n);
+                for (long long k = 0; k < count; k++)
+                    for (int i = 0; i < n; i++)
+                        elems.push_back(_values[i]->copy());
+                return new List(elems);
+            }
+            catch (const std::bad_alloc&)
+            {
+                for (auto* o : elems)
+                    delete o;
+                return new None();
+            }
         }
         case Type::LIST:
         {
@@ -255,7 +275,8 @@ Object* List::multiplied_by(Object* other) const
                             long long right = mat_b[(size_t)k * d + j] % matrix_mod;
                             if (right < 0) right += matrix_mod;
                             long long idx = (long long)i * d + j;
-                            result[(size_t)idx] = (result[(size_t)idx] + (left * right) % matrix_mod) % matrix_mod;
+                            long long term = (long long)((static_cast<__int128_t>(left) * right) % matrix_mod);
+                            result[(size_t)idx] = (long long)((static_cast<__int128_t>(result[(size_t)idx]) + term) % matrix_mod);
                         }
                     }
                 }
@@ -295,6 +316,50 @@ Object* List::multiplied_by(Object* other) const
     }
 }
 
+static void multiply_square_matrices(const std::vector<long long>& mat_a,
+                                     const std::vector<long long>& mat_b,
+                                     std::vector<long long>& out,
+                                     int n,
+                                     long long mod)
+{
+    std::fill(out.begin(), out.end(), 0);
+    if (mod > 0)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int k = 0; k < n; k++)
+            {
+                long long left = mat_a[(size_t)i * n + k] % mod;
+                if (left < 0) left += mod;
+                if (left == 0) continue;
+                for (int j = 0; j < n; j++)
+                {
+                    long long right = mat_b[(size_t)k * n + j] % mod;
+                    if (right < 0) right += mod;
+                    size_t idx = (size_t)i * n + j;
+                    long long term = (long long)((static_cast<__int128_t>(left) * right) % mod);
+                    out[idx] = (long long)((static_cast<__int128_t>(out[idx]) + term) % mod);
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < n; i++)
+        {
+            for (int k = 0; k < n; k++)
+            {
+                long long left = mat_a[(size_t)i * n + k];
+                if (left == 0) continue;
+                for (int j = 0; j < n; j++)
+                {
+                    out[(size_t)i * n + j] += left * mat_b[(size_t)k * n + j];
+                }
+            }
+        }
+    }
+}
+
 // Matrix exponentiation
 Object* List::powered_by(Object* other) const
 {
@@ -310,45 +375,56 @@ Object* List::powered_by(Object* other) const
             long long e = ((Integer*)other)->get_value();
             if (e < 0) return new None();
 
-            // Build identity matrix
-            std::vector<Object*> result_elems;
-            result_elems.reserve(n);
+            // Extract base matrix into a flat contiguous buffer
+            std::vector<long long> base((size_t)n * n);
             for (int i = 0; i < n; i++)
             {
-                std::vector<Object*> result_children;
-                result_children.reserve(n);
+                List* row = (List*)_values[i];
                 for (int j = 0; j < n; j++)
-                    result_children.push_back(new Integer(j == i));
-                result_elems.push_back(new List(result_children));
+                {
+                    base[(size_t)i * n + j] = ((Integer*)row->get_value(j))->get_value();
+                }
             }
-            List* result = new List(result_elems);
-            
-            // Copying the original matrix
-            std::vector<Object*> base_elems;
-            base_elems.reserve(n);
-            for (int i = 0; i < n; i++)
-                base_elems.push_back(_values[i]->copy());
 
-            List* base = new List(base_elems);
+            // Build identity matrix into flat contiguous buffer
+            std::vector<long long> result((size_t)n * n, 0);
+            for (int i = 0; i < n; i++)
+            {
+                result[(size_t)i * n + i] = (matrix_mod > 0) ? (1 % matrix_mod) : 1;
+            }
+
+            // Scratch buffer to avoid reallocations during multiplications
+            std::vector<long long> scratch((size_t)n * n);
 
             while (e > 0)
             {
-                if (e & 1) 
+                if (e & 1)
                 {
-                    List* new_result = (List*)(result->multiplied_by(base));
-                    delete result;
-                    result = new_result;
+                    multiply_square_matrices(result, base, scratch, n, matrix_mod);
+                    result = scratch;
                 }
                 e >>= 1;
                 if (e > 0)
                 {
-                    List* new_base = ((List*)base->multiplied_by(base));
-                    delete base;
-                    base = new_base;
+                    multiply_square_matrices(base, base, scratch, n, matrix_mod);
+                    base = scratch;
                 }
             }
-            delete base;
-            return result;
+
+            // Box final result exactly once
+            std::vector<Object*> elems;
+            elems.reserve(n);
+            for (int i = 0; i < n; i++)
+            {
+                std::vector<Object*> children;
+                children.reserve(n);
+                for (int j = 0; j < n; j++)
+                {
+                    children.push_back(new Integer(result[(size_t)i * n + j]));
+                }
+                elems.push_back(new List(children));
+            }
+            return new List(elems);
         }
         default:
             return new None();

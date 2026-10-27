@@ -85,6 +85,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         {BI_SQRT,       SyntaxKind::SqrtFunction},
         {BI_POW_MOD,    SyntaxKind::PowModFunction},
         {BI_SET_MOD,    SyntaxKind::SetModFunction},
+        {BI_SET_RECURSION_LIMIT, SyntaxKind::SetRecursionLimitFunction},
+        {BI_GET_RECURSION_LIMIT, SyntaxKind::GetRecursionLimitFunction},
         {BI_READ_FILE,  SyntaxKind::ReadFileFunction},
         {BI_WRITE_FILE, SyntaxKind::WriteFileFunction},
         {BI_CLOCK,      SyntaxKind::ClockFunction},
@@ -113,11 +115,23 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         {BI_SQRT_FIL,       SyntaxKind::SqrtFunction},
         {BI_POW_MOD_FIL,    SyntaxKind::PowModFunction},
         {BI_SET_MOD_FIL,    SyntaxKind::SetModFunction},
+        {BI_SET_RECURSION_LIMIT_FIL, SyntaxKind::SetRecursionLimitFunction},
+        {BI_GET_RECURSION_LIMIT_FIL, SyntaxKind::GetRecursionLimitFunction},
         {BI_READ_FILE_FIL,  SyntaxKind::ReadFileFunction},
         {BI_WRITE_FILE_FIL, SyntaxKind::WriteFileFunction},
         {BI_CLOCK_FIL,      SyntaxKind::ClockFunction},
         {BI_EXIT_FIL,       SyntaxKind::ExitFunction},
     };
+
+    auto it = keyword_map.find(text);
+    if (it != keyword_map.end())
+        return it->second;
+    return SyntaxKind::IdentifierToken;
+}
+
+void SyntaxFacts::detect_language(const std::string& text)
+{
+    if (Objects::Boolean::lang_locked) return;
 
     static const std::unordered_set<std::string> filipino_markers = {
         KT_TRUE_FIL, KT_FALSE_FIL, KT_INTEGER_FIL, KT_DOUBLE_FIL, KT_LIST_FIL,
@@ -127,27 +141,30 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         BI_PRINT_FIL, BI_INPUT_FIL, BI_SPLIT_FIL, BI_SIZE_FIL, BI_TYPE_FIL,
         BI_TO_BOOL_FIL, BI_TO_INT_FIL, BI_TO_DOUBLE_FIL, BI_TO_STRING_FIL,
         BI_SET_INDEX_FIL, BI_PUSH_FIL, BI_POP_FIL, BI_RANGE_FIL, BI_SORT_FIL,
-        BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_SQRT_FIL, BI_SET_MOD_FIL
+        BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_MIN_FIL, BI_MAX_FIL,
+        BI_SQRT_FIL, BI_SET_MOD_FIL, BI_SET_RECURSION_LIMIT_FIL,
+        BI_GET_RECURSION_LIMIT_FIL, BI_READ_FILE_FIL, BI_WRITE_FILE_FIL,
+        BI_CLOCK_FIL, BI_EXIT_FIL, VAR_ARGS_FIL
     };
 
     static const std::unordered_set<std::string> english_markers = {
         KT_TRUE, KT_FALSE, KT_INTEGER, KT_DOUBLE, KT_LIST, KT_STRING,
         KT_DEFINE, KT_DEF_SHORT, KT_IF, KT_ELIF, KT_ELSE, KT_WHILE, KT_FOR,
-        KT_RETURN, KT_BREAK, KT_CONTINUE, BI_PRINT, BI_SPLIT, BI_SIZE
+        KT_RETURN, KT_BREAK, KT_CONTINUE, BI_PRINT, BI_INPUT, BI_SPLIT,
+        BI_SIZE, BI_JOIN, BI_READ_FILE, BI_WRITE_FILE, BI_CLOCK, BI_EXIT,
+        VAR_ARGS
     };
 
-    if (!Objects::Boolean::lang_locked)
+    if (filipino_markers.count(text))
     {
-        if (filipino_markers.count(text))
-            Objects::Boolean::use_filipino = true;
-        else if (english_markers.count(text))
-            Objects::Boolean::use_filipino = false;
+        Objects::Boolean::use_filipino = true;
+        Objects::Boolean::lang_locked = true;
     }
-
-    auto it = keyword_map.find(text);
-    if (it != keyword_map.end())
-        return it->second;
-    return SyntaxKind::IdentifierToken;
+    else if (english_markers.count(text))
+    {
+        Objects::Boolean::use_filipino = false;
+        Objects::Boolean::lang_locked = true;
+    }
 }
 
 bool SyntaxFacts::is_builtin_function(SyntaxKind kind)
@@ -176,6 +193,8 @@ bool SyntaxFacts::is_builtin_function(SyntaxKind kind)
         case SyntaxKind::SqrtFunction:
         case SyntaxKind::PowModFunction:
         case SyntaxKind::SetModFunction:
+        case SyntaxKind::SetRecursionLimitFunction:
+        case SyntaxKind::GetRecursionLimitFunction:
         case SyntaxKind::ReadFileFunction:
         case SyntaxKind::WriteFileFunction:
         case SyntaxKind::ClockFunction:

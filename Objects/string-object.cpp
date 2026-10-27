@@ -42,26 +42,13 @@ Object* String::added_by(Object* other) const
     }
 }
 
-// Binary multiplication here again. Refer to integer-object.cpp.
+// String repetition when multiplied by an integer. Refer to object-helpers.cpp.
 Object* String::multiplied_by(Object* other) const
 {
     switch (other->type())
     {
         case Type::INTEGER:
-        {
-            long long e = ((Integer*)other)->get_value();
-            if (e < 0) return new None();
-            std::string result;
-            std::string base = _value;
-            result.reserve(base.size() * (size_t)e);
-            while (e > 0)
-            {
-                if (e & 1) result += base;
-                e >>= 1;
-                if (e > 0) base += base;
-            }
-            return new String(result);
-        }
+            return repeat_string(_value, ((Integer*)other)->get_value());
         default:
             return new None();
     }

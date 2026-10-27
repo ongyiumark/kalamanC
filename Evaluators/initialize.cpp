@@ -50,16 +50,37 @@ void Evaluators::initialize()
     add_bilingual_builtin(BI_SQRT,       BI_SQRT_FIL,       {"value"}, 1, 1);
     add_bilingual_builtin(BI_POW_MOD,    BI_POW_MOD_FIL,    {"base", "exp", "mod"}, 3, 3);
     add_bilingual_builtin(BI_SET_MOD,    BI_SET_MOD_FIL,    {"mod"}, 1, 1);
+    add_bilingual_builtin(BI_SET_RECURSION_LIMIT, BI_SET_RECURSION_LIMIT_FIL, {"limit"}, 1, 1);
+    add_bilingual_builtin(BI_GET_RECURSION_LIMIT, BI_GET_RECURSION_LIMIT_FIL, {}, 0, 0);
     add_bilingual_builtin(BI_READ_FILE,  BI_READ_FILE_FIL,  {"path"}, 1, 1);
     add_bilingual_builtin(BI_WRITE_FILE, BI_WRITE_FILE_FIL, {"path", "content"}, 2, 2);
     add_bilingual_builtin(BI_CLOCK,      BI_CLOCK_FIL,      {}, 0, 0);
     add_bilingual_builtin(BI_EXIT,       BI_EXIT_FIL,       {"code"}, 0, 1);
+
+    set_script_args({});
+}
+
+void Evaluators::set_script_args(const std::vector<std::string>& args)
+{
+    std::vector<Objects::Object*> elem_objs;
+    elem_objs.reserve(args.size());
+    for (const auto& a : args)
+    {
+        elem_objs.push_back(new Objects::String(a));
+    }
+    Objects::Object* list_obj = new Objects::List(elem_objs);
+    context.get_symbol_table()->set_object(VAR_ARGS, list_obj);
+    context.get_symbol_table()->set_object(VAR_ARGS_FIL, list_obj->copy());
 }
 
 void Evaluators::reset()
 {
     context.get_symbol_table()->clear();
     Objects::List::matrix_mod = 1'000'000'007;
+    Evaluator::max_recursion_depth = 1000;
+    Objects::Boolean::use_filipino = false;
+    Objects::Boolean::lang_locked = false;
+    Objects::drain_free_lists();
     initialize();
 }
 
@@ -70,6 +91,8 @@ void Evaluators::print_symbols()
     for (const auto& kv : table)
     {
         if (kv.second->type() == Objects::Type::FUNCTION && ((Objects::Function*)kv.second)->is_built_in())
+            continue;
+        if (kv.first == VAR_ARGS || kv.first == VAR_ARGS_FIL)
             continue;
         user_vars.push_back(kv);
     }

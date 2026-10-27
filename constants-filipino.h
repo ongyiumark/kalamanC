@@ -3,55 +3,61 @@
 #include <string>
 
 // Filipino Keywords
-const std::string KT_TRUE_FIL       = "totoo";
-const std::string KT_FALSE_FIL      = "mali";
-const std::string KT_BOOL_FIL       = "bool";
-const std::string KT_INTEGER_FIL    = "bilang";
-const std::string KT_DOUBLE_FIL     = "doble";
-const std::string KT_LIST_FIL       = "lista";
-const std::string KT_STRING_FIL     = "mgawords";
-const std::string KT_FUNCTION_FIL   = "function";
-const std::string KT_DEFINE_FIL     = "aka";
-const std::string KT_IF_FIL         = "kung";
-const std::string KT_ELIF_FIL       = "ehkung";
-const std::string KT_ELSE_FIL       = "kundi";
-const std::string KT_WHILE_FIL      = "habang";
-const std::string KT_FOR_FIL        = "para";
-const std::string KT_IN_FIL         = "sa";
-const std::string KT_AND_FIL        = "at";
-const std::string KT_OR_FIL         = "o";
-const std::string KT_XOR_FIL        = "xo";
-const std::string KT_NOT_FIL        = "hindi";
-const std::string KT_RETURN_FIL     = "ibalik";
-const std::string KT_BREAK_FIL      = "hinto";
-const std::string KT_CONTINUE_FIL   = "tuloy";
+inline constexpr const char* KT_TRUE_FIL       = "totoo";
+inline constexpr const char* KT_FALSE_FIL      = "mali";
+inline constexpr const char* KT_BOOL_FIL       = "bool";
+inline constexpr const char* KT_INTEGER_FIL    = "bilang";
+inline constexpr const char* KT_DOUBLE_FIL     = "doble";
+inline constexpr const char* KT_LIST_FIL       = "lista";
+inline constexpr const char* KT_STRING_FIL     = "mgawords";
+inline constexpr const char* KT_FUNCTION_FIL   = "function";
+inline constexpr const char* KT_DEFINE_FIL     = "aka";
+inline constexpr const char* KT_IF_FIL         = "kung";
+inline constexpr const char* KT_ELIF_FIL       = "ehkung";
+inline constexpr const char* KT_ELSE_FIL       = "kundi";
+inline constexpr const char* KT_WHILE_FIL      = "habang";
+inline constexpr const char* KT_FOR_FIL        = "para";
+inline constexpr const char* KT_IN_FIL         = "sa";
+inline constexpr const char* KT_AND_FIL        = "at";
+inline constexpr const char* KT_OR_FIL         = "o";
+inline constexpr const char* KT_XOR_FIL        = "xo";
+inline constexpr const char* KT_NOT_FIL        = "hindi";
+inline constexpr const char* KT_RETURN_FIL     = "ibalik";
+inline constexpr const char* KT_BREAK_FIL      = "hinto";
+inline constexpr const char* KT_CONTINUE_FIL   = "tuloy";
 
 // Filipino Built-in Functions
-const std::string BI_PRINT_FIL      = "lathala";
-const std::string BI_INPUT_FIL      = "basahin";
-const std::string BI_SPLIT_FIL      = "hatiin";
-const std::string BI_SIZE_FIL       = "sukat";
-const std::string BI_TYPE_FIL       = "uri";
+inline constexpr const char* BI_PRINT_FIL      = "lathala";
+inline constexpr const char* BI_INPUT_FIL      = "basahin";
+inline constexpr const char* BI_SPLIT_FIL      = "hatiin";
+inline constexpr const char* BI_SIZE_FIL       = "sukat";
+inline constexpr const char* BI_TYPE_FIL       = "uri";
 
-const std::string BI_TO_BOOL_FIL    = "gawing_bool";
-const std::string BI_TO_INT_FIL     = "gawing_bilang";
-const std::string BI_TO_DOUBLE_FIL  = "gawing_doble";
-const std::string BI_TO_STRING_FIL  = "gawing_mgawords";
+inline constexpr const char* BI_TO_BOOL_FIL    = "gawing_bool";
+inline constexpr const char* BI_TO_INT_FIL     = "gawing_bilang";
+inline constexpr const char* BI_TO_DOUBLE_FIL  = "gawing_doble";
+inline constexpr const char* BI_TO_STRING_FIL  = "gawing_mgawords";
 
-const std::string BI_SET_INDEX_FIL  = "palitan";
-const std::string BI_PUSH_FIL       = "idagdag";
-const std::string BI_POP_FIL        = "alisin";
-const std::string BI_RANGE_FIL      = "saklaw";
-const std::string BI_SORT_FIL       = "ayusin";
-const std::string BI_REVERSE_FIL    = "baliktadin";
-const std::string BI_JOIN_FIL       = "pagdugtungin";
-const std::string BI_ABS_FIL        = "ganap";
-const std::string BI_MIN_FIL        = "pinakamaliit";
-const std::string BI_MAX_FIL        = "pinakamalaki";
-const std::string BI_SQRT_FIL       = "ugat";
-const std::string BI_POW_MOD_FIL    = "pow_mod";
-const std::string BI_SET_MOD_FIL    = "itakda_mod";
-const std::string BI_READ_FILE_FIL  = "basahin_file";
-const std::string BI_WRITE_FILE_FIL = "isulat_file";
-const std::string BI_CLOCK_FIL      = "oras";
-const std::string BI_EXIT_FIL       = "lumabas";
+inline constexpr const char* BI_SET_INDEX_FIL  = "palitan";
+inline constexpr const char* BI_PUSH_FIL       = "idagdag";
+inline constexpr const char* BI_POP_FIL        = "alisin";
+inline constexpr const char* BI_RANGE_FIL      = "saklaw";
+inline constexpr const char* BI_SORT_FIL       = "ayusin";
+inline constexpr const char* BI_REVERSE_FIL    = "baliktadin";
+inline constexpr const char* BI_JOIN_FIL       = "pagdugtungin";
+inline constexpr const char* BI_ABS_FIL        = "ganap";
+inline constexpr const char* BI_MIN_FIL        = "pinakamaliit";
+inline constexpr const char* BI_MAX_FIL        = "pinakamalaki";
+inline constexpr const char* BI_SQRT_FIL       = "ugat";
+inline constexpr const char* BI_POW_MOD_FIL    = "pow_mod";
+inline constexpr const char* BI_SET_MOD_FIL    = "itakda_mod";
+inline constexpr const char* BI_SET_RECURSION_LIMIT_FIL = "itakda_lalim";
+inline constexpr const char* BI_GET_RECURSION_LIMIT_FIL = "kumuha_ng_lalim";
+inline constexpr const char* BI_READ_FILE_FIL  = "basahin_file";
+inline constexpr const char* BI_WRITE_FILE_FIL = "isulat_file";
+inline constexpr const char* BI_CLOCK_FIL      = "oras";
+inline constexpr const char* BI_EXIT_FIL       = "lumabas";
+
+// Predefined Variables
+inline constexpr const char* VAR_ARGS_FIL      = "mga_argumento";
+

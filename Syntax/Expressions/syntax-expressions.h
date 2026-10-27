@@ -57,8 +57,9 @@ namespace Syntax
     private:
         std::vector<SyntaxNode*> _nodes;
         bool _to_return;
+        bool _is_block;
     public:
-        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false);
+        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false, bool is_block=false);
         ~SequenceExpressionSyntax() override;
         SyntaxKind kind() const override;    
 
@@ -66,6 +67,7 @@ namespace Syntax
         SyntaxNode* get_node(int i);
         std::vector<SyntaxNode*> get_nodes();
         bool get_to_return();
+        bool is_block() const;
     };
 
     // Refer to while-syntax.cpp.
@@ -108,13 +110,16 @@ namespace Syntax
     private:
         SyntaxToken _var_keyword;
         SyntaxToken _identifier;
+        SyntaxNode* _init_expr;
     public:
         VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, Diagnostics::Position pos);
+        VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, SyntaxNode* init_expr, Diagnostics::Position pos);
         ~VarDeclareExpressionSyntax() override;
 
         SyntaxKind kind() const override;
         SyntaxToken* get_var_keyword();
         SyntaxToken* get_identifier();
+        SyntaxNode* get_init_expr();
     };
 
     // Refer to var-assign-syntax.cpp.
@@ -125,10 +130,11 @@ namespace Syntax
         SyntaxToken _op_token;
         SyntaxNode* _target;
         SyntaxNode* _value;
+        bool _is_postfix;
     public:
         VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value, Diagnostics::Position pos);
-        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
-        VarAssignExpressionSyntax(SyntaxNode* target, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
+        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos, bool is_postfix = false);
+        VarAssignExpressionSyntax(SyntaxNode* target, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos, bool is_postfix = false);
         ~VarAssignExpressionSyntax() override;
 
         SyntaxKind kind() const override;
@@ -136,6 +142,7 @@ namespace Syntax
         SyntaxToken* get_op_token();
         SyntaxNode* get_target();
         SyntaxNode* get_value();
+        bool is_postfix() const;
     };
 
     // Refer to var-access-syntax.cpp.
@@ -180,9 +187,11 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
         std::vector<SyntaxToken> _arg_names;
+        std::vector<Objects::Type> _arg_types;
         std::shared_ptr<SyntaxNode> _body;
     public:
-        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body, 
+        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, 
+            const std::vector<Objects::Type>& arg_types, SyntaxNode* body, 
             Diagnostics::Position pos);
         ~FuncDefineExpressionSyntax() override;
 
@@ -191,6 +200,7 @@ namespace Syntax
         int get_arg_size();
         SyntaxToken* get_arg_name(int i);
         std::vector<SyntaxToken> get_arg_names();
+        const std::vector<Objects::Type>& get_arg_types() const;
         SyntaxNode* get_body();
         std::shared_ptr<SyntaxNode> get_body_shared();
     };
@@ -201,12 +211,15 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
         std::vector<SyntaxNode*> _args;
+        SyntaxNode* _callee;
     public:
         FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
+        FuncCallExpressionSyntax(SyntaxNode* callee, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
         ~FuncCallExpressionSyntax() override;
 
         SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
+        SyntaxNode* get_callee();
         int get_arg_size();
         SyntaxNode* get_arg(int i);
         std::vector<SyntaxNode*> get_args();
@@ -281,6 +294,8 @@ namespace Syntax
     private:
         std::vector<SyntaxToken> _tokens;
         int _position;
+        int _loop_depth;
+        int _func_depth;
 
         SyntaxToken peek(int offset) const;
         SyntaxToken current() const;

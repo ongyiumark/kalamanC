@@ -136,6 +136,8 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::SqrtFunction);
         PROCESS_VAL(SyntaxKind::PowModFunction);
         PROCESS_VAL(SyntaxKind::SetModFunction);
+        PROCESS_VAL(SyntaxKind::SetRecursionLimitFunction);
+        PROCESS_VAL(SyntaxKind::GetRecursionLimitFunction);
         PROCESS_VAL(SyntaxKind::ReadFileFunction);
         PROCESS_VAL(SyntaxKind::WriteFileFunction);
         PROCESS_VAL(SyntaxKind::ClockFunction);
@@ -252,7 +254,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::FuncCallExpression:
         {
             FuncCallExpressionSyntax* t = (FuncCallExpressionSyntax*)node;
-            children = {t->get_identifier()};
+            if (t->get_callee()) children.push_back(t->get_callee());
+            else children.push_back(t->get_identifier());
             int m = t->get_arg_size();
             for (int i = 0; i < m; i++) children.push_back(t->get_arg(i));
             break;
@@ -323,6 +326,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         {
             VarDeclareExpressionSyntax* t = (VarDeclareExpressionSyntax*)node;
             children = {t->get_var_keyword(), t->get_identifier()};
+            if (t->get_init_expr() != nullptr)
+                children.push_back(t->get_init_expr());
             break;
         }
         case SyntaxKind::NoneExpression:

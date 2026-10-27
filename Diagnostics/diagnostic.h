@@ -39,6 +39,7 @@ namespace Diagnostics
 
         static void push_call(const std::string& func_name, Position call_pos);
         static void pop_call();
+        static int call_depth();
         
         static void report_bad_character(char c, Position pos);
         static void report_invalid_type(const std::string& text, const std::string& type, Position pos);
@@ -54,6 +55,10 @@ namespace Diagnostics
         static void report_illegal_arguments_range(int actual, int min_expected, int max_expected, const std::string& name, Position pos);
         static void report_unreachable_code(const std::string& info, Position pos);
         static void report_invalid_builtin_arguments(const std::string& name, int i, const std::string& type, Position pos);
+        static void report_invalid_break(Position pos);
+        static void report_invalid_continue(Position pos);
+        static void report_invalid_return(Position pos);
+        static void report_redefinition(const std::string& name, Position pos);
         static void report_runtime_error(const std::string& message, Position pos);
     };
 }

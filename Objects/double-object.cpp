@@ -25,6 +25,16 @@ void Double::operator delete(void* p) noexcept
     _free_list = static_cast<Double*>(p);
 }
 
+void Double::drain_free_list()
+{
+    while (_free_list)
+    {
+        Double* next = *reinterpret_cast<Double**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
+}
+
 Double::Double(long double value) : _value(value) {}
 
 Type Double::type() const
@@ -131,9 +141,17 @@ Object* Double::powered_by(Object* other) const
     switch (other->type())
     {
         case Type::INTEGER:
-            return new Double(powl(_value, ((Integer*)other)->get_value())); 
+        {
+            long long e = ((Integer*)other)->get_value();
+            if (_value == 0 && e < 0) return new None();
+            return new Double(powl(_value, e)); 
+        }
         case Type::DOUBLE:
-            return new Double(powl(_value, ((Double*)other)->get_value()));     
+        {
+            long double e = ((Double*)other)->get_value();
+            if (_value == 0 && e < 0) return new None();
+            return new Double(powl(_value, e));     
+        }
         default:
             return new None();       
     }

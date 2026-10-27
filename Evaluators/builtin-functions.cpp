@@ -1,4 +1,5 @@
 #include "builtin-functions.h"
+#include "evaluator.h"
 
 #include "../constants.h"
 #include "../Syntax/Expressions/syntax-expressions.h"
@@ -6,8 +7,11 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <chrono>
 #include <cstdlib>
+#include <cerrno>
+#include <new>
 
 using namespace Objects;
 using namespace Diagnostics;
@@ -43,7 +47,9 @@ Object* BuiltInFunctions::INPUT(const std::vector<Object*>& args, Position pos)
     return new String(val);
 }
 
-// Splits the string into a list of words
+// Splits the string into a list of words.
+// Default (no delimiter): splits on whitespace runs and drops empty tokens (Python-style).
+// Custom delimiter: preserves all tokens including empty ones, using advancing index (O(N)).
 Object* BuiltInFunctions::SPLIT(const std::vector<Object*>& args, Position pos)
 {
     Object* obj = args[0];
@@ -53,28 +59,50 @@ Object* BuiltInFunctions::SPLIT(const std::vector<Object*>& args, Position pos)
         return new None();
     }
 
-    std::string sep = " ";
-    if (args.size() >= 2)
+    const std::string& str = ((String*)obj)->get_value();
+
+    if (args.size() == 1)
     {
-        Object* delimiter = args[1];
-        if (delimiter->type() != Type::STRING)
+        // Default whitespace splitting
+        std::vector<Object*> elems;
+        size_t i = 0;
+        size_t len = str.size();
+        while (i < len)
         {
-            DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 2, type_to_string(delimiter->type()), pos);
-            return new None();
+            while (i < len && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\r'))
+                i++;
+            if (i >= len) break;
+            size_t start = i;
+            while (i < len && !(str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\r'))
+                i++;
+            elems.push_back(new String(str.substr(start, i - start)));
         }
-        sep = ((String*)delimiter)->get_value();
-        if (sep.empty()) sep = " ";
+        return new List(elems);
     }
 
-    std::string words = ((String*)obj)->get_value();
-    std::vector<Object*> elems;
-    size_t idx = 0;
-    while ((idx = words.find(sep)) != std::string::npos)
+    Object* delimiter = args[1];
+    if (delimiter->type() != Type::STRING)
     {
-        if (idx != 0) elems.push_back(new String(words.substr(0, idx)));
-        words.erase(0, idx + sep.size());
+        DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 2, type_to_string(delimiter->type()), pos);
+        return new None();
     }
-    if (!words.empty()) elems.push_back(new String(words));
+
+    std::string sep = ((String*)delimiter)->get_value();
+    if (sep.empty())
+    {
+        DiagnosticBag::report_runtime_error("empty separator in split()", pos);
+        return new None();
+    }
+
+    std::vector<Object*> elems;
+    size_t start = 0;
+    size_t found = 0;
+    while ((found = str.find(sep, start)) != std::string::npos)
+    {
+        elems.push_back(new String(str.substr(start, found - start)));
+        start = found + sep.size();
+    }
+    elems.push_back(new String(str.substr(start)));
     return new List(elems);
 }
 
@@ -117,6 +145,8 @@ Object* BuiltInFunctions::TO_BOOL(const std::vector<Object*>& args, Position pos
             return new Boolean(!((String*)obj)->get_value().empty());
         case Type::LIST:
             return new Boolean(((List*)obj)->get_size() != 0);
+        case Type::NONE:
+            return new Boolean(false);
         default:
             DiagnosticBag::report_invalid_builtin_arguments(BI_TO_BOOL, 1, type_to_string(obj->type()), pos);
             return new None();        
@@ -152,9 +182,10 @@ Object* BuiltInFunctions::TO_INT(const std::vector<Object*>& args, Position pos)
             for (size_t i = start_idx; i < trimmed.size(); i++)
                 is_valid &= is_digit(trimmed[i]);
 
-            std::istringstream is(trimmed);
-            long long x;
-            if (is_valid && (is >> x)) 
+            char* end = nullptr;
+            errno = 0;
+            long long x = std::strtoll(trimmed.c_str(), &end, 10);
+            if (is_valid && errno == 0 && end == trimmed.c_str() + trimmed.size()) 
                 return new Integer(x);
 
             DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), pos);
@@ -165,7 +196,17 @@ Object* BuiltInFunctions::TO_INT(const std::vector<Object*>& args, Position pos)
         case Type::BOOLEAN:
             return new Integer(((Boolean*)obj)->get_value());
         case Type::DOUBLE:
-            return new Integer((long long)((Double*)obj)->get_value());
+        {
+            long double d = ((Double*)obj)->get_value();
+            if (std::isnan(d) || std::isinf(d) ||
+                d > static_cast<long double>(std::numeric_limits<long long>::max()) ||
+                d < static_cast<long double>(std::numeric_limits<long long>::min()))
+            {
+                DiagnosticBag::report_runtime_error("float overflow in to_int()", pos);
+                return new None();
+            }
+            return new Integer(static_cast<long long>(d));
+        }
         default:
         {
             DiagnosticBag::report_invalid_builtin_arguments(BI_TO_INT, 1, type_to_string(obj->type()), pos);
@@ -199,7 +240,8 @@ Object* BuiltInFunctions::TO_DOUBLE(const std::vector<Object*>& args, Position p
             if (trimmed[0] == '-' || trimmed[0] == '+')
                 start_idx = 1;
 
-            for (size_t i = start_idx; i < trimmed.size(); i++)
+            size_t i = start_idx;
+            for (; i < trimmed.size(); i++)
             {
                 char c = trimmed[i];
                 if (c == '.') 
@@ -209,13 +251,34 @@ Object* BuiltInFunctions::TO_DOUBLE(const std::vector<Object*>& args, Position p
                 }
                 if (dot_count > 1) break;
                 if (is_digit(c)) digit_count++;
+                else if (c == 'e' || c == 'E') break;
                 else is_valid = false;
+            }
+
+            if (i < trimmed.size() && (trimmed[i] == 'e' || trimmed[i] == 'E'))
+            {
+                i++; // skip 'e' or 'E'
+                if (i < trimmed.size() && (trimmed[i] == '+' || trimmed[i] == '-'))
+                    i++;
+                size_t exp_digits = 0;
+                while (i < trimmed.size() && is_digit(trimmed[i]))
+                {
+                    exp_digits++;
+                    i++;
+                }
+                if (exp_digits == 0 || i != trimmed.size())
+                    is_valid = false;
+            }
+            else if (i != trimmed.size())
+            {
+                is_valid = false;
             }
             is_valid &= (dot_count <= 1) && (digit_count > 0);
 
-            std::istringstream is(trimmed);
-            long double x;
-            if (is_valid && (is >> x)) 
+            char* end = nullptr;
+            errno = 0;
+            long double x = std::strtold(trimmed.c_str(), &end);
+            if (is_valid && errno == 0 && end == trimmed.c_str() + trimmed.size()) 
                 return new Double(x);
 
             DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE), pos);
@@ -278,7 +341,71 @@ Object* BuiltInFunctions::SET_INDEX(const std::vector<Object*>& args, Position p
     }
 }
 
-// Appends an element to a list (mutates variable in-place if passed a variable, and returns the updated list).
+// Resolves the underlying List target for in-place mutation (handles both direct variables and nested index chains).
+static List* resolve_target_list(Context& caller_ctx, SyntaxNode* first_arg_node)
+{
+    if (!first_arg_node) return nullptr;
+
+    if (first_arg_node->kind() == SyntaxKind::VarAccessExpression)
+    {
+        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
+        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
+        if (sym.object && sym.object->type() == Type::LIST)
+            return (List*)sym.object;
+        return nullptr;
+    }
+
+    if (first_arg_node->kind() == SyntaxKind::IndexExpression)
+    {
+        std::vector<IndexExpressionSyntax*> index_chain;
+        SyntaxNode* curr = first_arg_node;
+        while (curr && curr->kind() == SyntaxKind::IndexExpression)
+        {
+            IndexExpressionSyntax* idx_node = (IndexExpressionSyntax*)curr;
+            if (idx_node->is_slice())
+                return nullptr;
+            index_chain.push_back(idx_node);
+            curr = idx_node->get_to_access();
+        }
+
+        if (!curr || curr->kind() != SyntaxKind::VarAccessExpression)
+            return nullptr;
+
+        VarAccessExpressionSyntax* base_var = (VarAccessExpressionSyntax*)curr;
+        ObjectSymbol obj_sym = caller_ctx.get_symbol_table()->get_object(base_var->get_identifier()->get_text());
+        if (obj_sym.object == nullptr)
+            return nullptr;
+
+        Object* container = obj_sym.object;
+        for (int k = (int)index_chain.size() - 1; k >= 0; k--)
+        {
+            IndexExpressionSyntax* step = index_chain[k];
+            Object* idx_obj = Evaluator::evaluate(caller_ctx, step->get_indexer());
+            if (!idx_obj || idx_obj->type() != Type::INTEGER || !container || container->type() != Type::LIST)
+            {
+                delete idx_obj;
+                return nullptr;
+            }
+
+            List* list = (List*)container;
+            long long idx = ((Integer*)idx_obj)->get_value();
+            delete idx_obj;
+            int n = list->get_size();
+            if (idx < 0) idx += n;
+            if (idx < 0 || idx >= n)
+                return nullptr;
+
+            container = list->get_value((int)idx);
+        }
+
+        if (container && container->type() == Type::LIST)
+            return (List*)container;
+    }
+
+    return nullptr;
+}
+
+// Appends an element to a list (mutates variable/collection in-place if passed an lvalue, and returns the updated list).
 Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& args, SyntaxNode* first_arg_node, Position pos)
 {
     if (args[0]->type() != Type::LIST)
@@ -287,16 +414,11 @@ Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& 
         return new None();
     }
 
-    if (first_arg_node && first_arg_node->kind() == SyntaxKind::VarAccessExpression)
+    List* target_list = resolve_target_list(caller_ctx, first_arg_node);
+    if (target_list)
     {
-        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
-        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
-        if (sym.object && sym.object->type() == Type::LIST)
-        {
-            List* target_list = (List*)sym.object;
-            target_list->push(args[1]->copy());
-            return target_list->copy();
-        }
+        target_list->push(args[1]->copy());
+        return target_list->copy();
     }
 
     List* copy_list = (List*)args[0]->copy();
@@ -304,7 +426,7 @@ Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& 
     return copy_list;
 }
 
-// Removes and returns an element from a list (default last element; mutates variable in-place).
+// Removes and returns an element from a list (default last element; mutates variable/collection in-place).
 Object* BuiltInFunctions::POP(Context& caller_ctx, const std::vector<Object*>& args, SyntaxNode* first_arg_node, Position pos)
 {
     if (args[0]->type() != Type::LIST)
@@ -324,14 +446,9 @@ Object* BuiltInFunctions::POP(Context& caller_ctx, const std::vector<Object*>& a
         idx = ((Integer*)args[1])->get_value();
     }
 
-    List* target_list = (List*)args[0];
-    if (first_arg_node && first_arg_node->kind() == SyntaxKind::VarAccessExpression)
-    {
-        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
-        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
-        if (sym.object && sym.object->type() == Type::LIST)
-            target_list = (List*)sym.object;
-    }
+    List* target_list = resolve_target_list(caller_ctx, first_arg_node);
+    if (!target_list)
+        target_list = (List*)args[0];
 
     long long n = target_list->get_size();
     long long norm_idx = (idx < 0) ? (idx + n) : idx;
@@ -378,17 +495,47 @@ Object* BuiltInFunctions::RANGE(const std::vector<Object*>& args, Position pos)
     }
 
     std::vector<Object*> elems;
+    __int128_t count128 = 0;
     if (step > 0 && start < stop)
     {
-        elems.reserve((size_t)((stop - start + step - 1) / step));
-        for (long long v = start; v < stop; v += step)
-            elems.push_back(new Integer(v));
+        __int128_t diff = static_cast<__int128_t>(stop) - start;
+        __int128_t ustep = step;
+        count128 = (diff + ustep - 1) / ustep;
     }
     else if (step < 0 && start > stop)
     {
-        elems.reserve((size_t)((start - stop + (-step) - 1) / (-step)));
-        for (long long v = start; v > stop; v += step)
-            elems.push_back(new Integer(v));
+        __int128_t diff = static_cast<__int128_t>(start) - stop;
+        __int128_t ustep = -static_cast<__int128_t>(step);
+        count128 = (diff + ustep - 1) / ustep;
+    }
+
+    if (count128 > 100'000'000)
+    {
+        DiagnosticBag::report_runtime_error("range() result exceeds memory limit (100,000,000 elements)", pos);
+        return new None();
+    }
+
+    size_t count = static_cast<size_t>(count128);
+    if (count > 0)
+    {
+        try
+        {
+            elems.reserve(count);
+            long long v = start;
+            for (size_t i = 0; i < count; i++)
+            {
+                elems.push_back(new Integer(v));
+                if (i + 1 < count)
+                    v += step;
+            }
+        }
+        catch (const std::bad_alloc&)
+        {
+            for (auto* o : elems)
+                delete o;
+            DiagnosticBag::report_runtime_error("out of memory in range()", pos);
+            return new None();
+        }
     }
     return new List(elems);
 }
@@ -404,32 +551,48 @@ Object* BuiltInFunctions::SORT(const std::vector<Object*>& args, Position pos)
 
     List* src = (List*)args[0];
     int n = src->get_size();
+    if (n == 0)
+        return new List({});
+
+    bool all_numeric = true;
+    bool all_string = true;
+    for (int i = 0; i < n; i++)
+    {
+        Type t = src->get_value(i)->type();
+        if (t != Type::INTEGER && t != Type::DOUBLE)
+            all_numeric = false;
+        if (t != Type::STRING)
+            all_string = false;
+    }
+
+    if (!all_numeric && !all_string)
+    {
+        DiagnosticBag::report_runtime_error("cannot sort list with incomparable element types", pos);
+        return new None();
+    }
+
     std::vector<Object*> elems;
     elems.reserve(n);
     for (int i = 0; i < n; i++)
         elems.push_back(src->get_value(i)->copy());
 
-    bool invalid_cmp = false;
-    std::sort(elems.begin(), elems.end(), [&](Object* a, Object* b) {
-        if (invalid_cmp) return false;
-        Object* lt = a->less_than(b);
-        if (lt->type() != Type::BOOLEAN)
-        {
-            delete lt;
-            invalid_cmp = true;
-            return false;
-        }
-        bool res = ((Boolean*)lt)->get_value();
-        delete lt;
-        return res;
-    });
-
-    if (invalid_cmp)
+    if (all_numeric)
     {
-        for (auto* o : elems) delete o;
-        DiagnosticBag::report_runtime_error("cannot sort list with incomparable element types", pos);
-        return new None();
+        std::sort(elems.begin(), elems.end(), [](Object* a, Object* b) {
+            if (a->type() == Type::INTEGER && b->type() == Type::INTEGER)
+                return ((Integer*)a)->get_value() < ((Integer*)b)->get_value();
+            long double va = (a->type() == Type::INTEGER) ? (long double)((Integer*)a)->get_value() : ((Double*)a)->get_value();
+            long double vb = (b->type() == Type::INTEGER) ? (long double)((Integer*)b)->get_value() : ((Double*)b)->get_value();
+            return va < vb;
+        });
     }
+    else // all_string
+    {
+        std::sort(elems.begin(), elems.end(), [](Object* a, Object* b) {
+            return ((String*)a)->get_value() < ((String*)b)->get_value();
+        });
+    }
+
     return new List(elems);
 }
 
@@ -494,6 +657,11 @@ Object* BuiltInFunctions::ABS(const std::vector<Object*>& args, Position pos)
     if (obj->type() == Type::INTEGER)
     {
         long long v = ((Integer*)obj)->get_value();
+        if (v == std::numeric_limits<long long>::min())
+        {
+            DiagnosticBag::report_runtime_error("abs() integer overflow: cannot negate LLONG_MIN", pos);
+            return new None();
+        }
         return new Integer(v < 0 ? -v : v);
     }
     if (obj->type() == Type::DOUBLE)
@@ -622,8 +790,8 @@ Object* BuiltInFunctions::POW_MOD(const std::vector<Object*>& args, Position pos
     long long res = 1 % mod;
     while (exp > 0)
     {
-        if (exp & 1) res = (res * base) % mod;
-        base = (base * base) % mod;
+        if (exp & 1) res = (long long)((static_cast<__int128_t>(res) * base) % mod);
+        base = (long long)((static_cast<__int128_t>(base) * base) % mod);
         exp >>= 1;
     }
     return new Integer(res);
@@ -637,8 +805,38 @@ Object* BuiltInFunctions::SET_MOD(const std::vector<Object*>& args, Position pos
         DiagnosticBag::report_invalid_builtin_arguments(BI_SET_MOD, 1, type_to_string(args[0]->type()), pos);
         return new None();
     }
-    List::matrix_mod = ((Integer*)args[0])->get_value();
+    long long val = ((Integer*)args[0])->get_value();
+    if (val < 0)
+    {
+        DiagnosticBag::report_runtime_error("set_mod() requires a non-negative integer (pass 0 to disable)", pos);
+        return new None();
+    }
+    List::matrix_mod = val;
     return new Integer(List::matrix_mod);
+}
+
+// Sets the maximum recursion call depth limit.
+Object* BuiltInFunctions::SET_RECURSION_LIMIT(const std::vector<Object*>& args, Position pos)
+{
+    if (args[0]->type() != Type::INTEGER)
+    {
+        DiagnosticBag::report_invalid_builtin_arguments(BI_SET_RECURSION_LIMIT, 1, type_to_string(args[0]->type()), pos);
+        return new None();
+    }
+    long long val = ((Integer*)args[0])->get_value();
+    if (val < 1)
+    {
+        DiagnosticBag::report_runtime_error("recursion limit must be at least 1", pos);
+        return new None();
+    }
+    Evaluator::max_recursion_depth = (int)val;
+    return new Integer(Evaluator::max_recursion_depth);
+}
+
+// Returns the current maximum recursion call depth limit.
+Object* BuiltInFunctions::GET_RECURSION_LIMIT(const std::vector<Object*>& args, Position pos)
+{
+    return new Integer(Evaluator::max_recursion_depth);
 }
 
 // Reads entire contents of a file as a string.

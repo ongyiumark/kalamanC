@@ -10,6 +10,11 @@ namespace Syntax
     class SyntaxNode;
 }
 
+namespace Contexts
+{
+    class SymbolTable;
+}
+
 namespace Objects
 {
     // Enum class of the data types in KalamanC.
@@ -24,8 +29,11 @@ namespace Objects
         NONE
     };
 
+    class Object;
+
     // Refer to object-helpers.cpp.
     std::string type_to_string(Type type);
+    Object* repeat_string(const std::string& str, long long count);
 
     // Refer to base-object.cpp.
     class Object
@@ -81,6 +89,7 @@ namespace Objects
 
         static void* operator new(size_t size);
         static void operator delete(void* p) noexcept;
+        static void drain_free_list();
     };
 
     // Refer to integer-object.cpp.
@@ -109,6 +118,7 @@ namespace Objects
 
         static void* operator new(size_t size);
         static void operator delete(void* p) noexcept;
+        static void drain_free_list();
     };
 
     // Refer to double-object.cpp.
@@ -136,6 +146,7 @@ namespace Objects
 
         static void* operator new(size_t size);
         static void operator delete(void* p) noexcept;
+        static void drain_free_list();
     };
 
     // Refer to string-object.cpp.
@@ -183,6 +194,7 @@ namespace Objects
         void push(Objects::Object* val);
         Object* pop(long long i = -1);
         const std::vector<Object*>& get_values() const;
+        std::vector<Object*> release_values();
 
         Object* added_by(Object* other) const override;
         Object* accessed_by(Object* other) const override;
@@ -200,12 +212,18 @@ namespace Objects
     private:
         std::string _name;
         std::vector<std::string> _argument_names;
+        std::vector<Type> _argument_types;
         std::shared_ptr<Syntax::SyntaxNode> _body;
         bool _built_in;
         int _min_args;
         int _max_args;
+        Contexts::SymbolTable* _def_scope;
     public:
         Function(const std::string& name, const std::vector<std::string>& argument_names,
+                 std::shared_ptr<Syntax::SyntaxNode> body, bool built_in = false,
+                 int min_args = -1, int max_args = -1);
+        Function(const std::string& name, const std::vector<std::string>& argument_names,
+                 const std::vector<Type>& argument_types,
                  std::shared_ptr<Syntax::SyntaxNode> body, bool built_in = false,
                  int min_args = -1, int max_args = -1);
         
@@ -219,9 +237,13 @@ namespace Objects
         int get_max_args() const;
         const std::string& get_argument_name(int i) const;
         const std::vector<std::string>& get_argument_names() const;
+        Type get_argument_type(int i) const;
+        const std::vector<Type>& get_argument_types() const;
         Syntax::SyntaxNode* get_body() const;
         std::shared_ptr<Syntax::SyntaxNode> get_body_shared() const;
         bool is_built_in() const;
+        Contexts::SymbolTable* get_def_scope() const;
+        void set_def_scope(Contexts::SymbolTable* def_scope);
 
         Object* equals(Object* other) const override;
         Object* copy() override;
@@ -242,5 +264,8 @@ namespace Objects
 
         static void* operator new(size_t size);
         static void operator delete(void* p) noexcept;
+        static void drain_free_list();
     };
+
+    void drain_free_lists();
 }

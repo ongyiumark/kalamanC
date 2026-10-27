@@ -1,5 +1,7 @@
 #include "syntax.h"
 #include <iostream>
+#include <cstdlib>
+#include <cerrno>
 
 using namespace Syntax;
 using namespace Objects;
@@ -53,6 +55,7 @@ SyntaxToken Lexer::lex()
         
         int length = _position - start;
         std::string text = _text.substr(start, length);
+        SyntaxFacts::detect_language(text);
         SyntaxKind kind = SyntaxFacts::get_keyword_kind(text);
         return SyntaxToken(kind, Position(start_ln, start_col, start, _position), text);
     }
@@ -71,14 +74,30 @@ SyntaxToken Lexer::lex()
             next();
         }
 
+        bool has_exponent = false;
+        if (current() == 'e' || current() == 'E')
+        {
+            char next_ch = look_ahead();
+            if (is_digit(next_ch) || ((next_ch == '+' || next_ch == '-') && is_digit(peek(2))))
+            {
+                has_exponent = true;
+                next(); // consume 'e' or 'E'
+                if (current() == '+' || current() == '-')
+                    next(); // consume sign
+                while (is_digit(current()))
+                    next();
+            }
+        }
+
         int length = _position - start;
         std::string text = _text.substr(start, length);
         Position curr_pos = Position(start_ln, start_col, start, _position);
-        if (dot_count == 0)
+        if (dot_count == 0 && !has_exponent)
         {
-            long long x;
-            std::istringstream is(text);
-            if (is >> x)
+            char* end = nullptr;
+            errno = 0;
+            std::strtoll(text.c_str(), &end, 10);
+            if (errno == 0 && end == text.c_str() + text.size())
                 return SyntaxToken(SyntaxKind::IntegerToken, curr_pos, text);
 
             Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), curr_pos);
@@ -86,9 +105,10 @@ SyntaxToken Lexer::lex()
         }
         else
         {
-            long double x;
-            std::istringstream is(text);
-            if (is >> x)
+            char* end = nullptr;
+            errno = 0;
+            std::strtold(text.c_str(), &end);
+            if (errno == 0 && end == text.c_str() + text.size())
                 return SyntaxToken(SyntaxKind::DoubleToken, curr_pos, text);
     
             Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE), curr_pos);

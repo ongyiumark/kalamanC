@@ -25,6 +25,16 @@ void Boolean::operator delete(void* p) noexcept
     _free_list = static_cast<Boolean*>(p);
 }
 
+void Boolean::drain_free_list()
+{
+    while (_free_list)
+    {
+        Boolean* next = *reinterpret_cast<Boolean**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
+}
+
 Boolean::Boolean(bool value) : _value(value) {}
 
 Type Boolean::type() const

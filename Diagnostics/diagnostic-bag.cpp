@@ -44,6 +44,11 @@ void DiagnosticBag::pop_call()
         _call_stack.pop_back();
 }
 
+int DiagnosticBag::call_depth()
+{
+    return (int)_call_stack.size();
+}
+
 // Adds an error to the bag.
 void DiagnosticBag::report(const std::string& message, Position pos)
 {
@@ -192,6 +197,28 @@ void DiagnosticBag::report_invalid_builtin_arguments(const std::string& name, in
     std::ostringstream os;
     os << "ERROR: argument " << i << " of '" << name << "' cannot be <" << type << ">";
     report(os.str(), pos);    
+}
+
+void DiagnosticBag::report_invalid_break(Position pos)
+{
+    report("ERROR: 'break' outside of loop", pos);
+}
+
+void DiagnosticBag::report_invalid_continue(Position pos)
+{
+    report("ERROR: 'continue' outside of loop", pos);
+}
+
+void DiagnosticBag::report_invalid_return(Position pos)
+{
+    report("ERROR: 'return' outside of function", pos);
+}
+
+void DiagnosticBag::report_redefinition(const std::string& name, Position pos)
+{
+    std::ostringstream os;
+    os << "ERROR: redefinition of variable '" << name << "'";
+    report(os.str(), pos);
 }
 
 void DiagnosticBag::report_runtime_error(const std::string& message, Position pos)

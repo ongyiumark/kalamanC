@@ -2,6 +2,7 @@
 #include "builtin-functions.h"
 
 #include <iostream>
+#include <limits>
 
 using namespace Syntax;
 using namespace Contexts;
@@ -13,6 +14,7 @@ using namespace Evaluators;
 bool Evaluator::to_continue = false;
 bool Evaluator::to_break = false;
 Object* Evaluator::return_value = nullptr;
+int Evaluator::max_recursion_depth = 1000;
 
 void Evaluator::clear()
 {
@@ -221,6 +223,20 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
         {
             DiagnosticBag::report_runtime_error("division by zero", node->get_pos());
         }
+        else if (op_kind == SyntaxKind::PowerToken &&
+                 ((left->type() == Type::INTEGER && ((Integer*)left)->get_value() == 0) ||
+                  (left->type() == Type::DOUBLE && ((Double*)left)->get_value() == 0)) &&
+                 ((right->type() == Type::INTEGER && ((Integer*)right)->get_value() < 0) ||
+                  (right->type() == Type::DOUBLE && ((Double*)right)->get_value() < 0)))
+        {
+            DiagnosticBag::report_runtime_error("zero cannot be raised to a negative power (division by zero)", node->get_pos());
+        }
+        else if (op_kind == SyntaxKind::SlashToken &&
+                 left->type() == Type::INTEGER && ((Integer*)left)->get_value() == std::numeric_limits<long long>::min() &&
+                 right->type() == Type::INTEGER && ((Integer*)right)->get_value() == -1)
+        {
+            DiagnosticBag::report_runtime_error("integer overflow in division: cannot divide LLONG_MIN by -1", node->get_pos());
+        }
         else
         {
             DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
@@ -260,6 +276,24 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
     // Sequence of statements (returns the result of the last executed statement).
     int n = node->get_nodes_size();
     Object* last_obj = nullptr;
+
+    if (node->is_block())
+    {
+        Context block_ctx("block", &context, context.get_symbol_table());
+        for (int i = 0; i < n; i++)
+        {
+            delete last_obj;
+            last_obj = evaluate(block_ctx, node->get_node(i));
+            if (should_return())
+            {
+                delete last_obj;
+                return new None();
+            }
+        }
+        if (last_obj != nullptr) return last_obj;
+        return new None();
+    }
+
     for (int i = 0; i < n; i++)
     {
         delete last_obj;
@@ -277,145 +311,354 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
 // Index or slice a list or a string.
 Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 {
-    Object* left = evaluate(context, node->get_to_access());
-    if (should_return()) 
+    // Unroll the index chain from outermost to innermost
+    std::vector<IndexExpressionSyntax*> index_chain;
+    SyntaxNode* curr = node;
+    while (curr != nullptr && curr->kind() == SyntaxKind::IndexExpression)
     {
-        delete left;
-        return new None();    
+        index_chain.push_back((IndexExpressionSyntax*)curr);
+        curr = ((IndexExpressionSyntax*)curr)->get_to_access();
     }
 
-    if (node->is_slice())
+    if (curr == nullptr)
+        return new None();
+
+    // Step 1: Pre-evaluate all index expressions in the chain to eliminate side-effect order issues
+    struct EvaluatedIndexStep {
+        IndexExpressionSyntax* step_node;
+        bool is_slice;
+        Object* idx_obj;       // for standard index
+        Object* slice_start;   // for slice
+        Object* slice_end;     // for slice
+    };
+
+    std::vector<EvaluatedIndexStep> steps(index_chain.size());
+    for (int k = (int)index_chain.size() - 1; k >= 0; k--)
     {
-        bool has_start = (node->get_indexer() != nullptr);
-        bool has_end = (node->get_slice_end() != nullptr);
-        long long start_val = 0;
-        long long end_val = 0;
+        IndexExpressionSyntax* step = index_chain[k];
+        steps[k].step_node = step;
+        steps[k].is_slice = step->is_slice();
+        steps[k].idx_obj = nullptr;
+        steps[k].slice_start = nullptr;
+        steps[k].slice_end = nullptr;
 
-        if (has_start)
+        if (step->is_slice())
         {
-            Object* start_obj = evaluate(context, node->get_indexer());
-            if (should_return())
+            if (step->get_indexer() != nullptr)
             {
-                delete left;
-                delete start_obj;
-                return new None();
+                steps[k].slice_start = evaluate(context, step->get_indexer());
+                if (should_return())
+                {
+                    for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                    {
+                        delete steps[j].idx_obj;
+                        delete steps[j].slice_start;
+                        delete steps[j].slice_end;
+                    }
+                    return new None();
+                }
             }
-            if (start_obj->type() != Type::INTEGER)
+            if (step->get_slice_end() != nullptr)
             {
-                DiagnosticBag::report_unexpected_type(type_to_string(start_obj->type()), type_to_string(Type::INTEGER),
-                    node->get_indexer()->get_pos());
-                delete left;
-                delete start_obj;
-                return new None();
+                steps[k].slice_end = evaluate(context, step->get_slice_end());
+                if (should_return())
+                {
+                    for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                    {
+                        delete steps[j].idx_obj;
+                        delete steps[j].slice_start;
+                        delete steps[j].slice_end;
+                    }
+                    return new None();
+                }
             }
-            start_val = ((Integer*)start_obj)->get_value();
-            delete start_obj;
         }
-
-        if (has_end)
-        {
-            Object* end_obj = evaluate(context, node->get_slice_end());
-            if (should_return())
-            {
-                delete left;
-                delete end_obj;
-                return new None();
-            }
-            if (end_obj->type() != Type::INTEGER)
-            {
-                DiagnosticBag::report_unexpected_type(type_to_string(end_obj->type()), type_to_string(Type::INTEGER),
-                    node->get_slice_end()->get_pos());
-                delete left;
-                delete end_obj;
-                return new None();
-            }
-            end_val = ((Integer*)end_obj)->get_value();
-            delete end_obj;
-        }
-
-        Object* result = nullptr;
-        if (left->type() == Type::LIST)
-            result = ((List*)left)->slice(start_val, end_val, has_start, has_end);
-        else if (left->type() == Type::STRING)
-            result = ((String*)left)->slice(start_val, end_val, has_start, has_end);
         else
         {
-            DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-                "[:]", type_to_string(Type::INTEGER), node->get_pos());
-            result = new None();
+            steps[k].idx_obj = evaluate(context, step->get_indexer());
+            if (should_return())
+            {
+                for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                {
+                    delete steps[j].idx_obj;
+                    delete steps[j].slice_start;
+                    delete steps[j].slice_end;
+                }
+                return new None();
+            }
         }
-        delete left;
-        return result;
     }
-  
-    Object* right = evaluate(context, node->get_indexer());
-    if (should_return())
+
+    auto cleanup_steps = [&steps]() {
+        for (auto& s : steps)
+        {
+            delete s.idx_obj;
+            delete s.slice_start;
+            delete s.slice_end;
+        }
+    };
+
+    // Step 2: Resolve the base container
+    Object* container = nullptr;
+    Object* temp_root = nullptr; // holds temporary container that must be freed when done
+
+    if (curr->kind() == SyntaxKind::VarAccessExpression)
     {
-        delete left;
-        delete right;
+        VarAccessExpressionSyntax* base_var = (VarAccessExpressionSyntax*)curr;
+        ObjectSymbol sym = context.get_symbol_table()->get_object(base_var->get_identifier()->get_text());
+        if (sym.object == nullptr || sym.object->type() == Type::NONE)
+        {
+            DiagnosticBag::report_undeclared_identifier(base_var->get_identifier()->get_text(),
+                base_var->get_identifier()->get_pos());
+            cleanup_steps();
+            return new None();
+        }
+        container = sym.object; // Borrowed directly from symbol table (no deep-copy-on-read)
+    }
+    else
+    {
+        container = evaluate(context, curr);
+        if (should_return() || container == nullptr)
+        {
+            delete container;
+            cleanup_steps();
+            return new None();
+        }
+        temp_root = container; // Owned temporary root
+    }
+
+    // Step 3: Traverse the index chain from innermost to outermost
+    for (int k = (int)index_chain.size() - 1; k >= 0; k--)
+    {
+        auto& s = steps[k];
+        bool is_last_step = (k == 0);
+
+        if (s.is_slice)
+        {
+            bool has_start = (s.slice_start != nullptr);
+            bool has_end = (s.slice_end != nullptr);
+            long long start_val = 0;
+            long long end_val = 0;
+
+            if (has_start)
+            {
+                if (s.slice_start->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_unexpected_type(type_to_string(s.slice_start->type()),
+                        type_to_string(Type::INTEGER), s.step_node->get_indexer()->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+                start_val = ((Integer*)s.slice_start)->get_value();
+            }
+
+            if (has_end)
+            {
+                if (s.slice_end->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_unexpected_type(type_to_string(s.slice_end->type()),
+                        type_to_string(Type::INTEGER), s.step_node->get_slice_end()->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+                end_val = ((Integer*)s.slice_end)->get_value();
+            }
+
+            Object* slice_res = nullptr;
+            if (container->type() == Type::LIST)
+            {
+                slice_res = ((List*)container)->slice(start_val, end_val, has_start, has_end);
+            }
+            else if (container->type() == Type::STRING)
+            {
+                slice_res = ((String*)container)->slice(start_val, end_val, has_start, has_end);
+            }
+            else
+            {
+                DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                    "[:]", type_to_string(Type::INTEGER), s.step_node->get_pos());
+                delete temp_root;
+                cleanup_steps();
+                return new None();
+            }
+
+            delete temp_root;
+            if (is_last_step)
+            {
+                cleanup_steps();
+                return slice_res; // Ownership transfers to caller
+            }
+
+            temp_root = slice_res;
+            container = slice_res;
+        }
+        else
+        {
+            Object* right = s.idx_obj;
+            if (container->type() == Type::LIST)
+            {
+                if (right->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                        kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                List* list = (List*)container;
+                long long idx = ((Integer*)right)->get_value();
+                long long n = (long long)list->get_size();
+                if (idx < 0) idx += n;
+
+                if (idx < 0 || idx >= n)
+                {
+                    DiagnosticBag::report_runtime_error("index out of range", s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                if (is_last_step)
+                {
+                    Object* leaf_copy = list->get_value((int)idx)->copy();
+                    delete temp_root;
+                    cleanup_steps();
+                    return leaf_copy;
+                }
+                else
+                {
+                    container = list->get_value((int)idx);
+                }
+            }
+            else if (container->type() == Type::STRING)
+            {
+                if (right->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                        kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                const std::string& str = ((String*)container)->get_value();
+                long long idx = ((Integer*)right)->get_value();
+                long long n = (long long)str.size();
+                if (idx < 0) idx += n;
+
+                if (idx < 0 || idx >= n)
+                {
+                    DiagnosticBag::report_runtime_error("index out of range", s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                if (is_last_step)
+                {
+                    Object* leaf_copy = new String(std::string(1, str[(size_t)idx]));
+                    delete temp_root;
+                    cleanup_steps();
+                    return leaf_copy;
+                }
+                else
+                {
+                    Object* next_str = new String(std::string(1, str[(size_t)idx]));
+                    delete temp_root;
+                    temp_root = next_str;
+                    container = next_str;
+                }
+            }
+            else
+            {
+                DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                    kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                delete temp_root;
+                cleanup_steps();
+                return new None();
+            }
+        }
+    }
+
+    delete temp_root;
+    cleanup_steps();
+    return new None();
+}
+
+// Declares a variable in the current (local) symbol table and assigns a default or initial value.
+Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSyntax* node)
+{
+    const std::string& var_name = node->get_identifier()->get_text();
+    ObjectSymbol existing = context.get_symbol_table()->get_object(var_name);
+    if (existing.object != nullptr)
+    {
+        DiagnosticBag::report_redefinition(var_name, node->get_identifier()->get_pos());
         return new None();
     }
 
-    Object* result = left->accessed_by(right);
-
-    if (result->type() == Type::NONE)
-    {
-        if ((left->type() == Type::LIST || left->type() == Type::STRING) && right->type() == Type::INTEGER)
-        {
-            DiagnosticBag::report_runtime_error("index out of range", node->get_pos());
-        }
-        else
-        {
-            DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-                kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), node->get_pos());
-        }
-    } 
-
-    delete left;
-    delete right;
-    return result;
-}
-
-// Declares a variable in the current (local) symbol table and assigns a default value.
-Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSyntax* node)
-{
     Type type = SyntaxFacts::get_keyword_type(node->get_var_keyword()->kind());
 
     Object* value = nullptr;
-    switch(type)
+    if (node->get_init_expr() != nullptr)
     {
-        case Type::BOOLEAN:
-            value = new Boolean(false);
-            break;
-        case Type::INTEGER:
-            value = new Integer(0);
-            break;
-        case Type::DOUBLE:
-            value = new Double(0);
-            break;
-        case Type::STRING:
-            value = new String("");
-            break;
-        case Type::LIST:
+        value = evaluate(context, node->get_init_expr());
+        if (should_return())
         {
-            std::vector<Object*> elems;
-            value = new List(elems);
-            break;
+            delete value;
+            return new None();
         }
-        case Type::FUNCTION:
+        if (value == nullptr)
         {
-            std::vector<std::string> arg_names;
-            value = new Function("<uninitialized>", arg_names, nullptr);
-            break;
+            return new None();
         }
-        default:
+        if (value->type() != type)
         {
-            DiagnosticBag::report_unreachable_code("invalid type declaration", node->get_pos());
+            DiagnosticBag::report_invalid_assign(type_to_string(value->type()), type_to_string(type),
+                node->get_pos());
+            delete value;
             return new None();
         }
     }
+    else
+    {
+        switch(type)
+        {
+            case Type::BOOLEAN:
+                value = new Boolean(false);
+                break;
+            case Type::INTEGER:
+                value = new Integer(0);
+                break;
+            case Type::DOUBLE:
+                value = new Double(0);
+                break;
+            case Type::STRING:
+                value = new String("");
+                break;
+            case Type::LIST:
+            {
+                std::vector<Object*> elems;
+                value = new List(elems);
+                break;
+            }
+            case Type::FUNCTION:
+            {
+                std::vector<std::string> arg_names;
+                value = new Function("<uninitialized>", arg_names, nullptr);
+                break;
+            }
+            default:
+            {
+                DiagnosticBag::report_unreachable_code("invalid type declaration", node->get_pos());
+                return new None();
+            }
+        }
+    }
 
-    context.get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
+    context.get_symbol_table()->set_object(var_name, value);
     return value->copy();
 }
 
@@ -470,6 +713,12 @@ static Object* apply_compound_op(Object* orig, SyntaxKind op_kind, Object* rhs, 
                   (rhs->type() == Type::DOUBLE && ((Double*)rhs)->get_value() == 0)))
         {
             DiagnosticBag::report_runtime_error("division by zero", pos);
+        }
+        else if (op_kind == SyntaxKind::SlashEqualsToken &&
+                 orig->type() == Type::INTEGER && ((Integer*)orig)->get_value() == std::numeric_limits<long long>::min() &&
+                 rhs->type() == Type::INTEGER && ((Integer*)rhs)->get_value() == -1)
+        {
+            DiagnosticBag::report_runtime_error("integer overflow in division: cannot divide LLONG_MIN by -1", pos);
         }
         else
         {
@@ -578,8 +827,14 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
                         return new None();
                 }
 
+                Object* ret_val = nullptr;
+                if (node->is_postfix())
+                    ret_val = list->get_value((int)idx)->copy();
+                else
+                    ret_val = new_val->copy();
+
                 list->set_value((int)idx, new_val);
-                return new_val->copy();
+                return ret_val;
             }
             else
             {
@@ -604,9 +859,14 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
     if (orig_value->type() == Type::INTEGER &&
         (op_kind == SyntaxKind::PlusPlusToken || op_kind == SyntaxKind::MinusMinusToken))
     {
-        long long v = ((Integer*)orig_value)->get_value() + (op_kind == SyntaxKind::PlusPlusToken ? 1 : -1);
-        ((Integer*)orig_value)->set_value(v);
-        return new Integer(v);
+        long long old_v = ((Integer*)orig_value)->get_value();
+        long long new_v = static_cast<long long>(static_cast<unsigned long long>(old_v) +
+            (op_kind == SyntaxKind::PlusPlusToken ? 1ULL : static_cast<unsigned long long>(-1LL)));
+        ((Integer*)orig_value)->set_value(new_v);
+        if (node->is_postfix())
+            return new Integer(old_v);
+        else
+            return new Integer(new_v);
     }
 
     Object* value = nullptr;
@@ -651,14 +911,21 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
         return new None();
     }
 
+    Object* ret_val = nullptr;
+    if (node->is_postfix())
+        ret_val = orig_value->copy();
+    else
+        ret_val = value->copy();
+
     if (orig_value->type() == Type::INTEGER)
     {
         ((Integer*)orig_value)->set_value(((Integer*)value)->get_value());
-        return value;
+        delete value;
+        return ret_val;
     }
 
     obj_sym.symbol->set_object(var_name, value);
-    return value->copy();
+    return ret_val;
 }
 
 // Accesses a variable.
@@ -810,11 +1077,7 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
         std::vector<Object*> items;
         if (iterable->type() == Type::LIST)
         {
-            List* list = (List*)iterable;
-            int n = list->get_size();
-            items.reserve(n);
-            for (int i = 0; i < n; i++)
-                items.push_back(list->get_value(i)->copy());
+            items = ((List*)iterable)->release_values();
         }
         else if (iterable->type() == Type::STRING)
         {
@@ -935,7 +1198,8 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
     for (int i = 0; i < n; i++)
         arg_names.push_back(node->get_arg_name(i)->get_text());
     
-    Object* val = new Function(name, arg_names, node->get_body_shared());
+    Function* val = new Function(name, arg_names, node->get_arg_types(), node->get_body_shared());
+    val->set_def_scope(context.get_symbol_table());
     context.get_symbol_table()->set_object(name, val);
     return val->copy();
 }
@@ -943,22 +1207,42 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
 // Calls a function.
 Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSyntax* node)
 {
-    ObjectSymbol sym = context.get_symbol_table()->get_object(node->get_identifier()->get_text());
-    if (sym.object == nullptr || sym.object->type() == Type::NONE)
-    {
-        DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text(),
-            node->get_identifier()->get_pos());
-        return new None();
-    }
+    Function* func = nullptr;
+    std::unique_ptr<Object> callee_holder;
 
-    if (sym.object->type() != Type::FUNCTION)
+    if (node->get_callee() != nullptr)
     {
-        DiagnosticBag::report_unexpected_type(type_to_string(sym.object->type()), type_to_string(Type::FUNCTION),
-            node->get_identifier()->get_pos());
-        return new None();
+        callee_holder.reset(evaluate(context, node->get_callee()));
+        if (should_return())
+            return new None();
+
+        if (callee_holder->type() != Type::FUNCTION)
+        {
+            DiagnosticBag::report_unexpected_type(type_to_string(callee_holder->type()), type_to_string(Type::FUNCTION),
+                node->get_callee()->get_pos());
+            return new None();
+        }
+        func = (Function*)callee_holder.get();
     }
-    
-    Function* func = (Function*)sym.object->copy();
+    else
+    {
+        ObjectSymbol sym = context.get_symbol_table()->get_object(node->get_identifier()->get_text());
+        if (sym.object == nullptr || sym.object->type() == Type::NONE)
+        {
+            DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text(),
+                node->get_identifier()->get_pos());
+            return new None();
+        }
+
+        if (sym.object->type() != Type::FUNCTION)
+        {
+            DiagnosticBag::report_unexpected_type(type_to_string(sym.object->type()), type_to_string(Type::FUNCTION),
+                node->get_identifier()->get_pos());
+            return new None();
+        }
+        
+        func = (Function*)sym.object;
+    }
 
     // Check arguments
     int min_args = func->get_min_args();
@@ -974,7 +1258,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             arg_pos = Position(first_arg.ln, first_arg.col, first_arg.start, last_arg.end);
         }
         DiagnosticBag::report_illegal_arguments_range(m, min_args, max_args, func->get_name(), arg_pos);
-        delete func;
         return new None();
     }
     
@@ -988,7 +1271,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         {
             for (auto &o : args)
                 delete o;
-            delete func;
             return new None();
         }
     }
@@ -996,17 +1278,55 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     // Handle user-defined functions
     if (!func->is_built_in())
     {
+        // Validate declared parameter types
+        const auto& expected_types = func->get_argument_types();
+        for (int i = 0; i < m && i < (int)expected_types.size(); i++)
+        {
+            Type expected = expected_types[i];
+            if (expected != Type::NONE && args[i]->type() != expected)
+            {
+                Position arg_pos = (i < node->get_arg_size()) ? node->get_arg(i)->get_pos() : node->get_pos();
+                DiagnosticBag::report_unexpected_type(
+                    type_to_string(args[i]->type()),
+                    type_to_string(expected),
+                    arg_pos
+                );
+                for (auto &o : args)
+                    delete o;
+                return new None();
+            }
+        }
+
         if (func->get_body() == nullptr)
         {
-            DiagnosticBag::report_runtime_error("cannot call uninitialized function '" + node->get_identifier()->get_text() + "'",
+            std::string fname = (node->get_callee() != nullptr) ? "<expression>" : node->get_identifier()->get_text();
+            DiagnosticBag::report_runtime_error("cannot call uninitialized function '" + fname + "'",
                 node->get_pos());
             for (auto &o : args)
                 delete o;
-            delete func;
             return new None();
         }
 
-        Context exec_ctx(func->get_name(), &context, context.get_symbol_table());
+        if (DiagnosticBag::call_depth() >= Evaluator::max_recursion_depth)
+        {
+            DiagnosticBag::push_call(func->get_name(), node->get_pos());
+            DiagnosticBag::report_runtime_error("maximum recursion depth exceeded (" + std::to_string(Evaluator::max_recursion_depth) + ")", node->get_pos());
+            DiagnosticBag::pop_call();
+            for (auto &o : args)
+                delete o;
+            return new None();
+        }
+
+        SymbolTable* parent_syms = func->get_def_scope();
+        if (parent_syms == nullptr)
+        {
+            Context* root_ctx = &context;
+            while (root_ctx->get_parent() != nullptr)
+                root_ctx = root_ctx->get_parent();
+            parent_syms = root_ctx->get_symbol_table();
+        }
+
+        Context exec_ctx(func->get_name(), &context, parent_syms);
         for (int i = 0; i < m; i++)
             exec_ctx.get_symbol_table()->set_object(func->get_argument_name(i), args[i]);
 
@@ -1015,7 +1335,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         DiagnosticBag::pop_call();
 
         delete body_obj;
-        delete func;
 
         if (should_return() && !return_value) 
             return new None();
@@ -1032,8 +1351,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     }
 
     // Handle built-in functions directly without allocating a temporary Context/SymbolTable
-    std::string func_name = func->get_name();
-    delete func;
+    const std::string& func_name = func->get_name();
     Position call_pos = node->get_pos();
     SyntaxNode* first_arg_node = (m > 0) ? node->get_arg(0) : nullptr;
     Object* result = nullptr;
@@ -1106,6 +1424,12 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         case SyntaxKind::SetModFunction:
             result = BuiltInFunctions::SET_MOD(args, call_pos);
             break;
+        case SyntaxKind::SetRecursionLimitFunction:
+            result = BuiltInFunctions::SET_RECURSION_LIMIT(args, call_pos);
+            break;
+        case SyntaxKind::GetRecursionLimitFunction:
+            result = BuiltInFunctions::GET_RECURSION_LIMIT(args, call_pos);
+            break;
         case SyntaxKind::ReadFileFunction:
             result = BuiltInFunctions::READ_FILE(args, call_pos);
             break;
@@ -1120,7 +1444,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             break;
         default:
         {
-            DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());
+            DiagnosticBag::report_unreachable_code("invalid builtin function", call_pos);
             result = new None();
             break;
         }

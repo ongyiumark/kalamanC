@@ -1,5 +1,6 @@
 #include "object.h"
 #include <cmath>
+#include <limits>
 
 using namespace Objects;
 
@@ -21,6 +22,16 @@ void Integer::operator delete(void* p) noexcept
     if (!p) return;
     *reinterpret_cast<Integer**>(p) = _free_list;
     _free_list = static_cast<Integer*>(p);
+}
+
+void Integer::drain_free_list()
+{
+    while (_free_list)
+    {
+        Integer* next = *reinterpret_cast<Integer**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
 }
 
 Integer::Integer(long long value) : _value(value) {}
@@ -83,31 +94,29 @@ Object* Integer::multiplied_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value * ((Double*)other)->get_value());
         case Type::STRING:
-        {
-            if (_value < 0) return new None();
-            long long e = _value;
-            std::string result;
-            std::string base = ((String*)other)->get_value();
-            result.reserve(base.size() * (size_t)e);
-            while (e > 0)
-            {
-                if (e & 1) result += base;
-                e >>= 1;
-                if (e > 0) base += base;
-            }
-            return new String(result);
-        }
+            return repeat_string(((String*)other)->get_value(), _value);
         case Type::LIST:
         {
             if (_value < 0) return new None();
             List* list = (List*)other;
             int n = list->get_size();
+            if (n > 0 && (size_t)_value > std::numeric_limits<size_t>::max() / (size_t)n)
+                return new None();
             std::vector<Object*> elems;
-            elems.reserve((size_t)_value * n);
-            for (long long k = 0; k < _value; k++)
-                for (int i = 0; i < n; i++)
-                    elems.push_back(list->get_value(i)->copy());
-            return new List(elems);
+            try
+            {
+                elems.reserve((size_t)_value * n);
+                for (long long k = 0; k < _value; k++)
+                    for (int i = 0; i < n; i++)
+                        elems.push_back(list->get_value(i)->copy());
+                return new List(elems);
+            }
+            catch (const std::bad_alloc&)
+            {
+                for (auto* o : elems)
+                    delete o;
+                return new None();
+            }
         }
         default:
             return new None();
@@ -122,8 +131,10 @@ Object* Integer::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
-            return new Integer(_value / other_int->get_value());
+            long long other_val = other_int->get_value();
+            if (other_val == 0) return new None();
+            if (_value == std::numeric_limits<long long>::min() && other_val == -1) return new None();
+            return new Integer(_value / other_val);
         }
         case Type::DOUBLE:
         {
@@ -143,8 +154,10 @@ Object* Integer::modded_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
-            return new Integer(_value % other_int->get_value());
+            long long other_val = other_int->get_value();
+            if (other_val == 0) return new None();
+            if (_value == std::numeric_limits<long long>::min() && other_val == -1) return new Integer(0);
+            return new Integer(_value % other_val);
         }
         case Type::DOUBLE:
         {
@@ -166,6 +179,7 @@ Object* Integer::powered_by(Object* other) const
         {
             long long b = _value;
             long long e = ((Integer*)other)->get_value();
+            if (b == 0 && e < 0) return new None();
             if (e < 0) return new Double(powl(b, e));
 
             long long ans = 1;
@@ -178,7 +192,11 @@ Object* Integer::powered_by(Object* other) const
             return new Integer(ans);
         }
         case Type::DOUBLE:
-            return new Double(powl(_value, ((Double*)other)->get_value()));   
+        {
+            long double e = ((Double*)other)->get_value();
+            if (_value == 0 && e < 0) return new None();
+            return new Double(powl(_value, e));
+        }
         default:
             return new None();         
     }
