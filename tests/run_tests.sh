@@ -413,6 +413,19 @@ assert_eq "Foreach over list and range with break and continue" \
     ')" \
     "145 hello brave new world "
 
+# 28. Flat Buffer Matrix Exponentiation
+assert_eq "Flat buffer matrix exponentiation identity and large power" \
+    "$($BIN -e '
+        list T = [[1, 1], [1, 0]];
+        print(T ^ 0);
+        set_mod(1000000007);
+        list big = T ^ 50;
+        print(big[0][1]);
+    ')" \
+    "[[1, 0],
+ [0, 1]]
+586268941"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
