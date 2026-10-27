@@ -337,6 +337,30 @@ assert_eq "String split whitespace collapsing vs custom delimiter preservation" 
 SPLIT_EMPTY_SEP_ERR="$($BIN -e 'split("hello", "");' 2>&1 || true)"
 assert_contains "Split empty separator error" "$SPLIT_EMPTY_SEP_ERR" "empty separator in split()"
 
+# 24. CLI Script Arguments & Positional Parsing
+assert_eq "CLI arguments passed via -e and accessible via args and mga_argumento" \
+    "$($BIN -e 'print(args);' foo bar baz)" \
+    "['foo', 'bar', 'baz']"
+
+assert_eq "CLI arguments in Filipino accessible via mga_argumento" \
+    "$($BIN -e 'lathala(mga_argumento);' uno dos)" \
+    "['uno', 'dos']"
+
+assert_eq "CLI script argument flag passthrough after --" \
+    "$($BIN -e 'print(args);' -- -v --custom 123)" \
+    "['-v', '--custom', '123']"
+
+TEMP_SCRIPT="$(mktemp /tmp/kalman_test_args_XXXXXX.kal)"
+echo 'print("len:", len(args), "first:", args[0]);' > "$TEMP_SCRIPT"
+assert_eq "CLI script file arguments do not overwrite script path" \
+    "$($BIN "$TEMP_SCRIPT" first_arg second_arg -v)" \
+    "len: 3 first: first_arg"
+
+assert_eq "CLI -- option terminator passes script arguments" \
+    "$($BIN -- "$TEMP_SCRIPT" alpha beta)" \
+    "len: 2 first: alpha"
+rm -f "$TEMP_SCRIPT"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

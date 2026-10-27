@@ -142,7 +142,8 @@ void SyntaxFacts::detect_language(const std::string& text)
         BI_TO_BOOL_FIL, BI_TO_INT_FIL, BI_TO_DOUBLE_FIL, BI_TO_STRING_FIL,
         BI_SET_INDEX_FIL, BI_PUSH_FIL, BI_POP_FIL, BI_RANGE_FIL, BI_SORT_FIL,
         BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_SQRT_FIL, BI_SET_MOD_FIL,
-        BI_SET_RECURSION_LIMIT_FIL, BI_GET_RECURSION_LIMIT_FIL
+        BI_SET_RECURSION_LIMIT_FIL, BI_GET_RECURSION_LIMIT_FIL,
+        VAR_ARGS_FIL
     };
 
     static const std::unordered_set<std::string> english_markers = {

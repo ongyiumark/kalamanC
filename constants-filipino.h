@@ -57,3 +57,7 @@ const std::string BI_READ_FILE_FIL  = "basahin_file";
 const std::string BI_WRITE_FILE_FIL = "isulat_file";
 const std::string BI_CLOCK_FIL      = "oras";
 const std::string BI_EXIT_FIL       = "lumabas";
+
+// Predefined Variables
+const std::string VAR_ARGS_FIL      = "mga_argumento";
+

@@ -62,3 +62,7 @@ const std::string BI_READ_FILE  = "read_file";
 const std::string BI_WRITE_FILE = "write_file";
 const std::string BI_CLOCK      = "clock";
 const std::string BI_EXIT       = "exit";
+
+// Predefined Variables
+const std::string VAR_ARGS      = "args";
+
