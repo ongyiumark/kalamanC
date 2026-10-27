@@ -1,4 +1,5 @@
 #include "builtin-functions.h"
+#include "evaluator.h"
 
 #include "../constants.h"
 #include "../Syntax/Expressions/syntax-expressions.h"
@@ -278,7 +279,71 @@ Object* BuiltInFunctions::SET_INDEX(const std::vector<Object*>& args, Position p
     }
 }
 
-// Appends an element to a list (mutates variable in-place if passed a variable, and returns the updated list).
+// Resolves the underlying List target for in-place mutation (handles both direct variables and nested index chains).
+static List* resolve_target_list(Context& caller_ctx, SyntaxNode* first_arg_node)
+{
+    if (!first_arg_node) return nullptr;
+
+    if (first_arg_node->kind() == SyntaxKind::VarAccessExpression)
+    {
+        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
+        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
+        if (sym.object && sym.object->type() == Type::LIST)
+            return (List*)sym.object;
+        return nullptr;
+    }
+
+    if (first_arg_node->kind() == SyntaxKind::IndexExpression)
+    {
+        std::vector<IndexExpressionSyntax*> index_chain;
+        SyntaxNode* curr = first_arg_node;
+        while (curr && curr->kind() == SyntaxKind::IndexExpression)
+        {
+            IndexExpressionSyntax* idx_node = (IndexExpressionSyntax*)curr;
+            if (idx_node->is_slice())
+                return nullptr;
+            index_chain.push_back(idx_node);
+            curr = idx_node->get_to_access();
+        }
+
+        if (!curr || curr->kind() != SyntaxKind::VarAccessExpression)
+            return nullptr;
+
+        VarAccessExpressionSyntax* base_var = (VarAccessExpressionSyntax*)curr;
+        ObjectSymbol obj_sym = caller_ctx.get_symbol_table()->get_object(base_var->get_identifier()->get_text());
+        if (obj_sym.object == nullptr)
+            return nullptr;
+
+        Object* container = obj_sym.object;
+        for (int k = (int)index_chain.size() - 1; k >= 0; k--)
+        {
+            IndexExpressionSyntax* step = index_chain[k];
+            Object* idx_obj = Evaluator::evaluate(caller_ctx, step->get_indexer());
+            if (!idx_obj || idx_obj->type() != Type::INTEGER || !container || container->type() != Type::LIST)
+            {
+                delete idx_obj;
+                return nullptr;
+            }
+
+            List* list = (List*)container;
+            long long idx = ((Integer*)idx_obj)->get_value();
+            delete idx_obj;
+            int n = list->get_size();
+            if (idx < 0) idx += n;
+            if (idx < 0 || idx >= n)
+                return nullptr;
+
+            container = list->get_value((int)idx);
+        }
+
+        if (container && container->type() == Type::LIST)
+            return (List*)container;
+    }
+
+    return nullptr;
+}
+
+// Appends an element to a list (mutates variable/collection in-place if passed an lvalue, and returns the updated list).
 Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& args, SyntaxNode* first_arg_node, Position pos)
 {
     if (args[0]->type() != Type::LIST)
@@ -287,16 +352,11 @@ Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& 
         return new None();
     }
 
-    if (first_arg_node && first_arg_node->kind() == SyntaxKind::VarAccessExpression)
+    List* target_list = resolve_target_list(caller_ctx, first_arg_node);
+    if (target_list)
     {
-        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
-        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
-        if (sym.object && sym.object->type() == Type::LIST)
-        {
-            List* target_list = (List*)sym.object;
-            target_list->push(args[1]->copy());
-            return target_list->copy();
-        }
+        target_list->push(args[1]->copy());
+        return target_list->copy();
     }
 
     List* copy_list = (List*)args[0]->copy();
@@ -304,7 +364,7 @@ Object* BuiltInFunctions::PUSH(Context& caller_ctx, const std::vector<Object*>& 
     return copy_list;
 }
 
-// Removes and returns an element from a list (default last element; mutates variable in-place).
+// Removes and returns an element from a list (default last element; mutates variable/collection in-place).
 Object* BuiltInFunctions::POP(Context& caller_ctx, const std::vector<Object*>& args, SyntaxNode* first_arg_node, Position pos)
 {
     if (args[0]->type() != Type::LIST)
@@ -324,14 +384,9 @@ Object* BuiltInFunctions::POP(Context& caller_ctx, const std::vector<Object*>& a
         idx = ((Integer*)args[1])->get_value();
     }
 
-    List* target_list = (List*)args[0];
-    if (first_arg_node && first_arg_node->kind() == SyntaxKind::VarAccessExpression)
-    {
-        std::string var_name = ((VarAccessExpressionSyntax*)first_arg_node)->get_identifier()->get_text();
-        ObjectSymbol sym = caller_ctx.get_symbol_table()->get_object(var_name);
-        if (sym.object && sym.object->type() == Type::LIST)
-            target_list = (List*)sym.object;
-    }
+    List* target_list = resolve_target_list(caller_ctx, first_arg_node);
+    if (!target_list)
+        target_list = (List*)args[0];
 
     long long n = target_list->get_size();
     long long norm_idx = (idx < 0) ? (idx + n) : idx;

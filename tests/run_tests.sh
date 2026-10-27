@@ -112,10 +112,12 @@ assert_eq "Mutable list indexing and slicing" \
         print(a, a[1:4], a[:2], a[3:]);
         list mat = [[1, 2], [3, 4]];
         mat[1][0] = 99;
-        print(mat[1][0]);
+        push(mat[0], 50);
+        int popped = pop(mat[1]);
+        print(mat[1][0], mat[0], popped);
     ')" \
     "[10, 3, 3, 4, 10] [3, 3, 4] [10, 3] [4, 10]
-99"
+99 [1, 2, 50] 4"
 
 # 7. String Escapes, Single Quotes, Indexing, and Slicing
 assert_eq "String escapes and slicing" \
