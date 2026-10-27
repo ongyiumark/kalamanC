@@ -183,6 +183,7 @@ namespace Objects
         void push(Objects::Object* val);
         Object* pop(long long i = -1);
         const std::vector<Object*>& get_values() const;
+        std::vector<Object*> release_values();
 
         Object* added_by(Object* other) const override;
         Object* accessed_by(Object* other) const override;

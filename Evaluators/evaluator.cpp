@@ -1039,11 +1039,7 @@ Object* Evaluator::evaluate_for(Context& context, ForExpressionSyntax* node)
         std::vector<Object*> items;
         if (iterable->type() == Type::LIST)
         {
-            List* list = (List*)iterable;
-            int n = list->get_size();
-            items.reserve(n);
-            for (int i = 0; i < n; i++)
-                items.push_back(list->get_value(i)->copy());
+            items = ((List*)iterable)->release_values();
         }
         else if (iterable->type() == Type::STRING)
         {

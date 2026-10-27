@@ -395,6 +395,24 @@ assert_eq "Chained index access on temporary container and side-effect safety" \
     ')" \
     "30 999"
 
+# 27. Foreach Single-Copy Ownership Transfer
+assert_eq "Foreach over list and range with break and continue" \
+    "$($BIN -e '
+        int s = 0;
+        for (int x in range(100)) {
+            if (x < 10) continue;
+            if (x >= 20) break;
+            s += x;
+        }
+        list words = ["hello", "brave", "new", "world"];
+        string joined = "";
+        for (string w in words) {
+            joined += w + " ";
+        }
+        print(s, joined);
+    ')" \
+    "145 hello brave new world "
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

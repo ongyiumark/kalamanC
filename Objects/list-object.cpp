@@ -56,6 +56,13 @@ const std::vector<Object*>& List::get_values() const
     return _values;
 }
 
+std::vector<Object*> List::release_values()
+{
+    std::vector<Object*> result = std::move(_values);
+    _values.clear();
+    return result;
+}
+
 // Comma delimited values, enclosed in square brackets.
 std::string List::to_string() const
 {
