@@ -223,6 +223,14 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
         {
             DiagnosticBag::report_runtime_error("division by zero", node->get_pos());
         }
+        else if (op_kind == SyntaxKind::PowerToken &&
+                 ((left->type() == Type::INTEGER && ((Integer*)left)->get_value() == 0) ||
+                  (left->type() == Type::DOUBLE && ((Double*)left)->get_value() == 0)) &&
+                 ((right->type() == Type::INTEGER && ((Integer*)right)->get_value() < 0) ||
+                  (right->type() == Type::DOUBLE && ((Double*)right)->get_value() < 0)))
+        {
+            DiagnosticBag::report_runtime_error("zero cannot be raised to a negative power (division by zero)", node->get_pos());
+        }
         else if (op_kind == SyntaxKind::SlashToken &&
                  left->type() == Type::INTEGER && ((Integer*)left)->get_value() == std::numeric_limits<long long>::min() &&
                  right->type() == Type::INTEGER && ((Integer*)right)->get_value() == -1)
@@ -852,7 +860,8 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
         (op_kind == SyntaxKind::PlusPlusToken || op_kind == SyntaxKind::MinusMinusToken))
     {
         long long old_v = ((Integer*)orig_value)->get_value();
-        long long new_v = old_v + (op_kind == SyntaxKind::PlusPlusToken ? 1 : -1);
+        long long new_v = static_cast<long long>(static_cast<unsigned long long>(old_v) +
+            (op_kind == SyntaxKind::PlusPlusToken ? 1ULL : static_cast<unsigned long long>(-1LL)));
         ((Integer*)orig_value)->set_value(new_v);
         if (node->is_postfix())
             return new Integer(old_v);
@@ -1435,7 +1444,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             break;
         default:
         {
-            DiagnosticBag::report_unreachable_code("invalid builtin function", node->get_identifier()->get_pos());
+            DiagnosticBag::report_unreachable_code("invalid builtin function", call_pos);
             result = new None();
             break;
         }

@@ -240,7 +240,8 @@ Object* BuiltInFunctions::TO_DOUBLE(const std::vector<Object*>& args, Position p
             if (trimmed[0] == '-' || trimmed[0] == '+')
                 start_idx = 1;
 
-            for (size_t i = start_idx; i < trimmed.size(); i++)
+            size_t i = start_idx;
+            for (; i < trimmed.size(); i++)
             {
                 char c = trimmed[i];
                 if (c == '.') 
@@ -250,7 +251,27 @@ Object* BuiltInFunctions::TO_DOUBLE(const std::vector<Object*>& args, Position p
                 }
                 if (dot_count > 1) break;
                 if (is_digit(c)) digit_count++;
+                else if (c == 'e' || c == 'E') break;
                 else is_valid = false;
+            }
+
+            if (i < trimmed.size() && (trimmed[i] == 'e' || trimmed[i] == 'E'))
+            {
+                i++; // skip 'e' or 'E'
+                if (i < trimmed.size() && (trimmed[i] == '+' || trimmed[i] == '-'))
+                    i++;
+                size_t exp_digits = 0;
+                while (i < trimmed.size() && is_digit(trimmed[i]))
+                {
+                    exp_digits++;
+                    i++;
+                }
+                if (exp_digits == 0 || i != trimmed.size())
+                    is_valid = false;
+            }
+            else if (i != trimmed.size())
+            {
+                is_valid = false;
             }
             is_valid &= (dot_count <= 1) && (digit_count > 0);
 
@@ -504,7 +525,8 @@ Object* BuiltInFunctions::RANGE(const std::vector<Object*>& args, Position pos)
             for (size_t i = 0; i < count; i++)
             {
                 elems.push_back(new Integer(v));
-                v += step;
+                if (i + 1 < count)
+                    v += step;
             }
         }
         catch (const std::bad_alloc&)

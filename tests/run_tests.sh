@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="./kalman"
+BIN="${KALMAN_BIN:-./kalman}"
 PASS=0
 FAIL=0
 
@@ -612,6 +612,32 @@ assert_eq "to_bool(none) returns false" \
 # 44. to_int(double) Overflow Error
 TO_INT_OVERFLOW_ERR="$($BIN -e 'to_int(10.0 ^ 30.0);' 2>&1 || true)"
 assert_contains "to_int double overflow error" "$TO_INT_OVERFLOW_ERR" "float overflow in to_int()"
+
+# 45. to_double() with Scientific Notation String
+assert_eq "to_double scientific notation parsing" \
+    "$($BIN -e '
+        print(to_double("1e5"));
+        print(to_double("2.5e-2"));
+    ')" \
+    "100000
+0.025"
+
+# 46. Zero Raised to Negative Power Error
+ZERO_NEG_POW_ERR="$($BIN -e '0 ^ -1;' 2>&1 || true)"
+assert_contains "zero to negative power division error" "$ZERO_NEG_POW_ERR" "zero cannot be raised to a negative power"
+
+# 47. Integer LLONG_MAX Increment Two's Complement Wrap
+assert_eq "LLONG_MAX prefix/postfix increment wrap" \
+    "$($BIN -e '
+        int x = 9223372036854775807;
+        x++;
+        print(x);
+    ')" \
+    "-9223372036854775808"
+
+# 48. Distinct Filipino Builtin Language Detection
+FIL_REPL_OUT="$(printf 'pinakamalaki(1, 2) == 2\n#exit\n' | $BIN)"
+assert_contains "Filipino builtin detects language" "$FIL_REPL_OUT" "totoo"
 
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."

@@ -179,6 +179,7 @@ Object* Integer::powered_by(Object* other) const
         {
             long long b = _value;
             long long e = ((Integer*)other)->get_value();
+            if (b == 0 && e < 0) return new None();
             if (e < 0) return new Double(powl(b, e));
 
             long long ans = 1;
@@ -191,7 +192,11 @@ Object* Integer::powered_by(Object* other) const
             return new Integer(ans);
         }
         case Type::DOUBLE:
-            return new Double(powl(_value, ((Double*)other)->get_value()));   
+        {
+            long double e = ((Double*)other)->get_value();
+            if (_value == 0 && e < 0) return new None();
+            return new Double(powl(_value, e));
+        }
         default:
             return new None();         
     }
