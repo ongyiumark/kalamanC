@@ -426,6 +426,18 @@ assert_eq "Flat buffer matrix exponentiation identity and large power" \
  [0, 1]]
 586268941"
 
+# 29. Zero-Copy Function Invocation
+assert_eq "High-volume user and builtin function calls without copies" \
+    "$($BIN -e '
+        def square(int x) { return x * x; }
+        int s = 0;
+        for (int i in range(1000)) {
+            s += square(len(to_string(i)));
+        }
+        print(s);
+    ')" \
+    "8470"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

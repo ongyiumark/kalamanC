@@ -1183,7 +1183,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         return new None();
     }
     
-    Function* func = (Function*)sym.object->copy();
+    Function* func = (Function*)sym.object;
 
     // Check arguments
     int min_args = func->get_min_args();
@@ -1199,7 +1199,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             arg_pos = Position(first_arg.ln, first_arg.col, first_arg.start, last_arg.end);
         }
         DiagnosticBag::report_illegal_arguments_range(m, min_args, max_args, func->get_name(), arg_pos);
-        delete func;
         return new None();
     }
     
@@ -1213,7 +1212,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         {
             for (auto &o : args)
                 delete o;
-            delete func;
             return new None();
         }
     }
@@ -1236,7 +1234,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
                 );
                 for (auto &o : args)
                     delete o;
-                delete func;
                 return new None();
             }
         }
@@ -1247,7 +1244,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
                 node->get_pos());
             for (auto &o : args)
                 delete o;
-            delete func;
             return new None();
         }
 
@@ -1258,7 +1254,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             DiagnosticBag::pop_call();
             for (auto &o : args)
                 delete o;
-            delete func;
             return new None();
         }
 
@@ -1276,7 +1271,6 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
         DiagnosticBag::pop_call();
 
         delete body_obj;
-        delete func;
 
         if (should_return() && !return_value) 
             return new None();
@@ -1293,8 +1287,7 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     }
 
     // Handle built-in functions directly without allocating a temporary Context/SymbolTable
-    std::string func_name = func->get_name();
-    delete func;
+    const std::string& func_name = func->get_name();
     Position call_pos = node->get_pos();
     SyntaxNode* first_arg_node = (m > 0) ? node->get_arg(0) : nullptr;
     Object* result = nullptr;
