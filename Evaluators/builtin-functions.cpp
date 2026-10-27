@@ -7,6 +7,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <chrono>
 #include <cstdlib>
 
@@ -549,6 +550,11 @@ Object* BuiltInFunctions::ABS(const std::vector<Object*>& args, Position pos)
     if (obj->type() == Type::INTEGER)
     {
         long long v = ((Integer*)obj)->get_value();
+        if (v == std::numeric_limits<long long>::min())
+        {
+            DiagnosticBag::report_runtime_error("abs() integer overflow: cannot negate LLONG_MIN", pos);
+            return new None();
+        }
         return new Integer(v < 0 ? -v : v);
     }
     if (obj->type() == Type::DOUBLE)

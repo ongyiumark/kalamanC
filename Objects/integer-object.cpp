@@ -1,5 +1,6 @@
 #include "object.h"
 #include <cmath>
+#include <limits>
 
 using namespace Objects;
 
@@ -122,8 +123,10 @@ Object* Integer::divided_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
-            return new Integer(_value / other_int->get_value());
+            long long other_val = other_int->get_value();
+            if (other_val == 0) return new None();
+            if (_value == std::numeric_limits<long long>::min() && other_val == -1) return new None();
+            return new Integer(_value / other_val);
         }
         case Type::DOUBLE:
         {
@@ -143,8 +146,10 @@ Object* Integer::modded_by(Object* other) const
         case Type::INTEGER:
         {
             Integer* other_int = (Integer*)other;
-            if (other_int->get_value() == 0) return new None();
-            return new Integer(_value % other_int->get_value());
+            long long other_val = other_int->get_value();
+            if (other_val == 0) return new None();
+            if (_value == std::numeric_limits<long long>::min() && other_val == -1) return new Integer(0);
+            return new Integer(_value % other_val);
         }
         case Type::DOUBLE:
         {

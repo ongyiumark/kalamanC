@@ -2,6 +2,7 @@
 #include "builtin-functions.h"
 
 #include <iostream>
+#include <limits>
 
 using namespace Syntax;
 using namespace Contexts;
@@ -220,6 +221,12 @@ Object* Evaluator::evaluate_binary(Context& context, BinaryExpressionSyntax* nod
              (right->type() == Type::DOUBLE && ((Double*)right)->get_value() == 0)))
         {
             DiagnosticBag::report_runtime_error("division by zero", node->get_pos());
+        }
+        else if (op_kind == SyntaxKind::SlashToken &&
+                 left->type() == Type::INTEGER && ((Integer*)left)->get_value() == std::numeric_limits<long long>::min() &&
+                 right->type() == Type::INTEGER && ((Integer*)right)->get_value() == -1)
+        {
+            DiagnosticBag::report_runtime_error("integer overflow in division: cannot divide LLONG_MIN by -1", node->get_pos());
         }
         else
         {

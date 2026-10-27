@@ -197,6 +197,17 @@ assert_contains "Division by zero error message" "$ERR_OUT" "ERROR: division by 
 assert_contains "Function call traceback in error" "$ERR_OUT" "Traceback (most recent call last):"
 assert_contains "Caret indicator in error output" "$ERR_OUT" "^"
 
+# 15. Integer Overflow Safety (LLONG_MIN / -1, % -1, abs(LLONG_MIN))
+OVERFLOW_DIV_ERR="$($BIN -e 'int m = -9223372036854775807 - 1; print(m / -1);' 2>&1 || true)"
+assert_contains "LLONG_MIN division overflow error" "$OVERFLOW_DIV_ERR" "cannot divide LLONG_MIN by -1"
+
+OVERFLOW_ABS_ERR="$($BIN -e 'int m = -9223372036854775807 - 1; print(abs(m));' 2>&1 || true)"
+assert_contains "LLONG_MIN abs overflow error" "$OVERFLOW_ABS_ERR" "cannot negate LLONG_MIN"
+
+assert_eq "LLONG_MIN % -1 evaluates to 0 without crash" \
+    "$($BIN -e 'int m = -9223372036854775807 - 1; print(m % -1);')" \
+    "0"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
