@@ -242,6 +242,23 @@ assert_eq "List sort functionality (strings, empty, mixed int/double)" \
 SORT_ERR="$($BIN -e 'sort([1, "two", 3]);' 2>&1 || true)"
 assert_contains "Sort incomparable types error" "$SORT_ERR" "cannot sort list with incomparable element types"
 
+# 18. Control Flow Scope Validation (break/continue outside loops, return outside functions)
+BREAK_ERR="$($BIN -e 'break;' 2>&1 || true)"
+assert_contains "Break outside loop error" "$BREAK_ERR" "'break' outside of loop"
+
+CONTINUE_ERR="$($BIN -e 'continue;' 2>&1 || true)"
+assert_contains "Continue outside loop error" "$CONTINUE_ERR" "'continue' outside of loop"
+
+RETURN_ERR="$($BIN -e 'return 42;' 2>&1 || true)"
+assert_contains "Return outside function error" "$RETURN_ERR" "'return' outside of function"
+
+FUNC_BREAK_ERR="$($BIN -e 'while (true) { def f() { break; } f(); }' 2>&1 || true)"
+assert_contains "Break crossing function boundary error" "$FUNC_BREAK_ERR" "'break' outside of loop"
+
+assert_eq "Valid break and continue inside loop execution" \
+    "$($BIN -e 'int s = 0; for (int i in range(10)) { if (i == 3) continue; if (i == 7) break; s += i; } print(s);')" \
+    "18"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

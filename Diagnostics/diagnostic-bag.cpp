@@ -199,6 +199,21 @@ void DiagnosticBag::report_invalid_builtin_arguments(const std::string& name, in
     report(os.str(), pos);    
 }
 
+void DiagnosticBag::report_invalid_break(Position pos)
+{
+    report("ERROR: 'break' outside of loop", pos);
+}
+
+void DiagnosticBag::report_invalid_continue(Position pos)
+{
+    report("ERROR: 'continue' outside of loop", pos);
+}
+
+void DiagnosticBag::report_invalid_return(Position pos)
+{
+    report("ERROR: 'return' outside of function", pos);
+}
+
 void DiagnosticBag::report_runtime_error(const std::string& message, Position pos)
 {
     std::ostringstream os;

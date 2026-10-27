@@ -281,6 +281,8 @@ namespace Syntax
     private:
         std::vector<SyntaxToken> _tokens;
         int _position;
+        int _loop_depth;
+        int _func_depth;
 
         SyntaxToken peek(int offset) const;
         SyntaxToken current() const;

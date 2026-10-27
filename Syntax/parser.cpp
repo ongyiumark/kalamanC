@@ -6,7 +6,7 @@ using namespace Objects;
 using namespace Diagnostics;
 
 // This turns the tokens into a tree of syntax. 
-Parser::Parser(std::string& text, bool show_return) : _position(0)
+Parser::Parser(std::string& text, bool show_return) : _position(0), _loop_depth(0), _func_depth(0)
 {
     Lexer lexer(text);
     SyntaxToken token;
@@ -195,7 +195,9 @@ SyntaxNode* Parser::parse_statement()
             SyntaxNode* condition = parse_expression();
             match_token(SyntaxKind::RParenToken);
 
+            _loop_depth++;
             SyntaxNode* body = parse_statement();
+            _loop_depth--;
             return new WhileExpressionSyntax(condition, body, Position(start.ln, start.col, start.start, current().get_pos().end));
         }
         case SyntaxKind::ForKeyword:
@@ -230,7 +232,9 @@ SyntaxNode* Parser::parse_statement()
                 next_token(); // consume 'in' / 'sa' / ':'
                 SyntaxNode* iterable = parse_expression();
                 match_token(SyntaxKind::RParenToken);
+                _loop_depth++;
                 SyntaxNode* body = parse_statement();
+                _loop_depth--;
                 return new ForExpressionSyntax(var_node, iterable, nullptr, body,
                     Position(start.ln, start.col, start.start, current().get_pos().end), true);
             }
@@ -256,7 +260,9 @@ SyntaxNode* Parser::parse_statement()
                 update = parse_expression();
             match_token(SyntaxKind::RParenToken);
 
+            _loop_depth++;
             SyntaxNode* body = parse_statement();
+            _loop_depth--;
             return new ForExpressionSyntax(init, condition, update, body,
                 Position(start.ln, start.col, start.start, current().get_pos().end), false);
         }
@@ -285,13 +291,20 @@ SyntaxNode* Parser::parse_statement()
             }
             
             match_token(SyntaxKind::RParenToken);
+            int saved_loop_depth = _loop_depth;
+            _loop_depth = 0;
+            _func_depth++;
             SyntaxNode* body = parse_statement();
+            _func_depth--;
+            _loop_depth = saved_loop_depth;
             return new FuncDefineExpressionSyntax(identifier, arg_names, body,
                 Position(start.ln, start.col, start.start, current().get_pos().end));
         }
         case SyntaxKind::ReturnKeyword:
         {
             Position start = current().get_pos();
+            if (_func_depth <= 0)
+                DiagnosticBag::report_invalid_return(start);
             next_token();
             if (current().kind() == SyntaxKind::SemicolonToken)
             {
@@ -306,6 +319,8 @@ SyntaxNode* Parser::parse_statement()
         case SyntaxKind::BreakKeyword:
         {
             Position pos = current().get_pos();
+            if (_loop_depth <= 0)
+                DiagnosticBag::report_invalid_break(pos);
             next_token();
             match_token(SyntaxKind::SemicolonToken);
             return new BreakExpressionSyntax(pos);
@@ -313,6 +328,8 @@ SyntaxNode* Parser::parse_statement()
         case SyntaxKind::ContinueKeyword:
         {
             Position pos = current().get_pos();
+            if (_loop_depth <= 0)
+                DiagnosticBag::report_invalid_continue(pos);
             next_token();
             match_token(SyntaxKind::SemicolonToken);
             return new ContinueExpressionSyntax(pos);
