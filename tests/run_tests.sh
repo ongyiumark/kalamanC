@@ -469,6 +469,18 @@ assert_eq "Direct initialized and uninitialized variable declarations" \
 INIT_TYPE_ERR="$($BIN -e 'int x = "invalid";' 2>&1 || true)"
 assert_contains "Type mismatch error on variable declaration initializer" "$INIT_TYPE_ERR" "invalid assignment of <string> to <int>"
 
+# 32. Compile-Time Constexpr Constant Resolution
+assert_eq "Constexpr bilingual keywords and builtins resolution" \
+    "$($BIN -e '
+        aka bati(mgawords pangalan) {
+            ibalik "Kumusta, " + pangalan;
+        }
+        lathala(bati("Mundo"));
+        lathala(totoo, mali);
+    ')" \
+    "Kumusta, Mundo
+totoo mali"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
