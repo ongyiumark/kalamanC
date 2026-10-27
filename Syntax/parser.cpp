@@ -98,7 +98,8 @@ SyntaxNode* Parser::parse_program(bool sub_program)
                     match_token(SyntaxKind::RCurlyToken);
                     return new SequenceExpressionSyntax(program_seq, 
                         Position(start.ln, start.col, start.start, current().get_pos().end), 
-                        false); 
+                        false,
+                        sub_program); 
                 }
                 default:
                     if (_position == prev_pos)
@@ -109,7 +110,8 @@ SyntaxNode* Parser::parse_program(bool sub_program)
         next_token();
         return new SequenceExpressionSyntax(program_seq, 
             Position(start.ln, start.col, start.start, current().get_pos().end),  
-            false); 
+            false,
+            sub_program); 
     }
 
     while(current().kind() != SyntaxKind::EndOfFileToken)
@@ -137,7 +139,8 @@ SyntaxNode* Parser::parse_program(bool sub_program)
         
     return new SequenceExpressionSyntax(program_seq,
         Position(start.ln, start.col, start.start, current().get_pos().end), 
-        false);
+        false,
+        sub_program);
 }
 
 SyntaxNode* Parser::parse_statement()

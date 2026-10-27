@@ -270,6 +270,24 @@ assert_eq "Language detection isolated to lexer and unchanged by runtime dispatc
     "totoo
 totoo"
 
+# 20. Standalone Block Scope Isolation
+assert_eq "Standalone block lexical scope and shadowing" \
+    "$($BIN -e '
+        int x = 5;
+        {
+            x = 10;
+            int y = 20;
+            int x = 30;
+            print(x, y);
+        }
+        print(x);
+    ')" \
+    "30 20
+10"
+
+BLOCK_LEAK_ERR="$($BIN -e '{ int y = 999; } print(y);' 2>&1 || true)"
+assert_contains "Block local variable does not leak" "$BLOCK_LEAK_ERR" "undeclared identifier 'y'"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

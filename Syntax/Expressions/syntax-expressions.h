@@ -57,8 +57,9 @@ namespace Syntax
     private:
         std::vector<SyntaxNode*> _nodes;
         bool _to_return;
+        bool _is_block;
     public:
-        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false);
+        SequenceExpressionSyntax(std::vector<SyntaxNode*>& nodes, Diagnostics::Position pos, bool to_return=false, bool is_block=false);
         ~SequenceExpressionSyntax() override;
         SyntaxKind kind() const override;    
 
@@ -66,6 +67,7 @@ namespace Syntax
         SyntaxNode* get_node(int i);
         std::vector<SyntaxNode*> get_nodes();
         bool get_to_return();
+        bool is_block() const;
     };
 
     // Refer to while-syntax.cpp.

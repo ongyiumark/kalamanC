@@ -268,6 +268,24 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
     // Sequence of statements (returns the result of the last executed statement).
     int n = node->get_nodes_size();
     Object* last_obj = nullptr;
+
+    if (node->is_block())
+    {
+        Context block_ctx("block", &context, context.get_symbol_table());
+        for (int i = 0; i < n; i++)
+        {
+            delete last_obj;
+            last_obj = evaluate(block_ctx, node->get_node(i));
+            if (should_return())
+            {
+                delete last_obj;
+                return new None();
+            }
+        }
+        if (last_obj != nullptr) return last_obj;
+        return new None();
+    }
+
     for (int i = 0; i < n; i++)
     {
         delete last_obj;
