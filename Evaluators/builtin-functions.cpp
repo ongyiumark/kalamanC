@@ -10,6 +10,7 @@
 #include <limits>
 #include <chrono>
 #include <cstdlib>
+#include <cerrno>
 
 using namespace Objects;
 using namespace Diagnostics;
@@ -178,9 +179,10 @@ Object* BuiltInFunctions::TO_INT(const std::vector<Object*>& args, Position pos)
             for (size_t i = start_idx; i < trimmed.size(); i++)
                 is_valid &= is_digit(trimmed[i]);
 
-            std::istringstream is(trimmed);
-            long long x;
-            if (is_valid && (is >> x)) 
+            char* end = nullptr;
+            errno = 0;
+            long long x = std::strtoll(trimmed.c_str(), &end, 10);
+            if (is_valid && errno == 0 && end == trimmed.c_str() + trimmed.size()) 
                 return new Integer(x);
 
             DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), pos);
@@ -239,9 +241,10 @@ Object* BuiltInFunctions::TO_DOUBLE(const std::vector<Object*>& args, Position p
             }
             is_valid &= (dot_count <= 1) && (digit_count > 0);
 
-            std::istringstream is(trimmed);
-            long double x;
-            if (is_valid && (is >> x)) 
+            char* end = nullptr;
+            errno = 0;
+            long double x = std::strtold(trimmed.c_str(), &end);
+            if (is_valid && errno == 0 && end == trimmed.c_str() + trimmed.size()) 
                 return new Double(x);
 
             DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE), pos);

@@ -1,6 +1,8 @@
 #include "Expressions/syntax-expressions.h"
 
 #include <iostream>
+#include <cstdlib>
+#include <cerrno>
 using namespace Syntax;
 using namespace Objects;
 using namespace Diagnostics;
@@ -531,9 +533,11 @@ SyntaxNode* Parser::parse_atom()
         case SyntaxKind::IntegerToken:
         {
             SyntaxToken literal_token = next_token();
-            std::istringstream is(literal_token.get_text());
-            long long x = 0;
-            if (is >> x) return new LiteralExpressionSyntax(new Integer(x), literal_token.get_pos());
+            char* end = nullptr;
+            errno = 0;
+            long long x = std::strtoll(literal_token.get_text().c_str(), &end, 10);
+            if (errno == 0 && end == literal_token.get_text().c_str() + literal_token.get_text().size())
+                return new LiteralExpressionSyntax(new Integer(x), literal_token.get_pos());
             
             return new LiteralExpressionSyntax(new None(), literal_token.get_pos());
         }
@@ -545,9 +549,11 @@ SyntaxNode* Parser::parse_atom()
         case SyntaxKind::DoubleToken:
         {
             SyntaxToken literal_token = next_token();
-            std::istringstream is(literal_token.get_text());
-            long double x = 0.0;
-            if (is >> x) return new LiteralExpressionSyntax(new Double(x), literal_token.get_pos());
+            char* end = nullptr;
+            errno = 0;
+            long double x = std::strtold(literal_token.get_text().c_str(), &end);
+            if (errno == 0 && end == literal_token.get_text().c_str() + literal_token.get_text().size())
+                return new LiteralExpressionSyntax(new Double(x), literal_token.get_pos());
             
             return new LiteralExpressionSyntax(new None(), literal_token.get_pos());
         }

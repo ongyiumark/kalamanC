@@ -438,6 +438,17 @@ assert_eq "High-volume user and builtin function calls without copies" \
     ')" \
     "8470"
 
+# 30. Fast Numeric Literal Parsing & Conversion
+assert_eq "Fast strtoll and strtold numeric literal and conversion parsing" \
+    "$($BIN -e '
+        int a = 9223372036854775806;
+        double b = 123456.789;
+        int c = to_int("-98765");
+        double d = to_double("42.5");
+        print(a, b, c, d);
+    ')" \
+    "9223372036854775806 123456.789 -98765 42.5"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

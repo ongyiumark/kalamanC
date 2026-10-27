@@ -1,5 +1,7 @@
 #include "syntax.h"
 #include <iostream>
+#include <cstdlib>
+#include <cerrno>
 
 using namespace Syntax;
 using namespace Objects;
@@ -77,9 +79,10 @@ SyntaxToken Lexer::lex()
         Position curr_pos = Position(start_ln, start_col, start, _position);
         if (dot_count == 0)
         {
-            long long x;
-            std::istringstream is(text);
-            if (is >> x)
+            char* end = nullptr;
+            errno = 0;
+            std::strtoll(text.c_str(), &end, 10);
+            if (errno == 0 && end == text.c_str() + text.size())
                 return SyntaxToken(SyntaxKind::IntegerToken, curr_pos, text);
 
             Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::INTEGER), curr_pos);
@@ -87,9 +90,10 @@ SyntaxToken Lexer::lex()
         }
         else
         {
-            long double x;
-            std::istringstream is(text);
-            if (is >> x)
+            char* end = nullptr;
+            errno = 0;
+            std::strtold(text.c_str(), &end);
+            if (errno == 0 && end == text.c_str() + text.size())
                 return SyntaxToken(SyntaxKind::DoubleToken, curr_pos, text);
     
             Diagnostics::DiagnosticBag::report_invalid_type(text, type_to_string(Type::DOUBLE), curr_pos);
