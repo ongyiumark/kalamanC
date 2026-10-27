@@ -228,6 +228,20 @@ assert_eq "CLI --recursion-limit flag configuration" \
     "$($BIN --recursion-limit=450 -e 'print(get_recursion_limit());')" \
     "450"
 
+# 17. List Sorting Safety (strict weak ordering, mixed numbers, strings, empty, error on mixed types)
+assert_eq "List sort functionality (strings, empty, mixed int/double)" \
+    "$($BIN -e '
+        print(sort(["banana", "apple", "cherry"]));
+        print(sort([3.5, 1, 4.2, 2, 0.5]));
+        print(sort([]));
+    ')" \
+    "['apple', 'banana', 'cherry']
+[0.5, 1, 2, 3.5, 4.2]
+[]"
+
+SORT_ERR="$($BIN -e 'sort([1, "two", 3]);' 2>&1 || true)"
+assert_contains "Sort incomparable types error" "$SORT_ERR" "cannot sort list with incomparable element types"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

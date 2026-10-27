@@ -460,32 +460,48 @@ Object* BuiltInFunctions::SORT(const std::vector<Object*>& args, Position pos)
 
     List* src = (List*)args[0];
     int n = src->get_size();
+    if (n == 0)
+        return new List({});
+
+    bool all_numeric = true;
+    bool all_string = true;
+    for (int i = 0; i < n; i++)
+    {
+        Type t = src->get_value(i)->type();
+        if (t != Type::INTEGER && t != Type::DOUBLE)
+            all_numeric = false;
+        if (t != Type::STRING)
+            all_string = false;
+    }
+
+    if (!all_numeric && !all_string)
+    {
+        DiagnosticBag::report_runtime_error("cannot sort list with incomparable element types", pos);
+        return new None();
+    }
+
     std::vector<Object*> elems;
     elems.reserve(n);
     for (int i = 0; i < n; i++)
         elems.push_back(src->get_value(i)->copy());
 
-    bool invalid_cmp = false;
-    std::sort(elems.begin(), elems.end(), [&](Object* a, Object* b) {
-        if (invalid_cmp) return false;
-        Object* lt = a->less_than(b);
-        if (lt->type() != Type::BOOLEAN)
-        {
-            delete lt;
-            invalid_cmp = true;
-            return false;
-        }
-        bool res = ((Boolean*)lt)->get_value();
-        delete lt;
-        return res;
-    });
-
-    if (invalid_cmp)
+    if (all_numeric)
     {
-        for (auto* o : elems) delete o;
-        DiagnosticBag::report_runtime_error("cannot sort list with incomparable element types", pos);
-        return new None();
+        std::sort(elems.begin(), elems.end(), [](Object* a, Object* b) {
+            if (a->type() == Type::INTEGER && b->type() == Type::INTEGER)
+                return ((Integer*)a)->get_value() < ((Integer*)b)->get_value();
+            long double va = (a->type() == Type::INTEGER) ? (long double)((Integer*)a)->get_value() : ((Double*)a)->get_value();
+            long double vb = (b->type() == Type::INTEGER) ? (long double)((Integer*)b)->get_value() : ((Double*)b)->get_value();
+            return va < vb;
+        });
     }
+    else // all_string
+    {
+        std::sort(elems.begin(), elems.end(), [](Object* a, Object* b) {
+            return ((String*)a)->get_value() < ((String*)b)->get_value();
+        });
+    }
+
     return new List(elems);
 }
 
