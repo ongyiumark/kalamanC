@@ -706,6 +706,12 @@ static Object* apply_compound_op(Object* orig, SyntaxKind op_kind, Object* rhs, 
         {
             DiagnosticBag::report_runtime_error("division by zero", pos);
         }
+        else if (op_kind == SyntaxKind::SlashEqualsToken &&
+                 orig->type() == Type::INTEGER && ((Integer*)orig)->get_value() == std::numeric_limits<long long>::min() &&
+                 rhs->type() == Type::INTEGER && ((Integer*)rhs)->get_value() == -1)
+        {
+            DiagnosticBag::report_runtime_error("integer overflow in division: cannot divide LLONG_MIN by -1", pos);
+        }
         else
         {
             DiagnosticBag::report_illegal_binary_operation(type_to_string(orig->type()),
@@ -1183,7 +1189,8 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
     for (int i = 0; i < n; i++)
         arg_names.push_back(node->get_arg_name(i)->get_text());
     
-    Object* val = new Function(name, arg_names, node->get_arg_types(), node->get_body_shared());
+    Function* val = new Function(name, arg_names, node->get_arg_types(), node->get_body_shared());
+    val->set_def_scope(context.get_symbol_table());
     context.get_symbol_table()->set_object(name, val);
     return val->copy();
 }
@@ -1191,22 +1198,42 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
 // Calls a function.
 Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSyntax* node)
 {
-    ObjectSymbol sym = context.get_symbol_table()->get_object(node->get_identifier()->get_text());
-    if (sym.object == nullptr || sym.object->type() == Type::NONE)
-    {
-        DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text(),
-            node->get_identifier()->get_pos());
-        return new None();
-    }
+    Function* func = nullptr;
+    std::unique_ptr<Object> callee_holder;
 
-    if (sym.object->type() != Type::FUNCTION)
+    if (node->get_callee() != nullptr)
     {
-        DiagnosticBag::report_unexpected_type(type_to_string(sym.object->type()), type_to_string(Type::FUNCTION),
-            node->get_identifier()->get_pos());
-        return new None();
+        callee_holder.reset(evaluate(context, node->get_callee()));
+        if (should_return())
+            return new None();
+
+        if (callee_holder->type() != Type::FUNCTION)
+        {
+            DiagnosticBag::report_unexpected_type(type_to_string(callee_holder->type()), type_to_string(Type::FUNCTION),
+                node->get_callee()->get_pos());
+            return new None();
+        }
+        func = (Function*)callee_holder.get();
     }
-    
-    Function* func = (Function*)sym.object;
+    else
+    {
+        ObjectSymbol sym = context.get_symbol_table()->get_object(node->get_identifier()->get_text());
+        if (sym.object == nullptr || sym.object->type() == Type::NONE)
+        {
+            DiagnosticBag::report_undeclared_identifier(node->get_identifier()->get_text(),
+                node->get_identifier()->get_pos());
+            return new None();
+        }
+
+        if (sym.object->type() != Type::FUNCTION)
+        {
+            DiagnosticBag::report_unexpected_type(type_to_string(sym.object->type()), type_to_string(Type::FUNCTION),
+                node->get_identifier()->get_pos());
+            return new None();
+        }
+        
+        func = (Function*)sym.object;
+    }
 
     // Check arguments
     int min_args = func->get_min_args();
@@ -1263,7 +1290,8 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
 
         if (func->get_body() == nullptr)
         {
-            DiagnosticBag::report_runtime_error("cannot call uninitialized function '" + node->get_identifier()->get_text() + "'",
+            std::string fname = (node->get_callee() != nullptr) ? "<expression>" : node->get_identifier()->get_text();
+            DiagnosticBag::report_runtime_error("cannot call uninitialized function '" + fname + "'",
                 node->get_pos());
             for (auto &o : args)
                 delete o;
@@ -1280,12 +1308,16 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return new None();
         }
 
-        Context* root_ctx = &context;
-        while (root_ctx->get_parent() != nullptr)
-            root_ctx = root_ctx->get_parent();
-        SymbolTable* global_syms = root_ctx->get_symbol_table();
+        SymbolTable* parent_syms = func->get_def_scope();
+        if (parent_syms == nullptr)
+        {
+            Context* root_ctx = &context;
+            while (root_ctx->get_parent() != nullptr)
+                root_ctx = root_ctx->get_parent();
+            parent_syms = root_ctx->get_symbol_table();
+        }
 
-        Context exec_ctx(func->get_name(), &context, global_syms);
+        Context exec_ctx(func->get_name(), &context, parent_syms);
         for (int i = 0; i < m; i++)
             exec_ctx.get_symbol_table()->set_object(func->get_argument_name(i), args[i]);
 

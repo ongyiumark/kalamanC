@@ -78,6 +78,9 @@ void Evaluators::reset()
     context.get_symbol_table()->clear();
     Objects::List::matrix_mod = 1'000'000'007;
     Evaluator::max_recursion_depth = 1000;
+    Objects::Boolean::use_filipino = false;
+    Objects::Boolean::lang_locked = false;
+    Objects::drain_free_lists();
     initialize();
 }
 

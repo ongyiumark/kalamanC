@@ -24,6 +24,16 @@ void Integer::operator delete(void* p) noexcept
     _free_list = static_cast<Integer*>(p);
 }
 
+void Integer::drain_free_list()
+{
+    while (_free_list)
+    {
+        Integer* next = *reinterpret_cast<Integer**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
+}
+
 Integer::Integer(long long value) : _value(value) {}
 
 Type Integer::type() const

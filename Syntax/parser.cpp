@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
+#include <unordered_set>
 using namespace Syntax;
 using namespace Objects;
 using namespace Diagnostics;
@@ -279,6 +280,17 @@ SyntaxNode* Parser::parse_statement()
             match_token(SyntaxKind::LParenToken);
             std::vector<SyntaxToken> arg_names;
             std::vector<Objects::Type> arg_types;
+            std::unordered_set<std::string> seen_param_names;
+
+            auto check_and_add_param = [&](SyntaxToken tok, Objects::Type type) {
+                const std::string& name = tok.get_text();
+                if (seen_param_names.count(name))
+                    DiagnosticBag::report_redefinition(name, tok.get_pos());
+                else
+                    seen_param_names.insert(name);
+                arg_names.push_back(tok);
+                arg_types.push_back(type);
+            };
 
             if (current().kind() != SyntaxKind::RParenToken)
             {
@@ -289,8 +301,7 @@ SyntaxNode* Parser::parse_statement()
                     next_token();
                 }
                 SyntaxToken arg_name = match_token(SyntaxKind::IdentifierToken);
-                arg_names.push_back(arg_name);
-                arg_types.push_back(t);
+                check_and_add_param(arg_name, t);
                 while(current().kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
@@ -301,8 +312,7 @@ SyntaxNode* Parser::parse_statement()
                         next_token();
                     }
                     arg_name = match_token(SyntaxKind::IdentifierToken);
-                    arg_names.push_back(arg_name);
-                    arg_types.push_back(t);
+                    check_and_add_param(arg_name, t);
                 }
             }
             
@@ -445,24 +455,13 @@ SyntaxNode* Parser::parse_expression(int precedence)
 SyntaxNode* Parser::parse_molecule()
 {
     SyntaxNode* left = parse_atom();
-    while(current().kind() == SyntaxKind::LSquareToken)
+    while(current().kind() == SyntaxKind::LSquareToken || current().kind() == SyntaxKind::LParenToken)
     {
-        Position start = left->get_pos();
-        next_token(); // consume '['
+        if (current().kind() == SyntaxKind::LSquareToken)
+        {
+            Position start = left->get_pos();
+            next_token(); // consume '['
 
-        if (current().kind() == SyntaxKind::ColonToken)
-        {
-            next_token(); // consume ':'
-            SyntaxNode* slice_end = nullptr;
-            if (current().kind() != SyntaxKind::RSquareToken)
-                slice_end = parse_expression();
-            SyntaxToken rsq = match_token(SyntaxKind::RSquareToken);
-            left = new IndexExpressionSyntax(left, nullptr, slice_end, true,
-                Position(start.ln, start.col, start.start, rsq.get_pos().end));
-        }
-        else
-        {
-            SyntaxNode* first_expr = parse_expression();
             if (current().kind() == SyntaxKind::ColonToken)
             {
                 next_token(); // consume ':'
@@ -470,15 +469,47 @@ SyntaxNode* Parser::parse_molecule()
                 if (current().kind() != SyntaxKind::RSquareToken)
                     slice_end = parse_expression();
                 SyntaxToken rsq = match_token(SyntaxKind::RSquareToken);
-                left = new IndexExpressionSyntax(left, first_expr, slice_end, true,
+                left = new IndexExpressionSyntax(left, nullptr, slice_end, true,
                     Position(start.ln, start.col, start.start, rsq.get_pos().end));
             }
             else
             {
-                SyntaxToken rsq = match_token(SyntaxKind::RSquareToken);
-                left = new IndexExpressionSyntax(left, first_expr,
-                    Position(start.ln, start.col, start.start, rsq.get_pos().end));
+                SyntaxNode* first_expr = parse_expression();
+                if (current().kind() == SyntaxKind::ColonToken)
+                {
+                    next_token(); // consume ':'
+                    SyntaxNode* slice_end = nullptr;
+                    if (current().kind() != SyntaxKind::RSquareToken)
+                        slice_end = parse_expression();
+                    SyntaxToken rsq = match_token(SyntaxKind::RSquareToken);
+                    left = new IndexExpressionSyntax(left, first_expr, slice_end, true,
+                        Position(start.ln, start.col, start.start, rsq.get_pos().end));
+                }
+                else
+                {
+                    SyntaxToken rsq = match_token(SyntaxKind::RSquareToken);
+                    left = new IndexExpressionSyntax(left, first_expr,
+                        Position(start.ln, start.col, start.start, rsq.get_pos().end));
+                }
             }
+        }
+        else if (current().kind() == SyntaxKind::LParenToken)
+        {
+            Position start = left->get_pos();
+            next_token(); // consume '('
+            std::vector<SyntaxNode*> args;
+            if (current().kind() != SyntaxKind::RParenToken)
+            {
+                args.push_back(parse_expression());
+                while (current().kind() == SyntaxKind::CommaToken)
+                {
+                    next_token();
+                    args.push_back(parse_expression());
+                }
+            }
+            SyntaxToken rp = match_token(SyntaxKind::RParenToken);
+            left = new FuncCallExpressionSyntax(left, args,
+                Position(start.ln, start.col, start.start, rp.get_pos().end));
         }
     }
 

@@ -74,10 +74,25 @@ SyntaxToken Lexer::lex()
             next();
         }
 
+        bool has_exponent = false;
+        if (current() == 'e' || current() == 'E')
+        {
+            char next_ch = look_ahead();
+            if (is_digit(next_ch) || ((next_ch == '+' || next_ch == '-') && is_digit(peek(2))))
+            {
+                has_exponent = true;
+                next(); // consume 'e' or 'E'
+                if (current() == '+' || current() == '-')
+                    next(); // consume sign
+                while (is_digit(current()))
+                    next();
+            }
+        }
+
         int length = _position - start;
         std::string text = _text.substr(start, length);
         Position curr_pos = Position(start_ln, start_col, start, _position);
-        if (dot_count == 0)
+        if (dot_count == 0 && !has_exponent)
         {
             char* end = nullptr;
             errno = 0;

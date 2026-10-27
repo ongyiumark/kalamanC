@@ -13,7 +13,8 @@ Function::Function(const std::string& name, const std::vector<std::string>& argu
       _body(std::move(body)),
       _built_in(built_in),
       _min_args(min_args == -1 ? (int)argument_names.size() : min_args),
-      _max_args(max_args == -1 && min_args == -1 ? (int)argument_names.size() : max_args) {}
+      _max_args(max_args == -1 && min_args == -1 ? (int)argument_names.size() : max_args),
+      _def_scope(nullptr) {}
 
 Function::Function(const std::string& name, const std::vector<std::string>& argument_names,
                    const std::vector<Type>& argument_types,
@@ -25,7 +26,8 @@ Function::Function(const std::string& name, const std::vector<std::string>& argu
       _body(std::move(body)),
       _built_in(built_in),
       _min_args(min_args == -1 ? (int)argument_names.size() : min_args),
-      _max_args(max_args == -1 && min_args == -1 ? (int)argument_names.size() : max_args) {}
+      _max_args(max_args == -1 && min_args == -1 ? (int)argument_names.size() : max_args),
+      _def_scope(nullptr) {}
 
 Type Function::type() const
 {
@@ -89,6 +91,16 @@ bool Function::is_built_in() const
     return _built_in;
 }
 
+Contexts::SymbolTable* Function::get_def_scope() const
+{
+    return _def_scope;
+}
+
+void Function::set_def_scope(Contexts::SymbolTable* def_scope)
+{
+    _def_scope = def_scope;
+}
+
 // Prints the name of the function in a special format.
 std::string Function::to_string() const
 {
@@ -114,5 +126,7 @@ Object* Function::equals(Object* other) const
 
 Object* Function::copy()
 {
-    return new Function(_name, _argument_names, _argument_types, _body, _built_in, _min_args, _max_args);
+    Function* fn = new Function(_name, _argument_names, _argument_types, _body, _built_in, _min_args, _max_args);
+    fn->_def_scope = _def_scope;
+    return fn;
 }

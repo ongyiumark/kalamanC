@@ -105,7 +105,7 @@ static bool needs_more_input(const std::string& buffer)
         else if (c == ']') square--;
     }
 
-    return in_block_comment || curly > 0 || paren > 0 || square > 0;
+    return in_block_comment || in_string || curly > 0 || paren > 0 || square > 0;
 }
 
 static std::string trim_copy(const std::string& s)
@@ -283,6 +283,7 @@ int main(int argc, char ** argv)
     if (has_inline_code)
     {
         bool ok = run(inline_code, show_tree, false, false);
+        Objects::drain_free_lists();
         return ok ? 0 : 1;
     }
 
@@ -300,6 +301,7 @@ int main(int argc, char ** argv)
         file.close();
 
         bool ok = run(script, show_tree, false, false);
+        Objects::drain_free_lists();
         return ok ? 0 : 1;
     }
 
@@ -419,5 +421,6 @@ int main(int argc, char ** argv)
         run(buffer, show_tree, show_return, true);
     }
 
+    Objects::drain_free_lists();
     return 0;
 }

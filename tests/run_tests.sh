@@ -522,6 +522,97 @@ assert_eq "List and matrix to_string formatting" \
 [[1, 2], [3]]
 [['a', 'b'], ['c', 'd']]"
 
+# 35. Range Boundary Protections
+RANGE_MEM_ERR="$($BIN -e 'range(-2, 9223372036854775807);' 2>&1 || true)"
+assert_contains "Range massive span memory limit error" "$RANGE_MEM_ERR" "range() result exceeds memory limit"
+
+assert_eq "Range boundary step without infinite loop" \
+    "$($BIN -e '
+        list r = range(9223372036854775800, 9223372036854775807, 10);
+        print(r);
+    ')" \
+    "[9223372036854775800]"
+
+# 36. set_mod Negative Validation
+SET_MOD_ERR="$($BIN -e 'set_mod(-1);' 2>&1 || true)"
+assert_contains "set_mod negative validation error" "$SET_MOD_ERR" "set_mod() requires a non-negative integer"
+
+# 37. Local Function Recursion and Sibling Visibility
+assert_eq "Local function recursion in nested function" \
+    "$($BIN -e '
+        def outer() {
+            def inner(int n) {
+                if (n <= 1) return 1;
+                return n * inner(n - 1);
+            }
+            return inner(5);
+        }
+        print(outer());
+    ')" \
+    "120"
+
+assert_eq "Local function recursion in block" \
+    "$($BIN -e '
+        int res = 0;
+        {
+            def g(int n) {
+                if (n <= 0) return 0;
+                return n + g(n - 1);
+            }
+            res = g(10);
+        }
+        print(res);
+    ')" \
+    "55"
+
+# 38. LLONG_MIN Compound Division Error Message
+DIV_ASSIGN_ERR="$($BIN -e 'int x = -9223372036854775807 - 1; x /= -1;' 2>&1 || true)"
+assert_contains "LLONG_MIN compound division error message" "$DIV_ASSIGN_ERR" "cannot divide LLONG_MIN by -1"
+
+# 39. Duplicate Parameter Redefinition Error
+DUP_PARAM_ERR="$($BIN -e 'def foo(a, a) { return a; }' 2>&1 || true)"
+assert_contains "Duplicate function parameter error" "$DUP_PARAM_ERR" "redefinition of variable 'a'"
+
+# 40. Scientific Notation Float Parsing
+assert_eq "Scientific notation float literals" \
+    "$($BIN -e '
+        double a = 1e5;
+        double b = 2.5e-2;
+        double c = 3E+2;
+        print(a, b, c);
+    ')" \
+    "100000 0.025 300"
+
+# 41. Language Auto-Detection Locking
+assert_eq "Language locking prevents backward bleed" \
+    "$($BIN -e '
+        print(1 == 1);
+        lathala(2 == 2);
+    ')" \
+    "true
+true"
+
+# 42. Function Call on Expressions & Container Elements
+assert_eq "Function call on list element" \
+    "$($BIN -e '
+        def sq(int x) { return x * x; }
+        list funcs = [sq];
+        print(funcs[0](7));
+    ')" \
+    "49"
+
+# 43. to_bool(none) Falsy Evaluation
+assert_eq "to_bool(none) returns false" \
+    "$($BIN -e '
+        def void_fn() {}
+        print(to_bool(void_fn()));
+    ')" \
+    "false"
+
+# 44. to_int(double) Overflow Error
+TO_INT_OVERFLOW_ERR="$($BIN -e 'to_int(10.0 ^ 30.0);' 2>&1 || true)"
+assert_contains "to_int double overflow error" "$TO_INT_OVERFLOW_ERR" "float overflow in to_int()"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

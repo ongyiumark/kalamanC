@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <cerrno>
+#include <new>
 
 using namespace Objects;
 using namespace Diagnostics;
@@ -144,6 +145,8 @@ Object* BuiltInFunctions::TO_BOOL(const std::vector<Object*>& args, Position pos
             return new Boolean(!((String*)obj)->get_value().empty());
         case Type::LIST:
             return new Boolean(((List*)obj)->get_size() != 0);
+        case Type::NONE:
+            return new Boolean(false);
         default:
             DiagnosticBag::report_invalid_builtin_arguments(BI_TO_BOOL, 1, type_to_string(obj->type()), pos);
             return new None();        
@@ -193,7 +196,17 @@ Object* BuiltInFunctions::TO_INT(const std::vector<Object*>& args, Position pos)
         case Type::BOOLEAN:
             return new Integer(((Boolean*)obj)->get_value());
         case Type::DOUBLE:
-            return new Integer((long long)((Double*)obj)->get_value());
+        {
+            long double d = ((Double*)obj)->get_value();
+            if (std::isnan(d) || std::isinf(d) ||
+                d > static_cast<long double>(std::numeric_limits<long long>::max()) ||
+                d < static_cast<long double>(std::numeric_limits<long long>::min()))
+            {
+                DiagnosticBag::report_runtime_error("float overflow in to_int()", pos);
+                return new None();
+            }
+            return new Integer(static_cast<long long>(d));
+        }
         default:
         {
             DiagnosticBag::report_invalid_builtin_arguments(BI_TO_INT, 1, type_to_string(obj->type()), pos);
@@ -461,17 +474,46 @@ Object* BuiltInFunctions::RANGE(const std::vector<Object*>& args, Position pos)
     }
 
     std::vector<Object*> elems;
+    __int128_t count128 = 0;
     if (step > 0 && start < stop)
     {
-        elems.reserve((size_t)((stop - start + step - 1) / step));
-        for (long long v = start; v < stop; v += step)
-            elems.push_back(new Integer(v));
+        __int128_t diff = static_cast<__int128_t>(stop) - start;
+        __int128_t ustep = step;
+        count128 = (diff + ustep - 1) / ustep;
     }
     else if (step < 0 && start > stop)
     {
-        elems.reserve((size_t)((start - stop + (-step) - 1) / (-step)));
-        for (long long v = start; v > stop; v += step)
-            elems.push_back(new Integer(v));
+        __int128_t diff = static_cast<__int128_t>(start) - stop;
+        __int128_t ustep = -static_cast<__int128_t>(step);
+        count128 = (diff + ustep - 1) / ustep;
+    }
+
+    if (count128 > 100'000'000)
+    {
+        DiagnosticBag::report_runtime_error("range() result exceeds memory limit (100,000,000 elements)", pos);
+        return new None();
+    }
+
+    size_t count = static_cast<size_t>(count128);
+    if (count > 0)
+    {
+        try
+        {
+            elems.reserve(count);
+            long long v = start;
+            for (size_t i = 0; i < count; i++)
+            {
+                elems.push_back(new Integer(v));
+                v += step;
+            }
+        }
+        catch (const std::bad_alloc&)
+        {
+            for (auto* o : elems)
+                delete o;
+            DiagnosticBag::report_runtime_error("out of memory in range()", pos);
+            return new None();
+        }
     }
     return new List(elems);
 }
@@ -741,7 +783,13 @@ Object* BuiltInFunctions::SET_MOD(const std::vector<Object*>& args, Position pos
         DiagnosticBag::report_invalid_builtin_arguments(BI_SET_MOD, 1, type_to_string(args[0]->type()), pos);
         return new None();
     }
-    List::matrix_mod = ((Integer*)args[0])->get_value();
+    long long val = ((Integer*)args[0])->get_value();
+    if (val < 0)
+    {
+        DiagnosticBag::report_runtime_error("set_mod() requires a non-negative integer (pass 0 to disable)", pos);
+        return new None();
+    }
+    List::matrix_mod = val;
     return new Integer(List::matrix_mod);
 }
 

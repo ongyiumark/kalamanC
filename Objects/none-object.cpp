@@ -22,6 +22,16 @@ void None::operator delete(void* p) noexcept
     _free_list = static_cast<None*>(p);
 }
 
+void None::drain_free_list()
+{
+    while (_free_list)
+    {
+        None* next = *reinterpret_cast<None**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
+}
+
 None::None() {}
 
 Type None::type() const

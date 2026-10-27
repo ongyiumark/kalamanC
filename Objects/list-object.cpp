@@ -276,7 +276,7 @@ Object* List::multiplied_by(Object* other) const
                             if (right < 0) right += matrix_mod;
                             long long idx = (long long)i * d + j;
                             long long term = (long long)((static_cast<__int128_t>(left) * right) % matrix_mod);
-                            result[(size_t)idx] = (result[(size_t)idx] + term) % matrix_mod;
+                            result[(size_t)idx] = (long long)((static_cast<__int128_t>(result[(size_t)idx]) + term) % matrix_mod);
                         }
                     }
                 }
@@ -338,7 +338,7 @@ static void multiply_square_matrices(const std::vector<long long>& mat_a,
                     if (right < 0) right += mod;
                     size_t idx = (size_t)i * n + j;
                     long long term = (long long)((static_cast<__int128_t>(left) * right) % mod);
-                    out[idx] = (out[idx] + term) % mod;
+                    out[idx] = (long long)((static_cast<__int128_t>(out[idx]) + term) % mod);
                 }
             }
         }

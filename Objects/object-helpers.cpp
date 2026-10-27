@@ -49,3 +49,11 @@ Objects::Object* Objects::repeat_string(const std::string& str, long long count)
         return new None();
     }
 }
+
+void Objects::drain_free_lists()
+{
+    Boolean::drain_free_list();
+    Integer::drain_free_list();
+    Double::drain_free_list();
+    None::drain_free_list();
+}

@@ -153,9 +153,15 @@ void SyntaxFacts::detect_language(const std::string& text)
     };
 
     if (filipino_markers.count(text))
+    {
         Objects::Boolean::use_filipino = true;
+        Objects::Boolean::lang_locked = true;
+    }
     else if (english_markers.count(text))
+    {
         Objects::Boolean::use_filipino = false;
+        Objects::Boolean::lang_locked = true;
+    }
 }
 
 bool SyntaxFacts::is_builtin_function(SyntaxKind kind)

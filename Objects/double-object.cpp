@@ -25,6 +25,16 @@ void Double::operator delete(void* p) noexcept
     _free_list = static_cast<Double*>(p);
 }
 
+void Double::drain_free_list()
+{
+    while (_free_list)
+    {
+        Double* next = *reinterpret_cast<Double**>(_free_list);
+        ::operator delete(_free_list);
+        _free_list = next;
+    }
+}
+
 Double::Double(long double value) : _value(value) {}
 
 Type Double::type() const

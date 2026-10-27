@@ -211,12 +211,15 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
         std::vector<SyntaxNode*> _args;
+        SyntaxNode* _callee;
     public:
         FuncCallExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
+        FuncCallExpressionSyntax(SyntaxNode* callee, std::vector<SyntaxNode*>& args, Diagnostics::Position pos);
         ~FuncCallExpressionSyntax() override;
 
         SyntaxKind kind() const override;
         SyntaxToken* get_identifier();
+        SyntaxNode* get_callee();
         int get_arg_size();
         SyntaxNode* get_arg(int i);
         std::vector<SyntaxNode*> get_args();

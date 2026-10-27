@@ -254,7 +254,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         case SyntaxKind::FuncCallExpression:
         {
             FuncCallExpressionSyntax* t = (FuncCallExpressionSyntax*)node;
-            children = {t->get_identifier()};
+            if (t->get_callee()) children.push_back(t->get_callee());
+            else children.push_back(t->get_identifier());
             int m = t->get_arg_size();
             for (int i = 0; i < m; i++) children.push_back(t->get_arg(i));
             break;
