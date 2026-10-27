@@ -214,6 +214,13 @@ void DiagnosticBag::report_invalid_return(Position pos)
     report("ERROR: 'return' outside of function", pos);
 }
 
+void DiagnosticBag::report_redefinition(const std::string& name, Position pos)
+{
+    std::ostringstream os;
+    os << "ERROR: redefinition of variable '" << name << "'";
+    report(os.str(), pos);
+}
+
 void DiagnosticBag::report_runtime_error(const std::string& message, Position pos)
 {
     std::ostringstream os;

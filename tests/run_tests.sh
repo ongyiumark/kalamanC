@@ -60,18 +60,22 @@ assert_eq "English script execution & boolean output" \
     "$($BIN -e 'int x = 5; if (x > 3) print(true); else print(false);')" \
     "true"
 
-# 4. Variable Scoping & Recursive Shadowing Bug Fix
-assert_eq "Local variable shadowing in functions & recursion" \
-    "$($BIN -e '
-        int x = 100;
-        def rec(int n) {
-            int x = n * 10;
-            if (n <= 1) return x;
-            return x + rec(n - 1);
-        }
-        print(rec(3), x);
-    ')" \
-    "60 100"
+# 4. Variable Scoping & Shadowing / Redefinition Prevention
+REDEF_SHADOW_ERR="$($BIN -e '
+    int x = 100;
+    def rec(int n) {
+        int x = n * 10;
+        return x;
+    }
+    rec(3);
+' 2>&1 || true)"
+assert_contains "Function variable shadowing outer variable error" "$REDEF_SHADOW_ERR" "redefinition of variable 'x'"
+
+REDEF_SAME_SCOPE_ERR="$($BIN -e 'int a = 1; int a = 2;' 2>&1 || true)"
+assert_contains "Same scope redefinition error" "$REDEF_SAME_SCOPE_ERR" "redefinition of variable 'a'"
+
+REDEF_TYPE_MUTATE_ERR="$($BIN -e 'int a = 1; string a = "hello";' 2>&1 || true)"
+assert_contains "Type mutation via redefinition error" "$REDEF_TYPE_MUTATE_ERR" "redefinition of variable 'a'"
 
 assert_eq "Lexical scoping (callee does not access caller locals)" \
     "$($BIN -e '
@@ -80,7 +84,7 @@ assert_eq "Lexical scoping (callee does not access caller locals)" \
             return secret;
         }
         def bar() {
-            int secret = 42;
+            int caller_local = 42;
             return foo();
         }
         print(bar());
@@ -271,19 +275,21 @@ assert_eq "Language detection isolated to lexer and unchanged by runtime dispatc
 totoo"
 
 # 20. Standalone Block Scope Isolation
-assert_eq "Standalone block lexical scope and shadowing" \
+assert_eq "Standalone block lexical scope execution" \
     "$($BIN -e '
         int x = 5;
         {
             x = 10;
             int y = 20;
-            int x = 30;
             print(x, y);
         }
         print(x);
     ')" \
-    "30 20
+    "10 20
 10"
+
+BLOCK_SHADOW_ERR="$($BIN -e 'int x = 5; { int x = 30; }' 2>&1 || true)"
+assert_contains "Block shadowing outer variable error" "$BLOCK_SHADOW_ERR" "redefinition of variable 'x'"
 
 BLOCK_LEAK_ERR="$($BIN -e '{ int y = 999; } print(y);' 2>&1 || true)"
 assert_contains "Block local variable does not leak" "$BLOCK_LEAK_ERR" "undeclared identifier 'y'"

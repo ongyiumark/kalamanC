@@ -58,6 +58,7 @@ namespace Diagnostics
         static void report_invalid_break(Position pos);
         static void report_invalid_continue(Position pos);
         static void report_invalid_return(Position pos);
+        static void report_redefinition(const std::string& name, Position pos);
         static void report_runtime_error(const std::string& message, Position pos);
     };
 }

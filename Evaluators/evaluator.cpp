@@ -405,6 +405,14 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 // Declares a variable in the current (local) symbol table and assigns a default value.
 Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSyntax* node)
 {
+    const std::string& var_name = node->get_identifier()->get_text();
+    ObjectSymbol existing = context.get_symbol_table()->get_object(var_name);
+    if (existing.object != nullptr)
+    {
+        DiagnosticBag::report_redefinition(var_name, node->get_identifier()->get_pos());
+        return new None();
+    }
+
     Type type = SyntaxFacts::get_keyword_type(node->get_var_keyword()->kind());
 
     Object* value = nullptr;
