@@ -182,9 +182,11 @@ namespace Syntax
     private:
         SyntaxToken _identifier;
         std::vector<SyntaxToken> _arg_names;
+        std::vector<Objects::Type> _arg_types;
         std::shared_ptr<SyntaxNode> _body;
     public:
-        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, SyntaxNode* body, 
+        FuncDefineExpressionSyntax(SyntaxToken identifier, std::vector<SyntaxToken>& arg_names, 
+            const std::vector<Objects::Type>& arg_types, SyntaxNode* body, 
             Diagnostics::Position pos);
         ~FuncDefineExpressionSyntax() override;
 
@@ -193,6 +195,7 @@ namespace Syntax
         int get_arg_size();
         SyntaxToken* get_arg_name(int i);
         std::vector<SyntaxToken> get_arg_names();
+        const std::vector<Objects::Type>& get_arg_types() const;
         SyntaxNode* get_body();
         std::shared_ptr<SyntaxNode> get_body_shared();
     };

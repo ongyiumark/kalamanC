@@ -276,20 +276,31 @@ SyntaxNode* Parser::parse_statement()
             SyntaxToken identifier = match_token(SyntaxKind::IdentifierToken);
             match_token(SyntaxKind::LParenToken);
             std::vector<SyntaxToken> arg_names;
+            std::vector<Objects::Type> arg_types;
 
             if (current().kind() != SyntaxKind::RParenToken)
             {
+                Objects::Type t = Objects::Type::NONE;
                 if (SyntaxFacts::is_type_keyword(current().kind()))
+                {
+                    t = SyntaxFacts::get_keyword_type(current().kind());
                     next_token();
+                }
                 SyntaxToken arg_name = match_token(SyntaxKind::IdentifierToken);
                 arg_names.push_back(arg_name);
+                arg_types.push_back(t);
                 while(current().kind() == SyntaxKind::CommaToken)
                 {
                     next_token();
+                    t = Objects::Type::NONE;
                     if (SyntaxFacts::is_type_keyword(current().kind()))
+                    {
+                        t = SyntaxFacts::get_keyword_type(current().kind());
                         next_token();
+                    }
                     arg_name = match_token(SyntaxKind::IdentifierToken);
                     arg_names.push_back(arg_name);
+                    arg_types.push_back(t);
                 }
             }
             
@@ -300,7 +311,7 @@ SyntaxNode* Parser::parse_statement()
             SyntaxNode* body = parse_statement();
             _func_depth--;
             _loop_depth = saved_loop_depth;
-            return new FuncDefineExpressionSyntax(identifier, arg_names, body,
+            return new FuncDefineExpressionSyntax(identifier, arg_names, arg_types, body,
                 Position(start.ln, start.col, start.start, current().get_pos().end));
         }
         case SyntaxKind::ReturnKeyword:

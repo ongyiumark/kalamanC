@@ -9,6 +9,19 @@ Function::Function(const std::string& name, const std::vector<std::string>& argu
                    int min_args, int max_args)
     : _name(name),
       _argument_names(argument_names),
+      _argument_types({}),
+      _body(std::move(body)),
+      _built_in(built_in),
+      _min_args(min_args == -1 ? (int)argument_names.size() : min_args),
+      _max_args(max_args == -1 && min_args == -1 ? (int)argument_names.size() : max_args) {}
+
+Function::Function(const std::string& name, const std::vector<std::string>& argument_names,
+                   const std::vector<Type>& argument_types,
+                   std::shared_ptr<Syntax::SyntaxNode> body, bool built_in,
+                   int min_args, int max_args)
+    : _name(name),
+      _argument_names(argument_names),
+      _argument_types(argument_types),
       _body(std::move(body)),
       _built_in(built_in),
       _min_args(min_args == -1 ? (int)argument_names.size() : min_args),
@@ -47,6 +60,18 @@ const std::string& Function::get_argument_name(int i) const
 const std::vector<std::string>& Function::get_argument_names() const
 {
     return _argument_names;
+}
+
+Type Function::get_argument_type(int i) const
+{
+    if (i >= 0 && i < (int)_argument_types.size())
+        return _argument_types[i];
+    return Type::NONE;
+}
+
+const std::vector<Type>& Function::get_argument_types() const
+{
+    return _argument_types;
 }
 
 Syntax::SyntaxNode* Function::get_body() const
@@ -89,5 +114,5 @@ Object* Function::equals(Object* other) const
 
 Object* Function::copy()
 {
-    return new Function(_name, _argument_names, _body, _built_in, _min_args, _max_args);
+    return new Function(_name, _argument_names, _argument_types, _body, _built_in, _min_args, _max_args);
 }

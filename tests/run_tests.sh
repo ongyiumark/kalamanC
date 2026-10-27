@@ -294,6 +294,18 @@ assert_contains "Block shadowing outer variable error" "$BLOCK_SHADOW_ERR" "rede
 BLOCK_LEAK_ERR="$($BIN -e '{ int y = 999; } print(y);' 2>&1 || true)"
 assert_contains "Block local variable does not leak" "$BLOCK_LEAK_ERR" "undeclared identifier 'y'"
 
+# 21. Function Parameter Type Enforcement
+assert_eq "Function parameter type checking and dynamic polymorphism" \
+    "$($BIN -e '
+        def typed_add(int a, int b) { return a + b; }
+        def dynamic_add(a, b) { return a + b; }
+        print(typed_add(10, 25), dynamic_add("foo", "bar"));
+    ')" \
+    "35 foobar"
+
+PARAM_TYPE_ERR="$($BIN -e 'def add(int a, int b) { return a + b; } add("hello", 2);' 2>&1 || true)"
+assert_contains "Parameter type mismatch error" "$PARAM_TYPE_ERR" "unexpected type <string>, expected <int>"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

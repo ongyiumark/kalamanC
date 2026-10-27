@@ -200,12 +200,17 @@ namespace Objects
     private:
         std::string _name;
         std::vector<std::string> _argument_names;
+        std::vector<Type> _argument_types;
         std::shared_ptr<Syntax::SyntaxNode> _body;
         bool _built_in;
         int _min_args;
         int _max_args;
     public:
         Function(const std::string& name, const std::vector<std::string>& argument_names,
+                 std::shared_ptr<Syntax::SyntaxNode> body, bool built_in = false,
+                 int min_args = -1, int max_args = -1);
+        Function(const std::string& name, const std::vector<std::string>& argument_names,
+                 const std::vector<Type>& argument_types,
                  std::shared_ptr<Syntax::SyntaxNode> body, bool built_in = false,
                  int min_args = -1, int max_args = -1);
         
@@ -219,6 +224,8 @@ namespace Objects
         int get_max_args() const;
         const std::string& get_argument_name(int i) const;
         const std::vector<std::string>& get_argument_names() const;
+        Type get_argument_type(int i) const;
+        const std::vector<Type>& get_argument_types() const;
         Syntax::SyntaxNode* get_body() const;
         std::shared_ptr<Syntax::SyntaxNode> get_body_shared() const;
         bool is_built_in() const;

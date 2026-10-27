@@ -969,7 +969,7 @@ Object* Evaluator::evaluate_function_define(Context& context, FuncDefineExpressi
     for (int i = 0; i < n; i++)
         arg_names.push_back(node->get_arg_name(i)->get_text());
     
-    Object* val = new Function(name, arg_names, node->get_body_shared());
+    Object* val = new Function(name, arg_names, node->get_arg_types(), node->get_body_shared());
     context.get_symbol_table()->set_object(name, val);
     return val->copy();
 }
@@ -1030,6 +1030,26 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
     // Handle user-defined functions
     if (!func->is_built_in())
     {
+        // Validate declared parameter types
+        const auto& expected_types = func->get_argument_types();
+        for (int i = 0; i < m && i < (int)expected_types.size(); i++)
+        {
+            Type expected = expected_types[i];
+            if (expected != Type::NONE && args[i]->type() != expected)
+            {
+                Position arg_pos = (i < node->get_arg_size()) ? node->get_arg(i)->get_pos() : node->get_pos();
+                DiagnosticBag::report_unexpected_type(
+                    type_to_string(args[i]->type()),
+                    type_to_string(expected),
+                    arg_pos
+                );
+                for (auto &o : args)
+                    delete o;
+                delete func;
+                return new None();
+            }
+        }
+
         if (func->get_body() == nullptr)
         {
             DiagnosticBag::report_runtime_error("cannot call uninitialized function '" + node->get_identifier()->get_text() + "'",
