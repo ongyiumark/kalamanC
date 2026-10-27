@@ -255,7 +255,8 @@ Object* List::multiplied_by(Object* other) const
                             long long right = mat_b[(size_t)k * d + j] % matrix_mod;
                             if (right < 0) right += matrix_mod;
                             long long idx = (long long)i * d + j;
-                            result[(size_t)idx] = (result[(size_t)idx] + (left * right) % matrix_mod) % matrix_mod;
+                            long long term = (long long)((static_cast<__int128_t>(left) * right) % matrix_mod);
+                            result[(size_t)idx] = (result[(size_t)idx] + term) % matrix_mod;
                         }
                     }
                 }

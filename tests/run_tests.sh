@@ -146,11 +146,11 @@ assert_eq "Built-in functions" \
         push(items, 9);
         int last = pop(items);
         print(last, sort(items), reverse(items));
-        print(join(["a", "b", "c"], "-"), abs(-15), min(items), max(items), pow_mod(2, 10, 1000));
+        print(join(["a", "b", "c"], "-"), abs(-15), min(items), max(items), pow_mod(2, 10, 1000), pow_mod(5000000000, 2, 6000000000));
     ')" \
     "-40 -7
 9 [1, 1, 3, 4, 5] [5, 1, 4, 1, 3]
-a-b-c 15 1 5 24"
+a-b-c 15 1 5 24 4000000000"
 
 # 10. Matrix Multiplication, Exponentiation, and set_mod
 assert_eq "Matrix operations and set_mod" \
@@ -160,9 +160,13 @@ assert_eq "Matrix operations and set_mod" \
         set_mod(10);
         list fib_mod10 = [[1, 1], [1, 0]] ^ 10;
         print(fib_mod10[0][0], fib_mod10[0][1]);
+        set_mod(5000000003);
+        list large_mat = [[4000000000]] * [[4000000000]];
+        print(large_mat[0][0]);
     ')" \
     "89 55
-9 5"
+9 5
+400000006"
 
 # 11. First-class Functions (storing user & built-in functions in variables)
 assert_eq "First-class function variables" \

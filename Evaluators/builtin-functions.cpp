@@ -677,8 +677,8 @@ Object* BuiltInFunctions::POW_MOD(const std::vector<Object*>& args, Position pos
     long long res = 1 % mod;
     while (exp > 0)
     {
-        if (exp & 1) res = (res * base) % mod;
-        base = (base * base) % mod;
+        if (exp & 1) res = (long long)((static_cast<__int128_t>(res) * base) % mod);
+        base = (long long)((static_cast<__int128_t>(base) * base) % mod);
         exp >>= 1;
     }
     return new Integer(res);
