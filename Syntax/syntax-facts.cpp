@@ -123,6 +123,16 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         {BI_EXIT_FIL,       SyntaxKind::ExitFunction},
     };
 
+    auto it = keyword_map.find(text);
+    if (it != keyword_map.end())
+        return it->second;
+    return SyntaxKind::IdentifierToken;
+}
+
+void SyntaxFacts::detect_language(const std::string& text)
+{
+    if (Objects::Boolean::lang_locked) return;
+
     static const std::unordered_set<std::string> filipino_markers = {
         KT_TRUE_FIL, KT_FALSE_FIL, KT_INTEGER_FIL, KT_DOUBLE_FIL, KT_LIST_FIL,
         KT_STRING_FIL, KT_DEFINE_FIL, KT_IF_FIL, KT_ELIF_FIL, KT_ELSE_FIL,
@@ -141,18 +151,10 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         KT_RETURN, KT_BREAK, KT_CONTINUE, BI_PRINT, BI_SPLIT, BI_SIZE
     };
 
-    if (!Objects::Boolean::lang_locked)
-    {
-        if (filipino_markers.count(text))
-            Objects::Boolean::use_filipino = true;
-        else if (english_markers.count(text))
-            Objects::Boolean::use_filipino = false;
-    }
-
-    auto it = keyword_map.find(text);
-    if (it != keyword_map.end())
-        return it->second;
-    return SyntaxKind::IdentifierToken;
+    if (filipino_markers.count(text))
+        Objects::Boolean::use_filipino = true;
+    else if (english_markers.count(text))
+        Objects::Boolean::use_filipino = false;
 }
 
 bool SyntaxFacts::is_builtin_function(SyntaxKind kind)

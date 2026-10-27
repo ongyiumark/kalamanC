@@ -184,6 +184,7 @@ namespace Syntax
     class SyntaxFacts final
     {
     public:
+        static void detect_language(const std::string& text);
         static SyntaxKind get_keyword_kind(const std::string& text);
         static bool is_builtin_function(SyntaxKind kind);
         static bool is_type_keyword(SyntaxKind kind);

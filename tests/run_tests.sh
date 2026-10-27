@@ -259,6 +259,17 @@ assert_eq "Valid break and continue inside loop execution" \
     "$($BIN -e 'int s = 0; for (int i in range(10)) { if (i == 3) continue; if (i == 7) break; s += i; } print(s);')" \
     "18"
 
+# 19. Pure Keyword Lookup & Language Isolation
+assert_eq "Language detection isolated to lexer and unchanged by runtime dispatch" \
+    "$($BIN -e '
+        bilang a = 1;
+        lathala(a == 1);
+        int val = to_int("42");
+        lathala(a == 1);
+    ')" \
+    "totoo
+totoo"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

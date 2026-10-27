@@ -53,6 +53,7 @@ SyntaxToken Lexer::lex()
         
         int length = _position - start;
         std::string text = _text.substr(start, length);
+        SyntaxFacts::detect_language(text);
         SyntaxKind kind = SyntaxFacts::get_keyword_kind(text);
         return SyntaxToken(kind, Position(start_ln, start_col, start, _position), text);
     }
