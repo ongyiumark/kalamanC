@@ -303,103 +303,281 @@ Object* Evaluator::evaluate_sequence(Context& context, SequenceExpressionSyntax*
 // Index or slice a list or a string.
 Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
 {
-    Object* left = evaluate(context, node->get_to_access());
-    if (should_return()) 
+    // Unroll the index chain from outermost to innermost
+    std::vector<IndexExpressionSyntax*> index_chain;
+    SyntaxNode* curr = node;
+    while (curr != nullptr && curr->kind() == SyntaxKind::IndexExpression)
     {
-        delete left;
-        return new None();    
+        index_chain.push_back((IndexExpressionSyntax*)curr);
+        curr = ((IndexExpressionSyntax*)curr)->get_to_access();
     }
 
-    if (node->is_slice())
-    {
-        bool has_start = (node->get_indexer() != nullptr);
-        bool has_end = (node->get_slice_end() != nullptr);
-        long long start_val = 0;
-        long long end_val = 0;
-
-        if (has_start)
-        {
-            Object* start_obj = evaluate(context, node->get_indexer());
-            if (should_return())
-            {
-                delete left;
-                delete start_obj;
-                return new None();
-            }
-            if (start_obj->type() != Type::INTEGER)
-            {
-                DiagnosticBag::report_unexpected_type(type_to_string(start_obj->type()), type_to_string(Type::INTEGER),
-                    node->get_indexer()->get_pos());
-                delete left;
-                delete start_obj;
-                return new None();
-            }
-            start_val = ((Integer*)start_obj)->get_value();
-            delete start_obj;
-        }
-
-        if (has_end)
-        {
-            Object* end_obj = evaluate(context, node->get_slice_end());
-            if (should_return())
-            {
-                delete left;
-                delete end_obj;
-                return new None();
-            }
-            if (end_obj->type() != Type::INTEGER)
-            {
-                DiagnosticBag::report_unexpected_type(type_to_string(end_obj->type()), type_to_string(Type::INTEGER),
-                    node->get_slice_end()->get_pos());
-                delete left;
-                delete end_obj;
-                return new None();
-            }
-            end_val = ((Integer*)end_obj)->get_value();
-            delete end_obj;
-        }
-
-        Object* result = nullptr;
-        if (left->type() == Type::LIST)
-            result = ((List*)left)->slice(start_val, end_val, has_start, has_end);
-        else if (left->type() == Type::STRING)
-            result = ((String*)left)->slice(start_val, end_val, has_start, has_end);
-        else
-        {
-            DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-                "[:]", type_to_string(Type::INTEGER), node->get_pos());
-            result = new None();
-        }
-        delete left;
-        return result;
-    }
-  
-    Object* right = evaluate(context, node->get_indexer());
-    if (should_return())
-    {
-        delete left;
-        delete right;
+    if (curr == nullptr)
         return new None();
-    }
 
-    Object* result = left->accessed_by(right);
+    // Step 1: Pre-evaluate all index expressions in the chain to eliminate side-effect order issues
+    struct EvaluatedIndexStep {
+        IndexExpressionSyntax* step_node;
+        bool is_slice;
+        Object* idx_obj;       // for standard index
+        Object* slice_start;   // for slice
+        Object* slice_end;     // for slice
+    };
 
-    if (result->type() == Type::NONE)
+    std::vector<EvaluatedIndexStep> steps(index_chain.size());
+    for (int k = (int)index_chain.size() - 1; k >= 0; k--)
     {
-        if ((left->type() == Type::LIST || left->type() == Type::STRING) && right->type() == Type::INTEGER)
+        IndexExpressionSyntax* step = index_chain[k];
+        steps[k].step_node = step;
+        steps[k].is_slice = step->is_slice();
+        steps[k].idx_obj = nullptr;
+        steps[k].slice_start = nullptr;
+        steps[k].slice_end = nullptr;
+
+        if (step->is_slice())
         {
-            DiagnosticBag::report_runtime_error("index out of range", node->get_pos());
+            if (step->get_indexer() != nullptr)
+            {
+                steps[k].slice_start = evaluate(context, step->get_indexer());
+                if (should_return())
+                {
+                    for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                    {
+                        delete steps[j].idx_obj;
+                        delete steps[j].slice_start;
+                        delete steps[j].slice_end;
+                    }
+                    return new None();
+                }
+            }
+            if (step->get_slice_end() != nullptr)
+            {
+                steps[k].slice_end = evaluate(context, step->get_slice_end());
+                if (should_return())
+                {
+                    for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                    {
+                        delete steps[j].idx_obj;
+                        delete steps[j].slice_start;
+                        delete steps[j].slice_end;
+                    }
+                    return new None();
+                }
+            }
         }
         else
         {
-            DiagnosticBag::report_illegal_binary_operation(type_to_string(left->type()),
-                kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), node->get_pos());
+            steps[k].idx_obj = evaluate(context, step->get_indexer());
+            if (should_return())
+            {
+                for (int j = (int)index_chain.size() - 1; j >= k; j--)
+                {
+                    delete steps[j].idx_obj;
+                    delete steps[j].slice_start;
+                    delete steps[j].slice_end;
+                }
+                return new None();
+            }
         }
-    } 
+    }
 
-    delete left;
-    delete right;
-    return result;
+    auto cleanup_steps = [&steps]() {
+        for (auto& s : steps)
+        {
+            delete s.idx_obj;
+            delete s.slice_start;
+            delete s.slice_end;
+        }
+    };
+
+    // Step 2: Resolve the base container
+    Object* container = nullptr;
+    Object* temp_root = nullptr; // holds temporary container that must be freed when done
+
+    if (curr->kind() == SyntaxKind::VarAccessExpression)
+    {
+        VarAccessExpressionSyntax* base_var = (VarAccessExpressionSyntax*)curr;
+        ObjectSymbol sym = context.get_symbol_table()->get_object(base_var->get_identifier()->get_text());
+        if (sym.object == nullptr || sym.object->type() == Type::NONE)
+        {
+            DiagnosticBag::report_undeclared_identifier(base_var->get_identifier()->get_text(),
+                base_var->get_identifier()->get_pos());
+            cleanup_steps();
+            return new None();
+        }
+        container = sym.object; // Borrowed directly from symbol table (no deep-copy-on-read)
+    }
+    else
+    {
+        container = evaluate(context, curr);
+        if (should_return() || container == nullptr)
+        {
+            delete container;
+            cleanup_steps();
+            return new None();
+        }
+        temp_root = container; // Owned temporary root
+    }
+
+    // Step 3: Traverse the index chain from innermost to outermost
+    for (int k = (int)index_chain.size() - 1; k >= 0; k--)
+    {
+        auto& s = steps[k];
+        bool is_last_step = (k == 0);
+
+        if (s.is_slice)
+        {
+            bool has_start = (s.slice_start != nullptr);
+            bool has_end = (s.slice_end != nullptr);
+            long long start_val = 0;
+            long long end_val = 0;
+
+            if (has_start)
+            {
+                if (s.slice_start->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_unexpected_type(type_to_string(s.slice_start->type()),
+                        type_to_string(Type::INTEGER), s.step_node->get_indexer()->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+                start_val = ((Integer*)s.slice_start)->get_value();
+            }
+
+            if (has_end)
+            {
+                if (s.slice_end->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_unexpected_type(type_to_string(s.slice_end->type()),
+                        type_to_string(Type::INTEGER), s.step_node->get_slice_end()->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+                end_val = ((Integer*)s.slice_end)->get_value();
+            }
+
+            Object* slice_res = nullptr;
+            if (container->type() == Type::LIST)
+            {
+                slice_res = ((List*)container)->slice(start_val, end_val, has_start, has_end);
+            }
+            else if (container->type() == Type::STRING)
+            {
+                slice_res = ((String*)container)->slice(start_val, end_val, has_start, has_end);
+            }
+            else
+            {
+                DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                    "[:]", type_to_string(Type::INTEGER), s.step_node->get_pos());
+                delete temp_root;
+                cleanup_steps();
+                return new None();
+            }
+
+            delete temp_root;
+            if (is_last_step)
+            {
+                cleanup_steps();
+                return slice_res; // Ownership transfers to caller
+            }
+
+            temp_root = slice_res;
+            container = slice_res;
+        }
+        else
+        {
+            Object* right = s.idx_obj;
+            if (container->type() == Type::LIST)
+            {
+                if (right->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                        kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                List* list = (List*)container;
+                long long idx = ((Integer*)right)->get_value();
+                long long n = (long long)list->get_size();
+                if (idx < 0) idx += n;
+
+                if (idx < 0 || idx >= n)
+                {
+                    DiagnosticBag::report_runtime_error("index out of range", s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                if (is_last_step)
+                {
+                    Object* leaf_copy = list->get_value((int)idx)->copy();
+                    delete temp_root;
+                    cleanup_steps();
+                    return leaf_copy;
+                }
+                else
+                {
+                    container = list->get_value((int)idx);
+                }
+            }
+            else if (container->type() == Type::STRING)
+            {
+                if (right->type() != Type::INTEGER)
+                {
+                    DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                        kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                const std::string& str = ((String*)container)->get_value();
+                long long idx = ((Integer*)right)->get_value();
+                long long n = (long long)str.size();
+                if (idx < 0) idx += n;
+
+                if (idx < 0 || idx >= n)
+                {
+                    DiagnosticBag::report_runtime_error("index out of range", s.step_node->get_pos());
+                    delete temp_root;
+                    cleanup_steps();
+                    return new None();
+                }
+
+                if (is_last_step)
+                {
+                    Object* leaf_copy = new String(std::string(1, str[(size_t)idx]));
+                    delete temp_root;
+                    cleanup_steps();
+                    return leaf_copy;
+                }
+                else
+                {
+                    Object* next_str = new String(std::string(1, str[(size_t)idx]));
+                    delete temp_root;
+                    temp_root = next_str;
+                    container = next_str;
+                }
+            }
+            else
+            {
+                DiagnosticBag::report_illegal_binary_operation(type_to_string(container->type()),
+                    kind_to_display_string(SyntaxKind::IndexExpression), type_to_string(right->type()), s.step_node->get_pos());
+                delete temp_root;
+                cleanup_steps();
+                return new None();
+            }
+        }
+    }
+
+    delete temp_root;
+    cleanup_steps();
+    return new None();
 }
 
 // Declares a variable in the current (local) symbol table and assigns a default value.

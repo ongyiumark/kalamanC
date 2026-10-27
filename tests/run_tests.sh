@@ -372,6 +372,29 @@ assert_contains "List + non-list addition error" "$LIST_INT_ADD_ERR" "illegal op
 INT_LIST_ADD_ERR="$($BIN -e 'print(3 + [1, 2]);' 2>&1 || true)"
 assert_contains "Non-list + list addition error" "$INT_LIST_ADD_ERR" "illegal operation <+> between <int> and <list>"
 
+# 26. Zero-Copy Index Read & Direct Chain Traversal
+assert_eq "Zero-copy index access in large loop" \
+    "$($BIN -e '
+        list a = range(20000);
+        int s = 0;
+        for (int i in range(20000)) {
+            s += a[i];
+        }
+        print(s);
+    ')" \
+    "199990000"
+
+assert_eq "Chained index access on temporary container and side-effect safety" \
+    "$($BIN -e '
+        def get_matrix() { return [[10, 20], [30, 40]]; }
+        int t = get_matrix()[1][0];
+        list a = [1, 2, 3];
+        def mutate() { a = [999]; return 0; }
+        int m = a[mutate()];
+        print(t, m);
+    ')" \
+    "30 999"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
