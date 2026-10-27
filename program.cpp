@@ -24,6 +24,7 @@ static void print_help(const char* prog_name)
               << "  -e, -c <code>       Execute inline KalamanC code\n"
               << "  -t, --tree          Display the syntax parse tree\n"
               << "  --lang=<en|fil>     Set output language for booleans (english or filipino)\n"
+              << "  --recursion-limit=<N> Set maximum recursion call depth (default: 1000)\n"
               << "  -h, --help          Show this help message\n"
               << "  -v, --version       Show version information\n\n"
               << "Run without a script file to launch the interactive shell (REPL)." << std::endl;
@@ -197,6 +198,24 @@ int main(int argc, char ** argv)
             else
             {
                 std::cerr << "ERROR: unknown language '" << lang << "' (use 'english', 'filipino', or 'auto')" << std::endl;
+                return 1;
+            }
+        }
+        else if (arg.rfind("--recursion-limit=", 0) == 0)
+        {
+            try
+            {
+                int limit = std::stoi(arg.substr(18));
+                if (limit < 1)
+                {
+                    std::cerr << "ERROR: recursion limit must be at least 1" << std::endl;
+                    return 1;
+                }
+                Evaluators::Evaluator::max_recursion_depth = limit;
+            }
+            catch (...)
+            {
+                std::cerr << "ERROR: invalid recursion limit value in '" << arg << "'" << std::endl;
                 return 1;
             }
         }

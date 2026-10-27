@@ -35,6 +35,8 @@ namespace Evaluators
         static Objects::Object* SQRT(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
         static Objects::Object* POW_MOD(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
         static Objects::Object* SET_MOD(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
+        static Objects::Object* SET_RECURSION_LIMIT(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
+        static Objects::Object* GET_RECURSION_LIMIT(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
         static Objects::Object* READ_FILE(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
         static Objects::Object* WRITE_FILE(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);
         static Objects::Object* CLOCK(const std::vector<Objects::Object*>& args, Diagnostics::Position pos);

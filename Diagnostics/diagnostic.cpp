@@ -22,8 +22,19 @@ std::string Diagnostic::get_message() const
     if (!_call_stack.empty())
     {
         os << "\n  Traceback (most recent call last):";
-        for (const auto& frame : _call_stack)
-            os << "\n    in " << frame;
+        if (_call_stack.size() <= 20)
+        {
+            for (const auto& frame : _call_stack)
+                os << "\n    in " << frame;
+        }
+        else
+        {
+            for (size_t i = 0; i < 5; i++)
+                os << "\n    in " << _call_stack[i];
+            os << "\n    ... [" << (_call_stack.size() - 10) << " frames omitted] ...";
+            for (size_t i = _call_stack.size() - 5; i < _call_stack.size(); i++)
+                os << "\n    in " << _call_stack[i];
+        }
     }
 
     if (_pos.ln == -1 || DiagnosticBag::script.empty())

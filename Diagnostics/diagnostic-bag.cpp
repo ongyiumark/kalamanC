@@ -44,6 +44,11 @@ void DiagnosticBag::pop_call()
         _call_stack.pop_back();
 }
 
+int DiagnosticBag::call_depth()
+{
+    return (int)_call_stack.size();
+}
+
 // Adds an error to the bag.
 void DiagnosticBag::report(const std::string& message, Position pos)
 {

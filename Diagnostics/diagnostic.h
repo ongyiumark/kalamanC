@@ -39,6 +39,7 @@ namespace Diagnostics
 
         static void push_call(const std::string& func_name, Position call_pos);
         static void pop_call();
+        static int call_depth();
         
         static void report_bad_character(char c, Position pos);
         static void report_invalid_type(const std::string& text, const std::string& type, Position pos);

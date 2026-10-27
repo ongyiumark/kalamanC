@@ -14,6 +14,7 @@ using namespace Evaluators;
 bool Evaluator::to_continue = false;
 bool Evaluator::to_break = false;
 Object* Evaluator::return_value = nullptr;
+int Evaluator::max_recursion_depth = 1000;
 
 void Evaluator::clear()
 {
@@ -1013,6 +1014,17 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return new None();
         }
 
+        if (DiagnosticBag::call_depth() >= Evaluator::max_recursion_depth)
+        {
+            DiagnosticBag::push_call(func->get_name(), node->get_pos());
+            DiagnosticBag::report_runtime_error("maximum recursion depth exceeded (" + std::to_string(Evaluator::max_recursion_depth) + ")", node->get_pos());
+            DiagnosticBag::pop_call();
+            for (auto &o : args)
+                delete o;
+            delete func;
+            return new None();
+        }
+
         Context* root_ctx = &context;
         while (root_ctx->get_parent() != nullptr)
             root_ctx = root_ctx->get_parent();
@@ -1117,6 +1129,12 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             break;
         case SyntaxKind::SetModFunction:
             result = BuiltInFunctions::SET_MOD(args, call_pos);
+            break;
+        case SyntaxKind::SetRecursionLimitFunction:
+            result = BuiltInFunctions::SET_RECURSION_LIMIT(args, call_pos);
+            break;
+        case SyntaxKind::GetRecursionLimitFunction:
+            result = BuiltInFunctions::GET_RECURSION_LIMIT(args, call_pos);
             break;
         case SyntaxKind::ReadFileFunction:
             result = BuiltInFunctions::READ_FILE(args, call_pos);

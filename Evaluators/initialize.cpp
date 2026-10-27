@@ -50,6 +50,8 @@ void Evaluators::initialize()
     add_bilingual_builtin(BI_SQRT,       BI_SQRT_FIL,       {"value"}, 1, 1);
     add_bilingual_builtin(BI_POW_MOD,    BI_POW_MOD_FIL,    {"base", "exp", "mod"}, 3, 3);
     add_bilingual_builtin(BI_SET_MOD,    BI_SET_MOD_FIL,    {"mod"}, 1, 1);
+    add_bilingual_builtin(BI_SET_RECURSION_LIMIT, BI_SET_RECURSION_LIMIT_FIL, {"limit"}, 1, 1);
+    add_bilingual_builtin(BI_GET_RECURSION_LIMIT, BI_GET_RECURSION_LIMIT_FIL, {}, 0, 0);
     add_bilingual_builtin(BI_READ_FILE,  BI_READ_FILE_FIL,  {"path"}, 1, 1);
     add_bilingual_builtin(BI_WRITE_FILE, BI_WRITE_FILE_FIL, {"path", "content"}, 2, 2);
     add_bilingual_builtin(BI_CLOCK,      BI_CLOCK_FIL,      {}, 0, 0);
@@ -60,6 +62,7 @@ void Evaluators::reset()
 {
     context.get_symbol_table()->clear();
     Objects::List::matrix_mod = 1'000'000'007;
+    Evaluator::max_recursion_depth = 1000;
     initialize();
 }
 

@@ -120,6 +120,8 @@ namespace Syntax
         SqrtFunction,
         PowModFunction,
         SetModFunction,
+        SetRecursionLimitFunction,
+        GetRecursionLimitFunction,
         ReadFileFunction,
         WriteFileFunction,
         ClockFunction,

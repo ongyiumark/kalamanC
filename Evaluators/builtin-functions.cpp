@@ -702,6 +702,30 @@ Object* BuiltInFunctions::SET_MOD(const std::vector<Object*>& args, Position pos
     return new Integer(List::matrix_mod);
 }
 
+// Sets the maximum recursion call depth limit.
+Object* BuiltInFunctions::SET_RECURSION_LIMIT(const std::vector<Object*>& args, Position pos)
+{
+    if (args[0]->type() != Type::INTEGER)
+    {
+        DiagnosticBag::report_invalid_builtin_arguments(BI_SET_RECURSION_LIMIT, 1, type_to_string(args[0]->type()), pos);
+        return new None();
+    }
+    long long val = ((Integer*)args[0])->get_value();
+    if (val < 1)
+    {
+        DiagnosticBag::report_runtime_error("recursion limit must be at least 1", pos);
+        return new None();
+    }
+    Evaluator::max_recursion_depth = (int)val;
+    return new Integer(Evaluator::max_recursion_depth);
+}
+
+// Returns the current maximum recursion call depth limit.
+Object* BuiltInFunctions::GET_RECURSION_LIMIT(const std::vector<Object*>& args, Position pos)
+{
+    return new Integer(Evaluator::max_recursion_depth);
+}
+
 // Reads entire contents of a file as a string.
 Object* BuiltInFunctions::READ_FILE(const std::vector<Object*>& args, Position pos)
 {

@@ -136,6 +136,8 @@ std::string Syntax::kind_to_string(SyntaxKind kind)
         PROCESS_VAL(SyntaxKind::SqrtFunction);
         PROCESS_VAL(SyntaxKind::PowModFunction);
         PROCESS_VAL(SyntaxKind::SetModFunction);
+        PROCESS_VAL(SyntaxKind::SetRecursionLimitFunction);
+        PROCESS_VAL(SyntaxKind::GetRecursionLimitFunction);
         PROCESS_VAL(SyntaxKind::ReadFileFunction);
         PROCESS_VAL(SyntaxKind::WriteFileFunction);
         PROCESS_VAL(SyntaxKind::ClockFunction);

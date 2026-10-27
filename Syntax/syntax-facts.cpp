@@ -85,6 +85,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         {BI_SQRT,       SyntaxKind::SqrtFunction},
         {BI_POW_MOD,    SyntaxKind::PowModFunction},
         {BI_SET_MOD,    SyntaxKind::SetModFunction},
+        {BI_SET_RECURSION_LIMIT, SyntaxKind::SetRecursionLimitFunction},
+        {BI_GET_RECURSION_LIMIT, SyntaxKind::GetRecursionLimitFunction},
         {BI_READ_FILE,  SyntaxKind::ReadFileFunction},
         {BI_WRITE_FILE, SyntaxKind::WriteFileFunction},
         {BI_CLOCK,      SyntaxKind::ClockFunction},
@@ -113,6 +115,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         {BI_SQRT_FIL,       SyntaxKind::SqrtFunction},
         {BI_POW_MOD_FIL,    SyntaxKind::PowModFunction},
         {BI_SET_MOD_FIL,    SyntaxKind::SetModFunction},
+        {BI_SET_RECURSION_LIMIT_FIL, SyntaxKind::SetRecursionLimitFunction},
+        {BI_GET_RECURSION_LIMIT_FIL, SyntaxKind::GetRecursionLimitFunction},
         {BI_READ_FILE_FIL,  SyntaxKind::ReadFileFunction},
         {BI_WRITE_FILE_FIL, SyntaxKind::WriteFileFunction},
         {BI_CLOCK_FIL,      SyntaxKind::ClockFunction},
@@ -127,7 +131,8 @@ SyntaxKind SyntaxFacts::get_keyword_kind(const std::string& text)
         BI_PRINT_FIL, BI_INPUT_FIL, BI_SPLIT_FIL, BI_SIZE_FIL, BI_TYPE_FIL,
         BI_TO_BOOL_FIL, BI_TO_INT_FIL, BI_TO_DOUBLE_FIL, BI_TO_STRING_FIL,
         BI_SET_INDEX_FIL, BI_PUSH_FIL, BI_POP_FIL, BI_RANGE_FIL, BI_SORT_FIL,
-        BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_SQRT_FIL, BI_SET_MOD_FIL
+        BI_REVERSE_FIL, BI_JOIN_FIL, BI_ABS_FIL, BI_SQRT_FIL, BI_SET_MOD_FIL,
+        BI_SET_RECURSION_LIMIT_FIL, BI_GET_RECURSION_LIMIT_FIL
     };
 
     static const std::unordered_set<std::string> english_markers = {
@@ -176,6 +181,8 @@ bool SyntaxFacts::is_builtin_function(SyntaxKind kind)
         case SyntaxKind::SqrtFunction:
         case SyntaxKind::PowModFunction:
         case SyntaxKind::SetModFunction:
+        case SyntaxKind::SetRecursionLimitFunction:
+        case SyntaxKind::GetRecursionLimitFunction:
         case SyntaxKind::ReadFileFunction:
         case SyntaxKind::WriteFileFunction:
         case SyntaxKind::ClockFunction:

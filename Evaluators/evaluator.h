@@ -33,6 +33,7 @@ namespace Evaluators
         static Objects::Object* evaluate_function_define(Contexts::Context& context, Syntax::FuncDefineExpressionSyntax* node);
         static Objects::Object* evaluate_function_call(Contexts::Context& context, Syntax::FuncCallExpressionSyntax* node);
     public:
+        static int max_recursion_depth;
         static void clear();
         static Objects::Object* evaluate(Contexts::Context& context, Syntax::SyntaxNode* node);
     };

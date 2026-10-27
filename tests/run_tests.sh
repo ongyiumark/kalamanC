@@ -208,6 +208,26 @@ assert_eq "LLONG_MIN % -1 evaluates to 0 without crash" \
     "$($BIN -e 'int m = -9223372036854775807 - 1; print(m % -1);')" \
     "0"
 
+# 16. Dynamic Recursion Limit & Stack Overflow Guard
+RECURSION_ERR="$($BIN -e 'set_recursion_limit(50); def f() { return f(); } f();' 2>&1 || true)"
+assert_contains "Recursion depth limit error message" "$RECURSION_ERR" "maximum recursion depth exceeded (50)"
+assert_contains "Recursion traceback frame omission" "$RECURSION_ERR" "frames omitted"
+
+assert_eq "Dynamic recursion limit getters/setters (English & Filipino)" \
+    "$($BIN -e '
+        int orig = get_recursion_limit();
+        set_recursion_limit(200);
+        int mid = get_recursion_limit();
+        itakda_lalim(300);
+        int fin = kumuha_ng_lalim();
+        print(orig, mid, fin);
+    ')" \
+    "1000 200 300"
+
+assert_eq "CLI --recursion-limit flag configuration" \
+    "$($BIN --recursion-limit=450 -e 'print(get_recursion_limit());')" \
+    "450"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
