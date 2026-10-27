@@ -1006,7 +1006,12 @@ Object* Evaluator::evaluate_function_call(Context& context, FuncCallExpressionSy
             return new None();
         }
 
-        Context exec_ctx(func->get_name(), &context, context.get_symbol_table());
+        Context* root_ctx = &context;
+        while (root_ctx->get_parent() != nullptr)
+            root_ctx = root_ctx->get_parent();
+        SymbolTable* global_syms = root_ctx->get_symbol_table();
+
+        Context exec_ctx(func->get_name(), &context, global_syms);
         for (int i = 0; i < m; i++)
             exec_ctx.get_symbol_table()->set_object(func->get_argument_name(i), args[i]);
 

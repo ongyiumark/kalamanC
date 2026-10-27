@@ -73,6 +73,20 @@ assert_eq "Local variable shadowing in functions & recursion" \
     ')" \
     "60 100"
 
+assert_eq "Lexical scoping (callee does not access caller locals)" \
+    "$($BIN -e '
+        int secret = 100;
+        def foo() {
+            return secret;
+        }
+        def bar() {
+            int secret = 42;
+            return foo();
+        }
+        print(bar());
+    ')" \
+    "100"
+
 # 5. Compound Assignments and ++ / --
 assert_eq "Compound assignments and increment/decrement" \
     "$($BIN -e '
