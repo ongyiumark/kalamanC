@@ -493,12 +493,12 @@ SyntaxNode* Parser::parse_molecule()
                 SyntaxToken ident = *((VarAccessExpressionSyntax*)left)->get_identifier();
                 delete left;
                 return new VarAssignExpressionSyntax(ident, op_token, nullptr,
-                    Position(start.ln, start.col, start.start, op_token.get_pos().end));
+                    Position(start.ln, start.col, start.start, op_token.get_pos().end), true);
             }
             else
             {
                 return new VarAssignExpressionSyntax(left, op_token, nullptr,
-                    Position(start.ln, start.col, start.start, op_token.get_pos().end));
+                    Position(start.ln, start.col, start.start, op_token.get_pos().end), true);
             }
         }
         else if (SyntaxFacts::is_assignment_operator(current().kind()))

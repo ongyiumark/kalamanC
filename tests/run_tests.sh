@@ -306,6 +306,21 @@ assert_eq "Function parameter type checking and dynamic polymorphism" \
 PARAM_TYPE_ERR="$($BIN -e 'def add(int a, int b) { return a + b; } add("hello", 2);' 2>&1 || true)"
 assert_contains "Parameter type mismatch error" "$PARAM_TYPE_ERR" "unexpected type <string>, expected <int>"
 
+# 22. Prefix vs Postfix Increment / Decrement Semantics
+assert_eq "Prefix and postfix increment/decrement expressions" \
+    "$($BIN -e '
+        int a = 10;
+        int post_inc = a++;
+        int pre_inc = ++a;
+        int post_dec = a--;
+        int pre_dec = --a;
+        list arr = [50];
+        int arr_post = arr[0]++;
+        int arr_pre = ++arr[0];
+        print(post_inc, pre_inc, post_dec, pre_dec, a, arr_post, arr_pre, arr[0]);
+    ')" \
+    "10 12 12 10 10 50 52 52"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

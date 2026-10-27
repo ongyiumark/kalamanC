@@ -612,8 +612,14 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
                         return new None();
                 }
 
+                Object* ret_val = nullptr;
+                if (node->is_postfix())
+                    ret_val = list->get_value((int)idx)->copy();
+                else
+                    ret_val = new_val->copy();
+
                 list->set_value((int)idx, new_val);
-                return new_val->copy();
+                return ret_val;
             }
             else
             {
@@ -638,9 +644,13 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
     if (orig_value->type() == Type::INTEGER &&
         (op_kind == SyntaxKind::PlusPlusToken || op_kind == SyntaxKind::MinusMinusToken))
     {
-        long long v = ((Integer*)orig_value)->get_value() + (op_kind == SyntaxKind::PlusPlusToken ? 1 : -1);
-        ((Integer*)orig_value)->set_value(v);
-        return new Integer(v);
+        long long old_v = ((Integer*)orig_value)->get_value();
+        long long new_v = old_v + (op_kind == SyntaxKind::PlusPlusToken ? 1 : -1);
+        ((Integer*)orig_value)->set_value(new_v);
+        if (node->is_postfix())
+            return new Integer(old_v);
+        else
+            return new Integer(new_v);
     }
 
     Object* value = nullptr;
@@ -685,14 +695,21 @@ Object* Evaluator::evaluate_var_assign(Context& context, VarAssignExpressionSynt
         return new None();
     }
 
+    Object* ret_val = nullptr;
+    if (node->is_postfix())
+        ret_val = orig_value->copy();
+    else
+        ret_val = value->copy();
+
     if (orig_value->type() == Type::INTEGER)
     {
         ((Integer*)orig_value)->set_value(((Integer*)value)->get_value());
-        return value;
+        delete value;
+        return ret_val;
     }
 
     obj_sym.symbol->set_object(var_name, value);
-    return value->copy();
+    return ret_val;
 }
 
 // Accesses a variable.

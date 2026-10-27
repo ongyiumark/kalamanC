@@ -127,10 +127,11 @@ namespace Syntax
         SyntaxToken _op_token;
         SyntaxNode* _target;
         SyntaxNode* _value;
+        bool _is_postfix;
     public:
         VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxNode* value, Diagnostics::Position pos);
-        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
-        VarAssignExpressionSyntax(SyntaxNode* target, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos);
+        VarAssignExpressionSyntax(SyntaxToken identifier, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos, bool is_postfix = false);
+        VarAssignExpressionSyntax(SyntaxNode* target, SyntaxToken op_token, SyntaxNode* value, Diagnostics::Position pos, bool is_postfix = false);
         ~VarAssignExpressionSyntax() override;
 
         SyntaxKind kind() const override;
@@ -138,6 +139,7 @@ namespace Syntax
         SyntaxToken* get_op_token();
         SyntaxNode* get_target();
         SyntaxNode* get_value();
+        bool is_postfix() const;
     };
 
     // Refer to var-access-syntax.cpp.
