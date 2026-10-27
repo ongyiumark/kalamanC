@@ -501,6 +501,27 @@ assert_contains "Negative string multiplier error" "$NEG_STR_ERR" "illegal opera
 NEG_LIST_ERR="$($BIN -e '[1, 2] * -1;' 2>&1 || true)"
 assert_contains "Negative list multiplier error" "$NEG_LIST_ERR" "illegal operation <*> between <list> and <int>"
 
+# 34. List and Matrix to_string formatting
+assert_eq "List and matrix to_string formatting" \
+    "$($BIN -e '
+        list empty = [];
+        list one_d = [1, 2, 3];
+        list mat = [[1, 2], [3, 4]];
+        list ragged = [[1, 2], [3]];
+        list str_2d = [["a", "b"], ["c", "d"]];
+        print(empty);
+        print(one_d);
+        print(mat);
+        print(ragged);
+        print(str_2d);
+    ')" \
+    "[]
+[1, 2, 3]
+[[1, 2],
+ [3, 4]]
+[[1, 2], [3]]
+[['a', 'b'], ['c', 'd']]"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

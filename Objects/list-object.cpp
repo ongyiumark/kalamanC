@@ -68,18 +68,19 @@ std::vector<Object*> List::release_values()
 // Comma delimited values, enclosed in square brackets.
 std::string List::to_string() const
 {
-    std::ostringstream os;
-    bool is_mat = is_matrix(this);
     int n = _values.size();
-    os << "[";
+    if (n == 0) return "[]";
+
+    bool is_mat = (_values[0]->type() == Type::LIST && is_matrix(this));
+    std::string result = "[";
     for (int i = 0; i < n; i++)
     {
-        os << _values[i]->to_string();
+        result += _values[i]->to_string();
         if (i != n - 1) 
-            os << (is_mat ? ",\n " : ", ");
+            result += (is_mat ? ",\n " : ", ");
     }
-    os << "]";
-    return os.str();
+    result += "]";
+    return result;
 }
 
 // Checks if a given list is a valid matrix.
@@ -95,9 +96,15 @@ bool List::is_matrix(const List* list)
             return false;
         
         List* child_list = (List*)(list->get_value(i));
-        if (m == -1) m = child_list->get_size();
-        if (m != child_list->get_size()) return false;
-        if (m == 0) return false;
+        if (m == -1)
+        {
+            m = child_list->get_size();
+            if (m == 0) return false;
+        }
+        else if (m != child_list->get_size())
+        {
+            return false;
+        }
         for (int j = 0; j < m; j++)
             if (child_list->get_value(j)->type() != Type::INTEGER)
                 return false;
