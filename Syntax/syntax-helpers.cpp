@@ -325,6 +325,8 @@ void Syntax::pretty_print(SyntaxNode* node, std::string indent, bool is_last)
         {
             VarDeclareExpressionSyntax* t = (VarDeclareExpressionSyntax*)node;
             children = {t->get_var_keyword(), t->get_identifier()};
+            if (t->get_init_expr() != nullptr)
+                children.push_back(t->get_init_expr());
             break;
         }
         case SyntaxKind::NoneExpression:

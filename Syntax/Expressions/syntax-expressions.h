@@ -110,13 +110,16 @@ namespace Syntax
     private:
         SyntaxToken _var_keyword;
         SyntaxToken _identifier;
+        SyntaxNode* _init_expr;
     public:
         VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, Diagnostics::Position pos);
+        VarDeclareExpressionSyntax(SyntaxToken var_keyword, SyntaxToken identifier, SyntaxNode* init_expr, Diagnostics::Position pos);
         ~VarDeclareExpressionSyntax() override;
 
         SyntaxKind kind() const override;
         SyntaxToken* get_var_keyword();
         SyntaxToken* get_identifier();
+        SyntaxNode* get_init_expr();
     };
 
     // Refer to var-assign-syntax.cpp.

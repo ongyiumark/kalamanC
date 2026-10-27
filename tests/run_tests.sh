@@ -449,6 +449,26 @@ assert_eq "Fast strtoll and strtold numeric literal and conversion parsing" \
     ')" \
     "9223372036854775806 123456.789 -98765 42.5"
 
+# 31. Direct Initializer in VarDeclareExpression
+assert_eq "Direct initialized and uninitialized variable declarations" \
+    "$($BIN -e '
+        int x = 42;
+        int uninit_int;
+        double y = 3.14;
+        double uninit_dbl;
+        string s = "kalaman";
+        string uninit_str;
+        bool b = true;
+        bool uninit_b;
+        list l = [1, 2, 3];
+        list uninit_l;
+        print(x, uninit_int, y, uninit_dbl, s, uninit_str, b, uninit_b, l, uninit_l);
+    ')" \
+    "42 0 3.14 0 kalaman  true false [1, 2, 3] []"
+
+INIT_TYPE_ERR="$($BIN -e 'int x = "invalid";' 2>&1 || true)"
+assert_contains "Type mismatch error on variable declaration initializer" "$INIT_TYPE_ERR" "invalid assignment of <string> to <int>"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then

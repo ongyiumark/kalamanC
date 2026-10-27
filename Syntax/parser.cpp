@@ -408,17 +408,16 @@ SyntaxNode* Parser::parse_expression(int precedence)
             Position start = current().get_pos();
             SyntaxToken var_keyword = next_token();
             SyntaxToken identifier = match_token(SyntaxKind::IdentifierToken);
-            SyntaxNode* var_decl = new VarDeclareExpressionSyntax(var_keyword, identifier,
-                Position(start.ln, start.col, start.start, identifier.get_pos().end));
             if (current().kind() != SyntaxKind::EqualsToken)
-                return var_decl;
-            
+            {
+                return new VarDeclareExpressionSyntax(var_keyword, identifier,
+                    Position(start.ln, start.col, start.start, identifier.get_pos().end));
+            }
+
             next_token(); // consume '='
             SyntaxNode* expression = parse_expression(0);
-            SyntaxNode* var_ass = new VarAssignExpressionSyntax(identifier, expression,
+            return new VarDeclareExpressionSyntax(var_keyword, identifier, expression,
                 Position(start.ln, start.col, start.start, expression->get_pos().end));
-            std::vector<SyntaxNode*> seq = {var_decl, var_ass};
-            return new SequenceExpressionSyntax(seq, Position(start.ln, start.col, start.start, expression->get_pos().end), false);
         }
 
         left = parse_molecule();

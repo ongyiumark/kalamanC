@@ -580,7 +580,7 @@ Object* Evaluator::evaluate_index(Context& context, IndexExpressionSyntax* node)
     return new None();
 }
 
-// Declares a variable in the current (local) symbol table and assigns a default value.
+// Declares a variable in the current (local) symbol table and assigns a default or initial value.
 Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSyntax* node)
 {
     const std::string& var_name = node->get_identifier()->get_text();
@@ -594,40 +594,63 @@ Object* Evaluator::evaluate_var_declare(Context& context, VarDeclareExpressionSy
     Type type = SyntaxFacts::get_keyword_type(node->get_var_keyword()->kind());
 
     Object* value = nullptr;
-    switch(type)
+    if (node->get_init_expr() != nullptr)
     {
-        case Type::BOOLEAN:
-            value = new Boolean(false);
-            break;
-        case Type::INTEGER:
-            value = new Integer(0);
-            break;
-        case Type::DOUBLE:
-            value = new Double(0);
-            break;
-        case Type::STRING:
-            value = new String("");
-            break;
-        case Type::LIST:
+        value = evaluate(context, node->get_init_expr());
+        if (should_return())
         {
-            std::vector<Object*> elems;
-            value = new List(elems);
-            break;
+            delete value;
+            return new None();
         }
-        case Type::FUNCTION:
+        if (value == nullptr)
         {
-            std::vector<std::string> arg_names;
-            value = new Function("<uninitialized>", arg_names, nullptr);
-            break;
+            return new None();
         }
-        default:
+        if (value->type() != type)
         {
-            DiagnosticBag::report_unreachable_code("invalid type declaration", node->get_pos());
+            DiagnosticBag::report_invalid_assign(type_to_string(value->type()), type_to_string(type),
+                node->get_pos());
+            delete value;
             return new None();
         }
     }
+    else
+    {
+        switch(type)
+        {
+            case Type::BOOLEAN:
+                value = new Boolean(false);
+                break;
+            case Type::INTEGER:
+                value = new Integer(0);
+                break;
+            case Type::DOUBLE:
+                value = new Double(0);
+                break;
+            case Type::STRING:
+                value = new String("");
+                break;
+            case Type::LIST:
+            {
+                std::vector<Object*> elems;
+                value = new List(elems);
+                break;
+            }
+            case Type::FUNCTION:
+            {
+                std::vector<std::string> arg_names;
+                value = new Function("<uninitialized>", arg_names, nullptr);
+                break;
+            }
+            default:
+            {
+                DiagnosticBag::report_unreachable_code("invalid type declaration", node->get_pos());
+                return new None();
+            }
+        }
+    }
 
-    context.get_symbol_table()->set_object(node->get_identifier()->get_text(), value);
+    context.get_symbol_table()->set_object(var_name, value);
     return value->copy();
 }
 
