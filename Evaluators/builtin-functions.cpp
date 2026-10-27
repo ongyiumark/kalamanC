@@ -45,7 +45,9 @@ Object* BuiltInFunctions::INPUT(const std::vector<Object*>& args, Position pos)
     return new String(val);
 }
 
-// Splits the string into a list of words
+// Splits the string into a list of words.
+// Default (no delimiter): splits on whitespace runs and drops empty tokens (Python-style).
+// Custom delimiter: preserves all tokens including empty ones, using advancing index (O(N)).
 Object* BuiltInFunctions::SPLIT(const std::vector<Object*>& args, Position pos)
 {
     Object* obj = args[0];
@@ -55,28 +57,50 @@ Object* BuiltInFunctions::SPLIT(const std::vector<Object*>& args, Position pos)
         return new None();
     }
 
-    std::string sep = " ";
-    if (args.size() >= 2)
+    const std::string& str = ((String*)obj)->get_value();
+
+    if (args.size() == 1)
     {
-        Object* delimiter = args[1];
-        if (delimiter->type() != Type::STRING)
+        // Default whitespace splitting
+        std::vector<Object*> elems;
+        size_t i = 0;
+        size_t len = str.size();
+        while (i < len)
         {
-            DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 2, type_to_string(delimiter->type()), pos);
-            return new None();
+            while (i < len && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\r'))
+                i++;
+            if (i >= len) break;
+            size_t start = i;
+            while (i < len && !(str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\r'))
+                i++;
+            elems.push_back(new String(str.substr(start, i - start)));
         }
-        sep = ((String*)delimiter)->get_value();
-        if (sep.empty()) sep = " ";
+        return new List(elems);
     }
 
-    std::string words = ((String*)obj)->get_value();
-    std::vector<Object*> elems;
-    size_t idx = 0;
-    while ((idx = words.find(sep)) != std::string::npos)
+    Object* delimiter = args[1];
+    if (delimiter->type() != Type::STRING)
     {
-        if (idx != 0) elems.push_back(new String(words.substr(0, idx)));
-        words.erase(0, idx + sep.size());
+        DiagnosticBag::report_invalid_builtin_arguments(BI_SPLIT, 2, type_to_string(delimiter->type()), pos);
+        return new None();
     }
-    if (!words.empty()) elems.push_back(new String(words));
+
+    std::string sep = ((String*)delimiter)->get_value();
+    if (sep.empty())
+    {
+        DiagnosticBag::report_runtime_error("empty separator in split()", pos);
+        return new None();
+    }
+
+    std::vector<Object*> elems;
+    size_t start = 0;
+    size_t found = 0;
+    while ((found = str.find(sep, start)) != std::string::npos)
+    {
+        elems.push_back(new String(str.substr(start, found - start)));
+        start = found + sep.size();
+    }
+    elems.push_back(new String(str.substr(start)));
     return new List(elems);
 }
 

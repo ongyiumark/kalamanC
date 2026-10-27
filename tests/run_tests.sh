@@ -321,6 +321,22 @@ assert_eq "Prefix and postfix increment/decrement expressions" \
     ')" \
     "10 12 12 10 10 50 52 52"
 
+# 23. String Split Semantics (whitespace vs custom delimiter empty tokens)
+assert_eq "String split whitespace collapsing vs custom delimiter preservation" \
+    "$($BIN -e '
+        print(split("  hello \t world \n "));
+        print(split("a,,b", ","));
+        print(split("a,b,", ","));
+        print(split(",", ","));
+    ')" \
+    "['hello', 'world']
+['a', '', 'b']
+['a', 'b', '']
+['', '']"
+
+SPLIT_EMPTY_SEP_ERR="$($BIN -e 'split("hello", "");' 2>&1 || true)"
+assert_contains "Split empty separator error" "$SPLIT_EMPTY_SEP_ERR" "empty separator in split()"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
