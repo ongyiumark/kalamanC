@@ -97,7 +97,8 @@ bool List::is_matrix(const List* list)
 }
 
 // Concatenates the two lists.
-// If the other operand is not a list, it appends it to the list.
+// If the other operand is a list, it concatenates both lists.
+// Non-list operands return None (disallows asymmetric list + item addition).
 Object* List::added_by(Object* other) const
 {
     switch (other->type())
@@ -117,15 +118,7 @@ Object* List::added_by(Object* other) const
             return new List(result);
         }
         default:
-        {
-            int n = _values.size();
-            std::vector<Object*> result;
-            result.reserve(n + 1);
-            for (int i = 0; i < n; i++)
-                result.push_back(_values[i]->copy());
-            result.push_back(other->copy());
-            return new List(result);    
-        }
+            return new None();
     }
 }
 

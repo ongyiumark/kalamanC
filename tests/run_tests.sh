@@ -361,6 +361,17 @@ assert_eq "CLI -- option terminator passes script arguments" \
     "len: 2 first: alpha"
 rm -f "$TEMP_SCRIPT"
 
+# 25. Strict List Concatenation (+ requires list operands)
+assert_eq "List concatenation with list operand" \
+    "$($BIN -e 'print([1, 2] + [3, 4]);')" \
+    "[1, 2, 3, 4]"
+
+LIST_INT_ADD_ERR="$($BIN -e 'print([1, 2] + 3);' 2>&1 || true)"
+assert_contains "List + non-list addition error" "$LIST_INT_ADD_ERR" "illegal operation <+> between <list> and <int>"
+
+INT_LIST_ADD_ERR="$($BIN -e 'print(3 + [1, 2]);' 2>&1 || true)"
+assert_contains "Non-list + list addition error" "$INT_LIST_ADD_ERR" "illegal operation <+> between <int> and <list>"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
