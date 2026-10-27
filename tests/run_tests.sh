@@ -35,7 +35,7 @@ assert_contains() {
     fi
 }
 
-echo "Running KalamanC 2.0 Test Suite..."
+echo "Running KalamanC 2.1 Test Suite..."
 
 # 1. Arithmetic, Modulo Precedence, and Right-Associative Power
 assert_eq "Arithmetic & power precedence" \

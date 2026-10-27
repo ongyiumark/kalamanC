@@ -1,4 +1,4 @@
-// Filipino Demo Script for KalamanC 2.0
+// Filipino Demo Script for KalamanC 2.1
 // Run with: ./kalman examples/filipino_demo.kal
 
 aka gumawa_ng_lista(n)

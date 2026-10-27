@@ -1,4 +1,4 @@
-# KalamanC 2.0
+# KalamanC 2.1
 **KalamanC** is a fast, lightweight **interpreted programming language** written in C++17 with **native bilingual support** (both **Filipino** and **English** keywords work out of the box), C++-style blocks, Python-style lists & slicing, and built-in **matrix operations** for competitive programming and dynamic programming.
 
 ### Name origins
@@ -22,6 +22,9 @@ Classes just ended and I wanted to try my hand on a technical project, and I cam
 - **Bilingual Keywords Out of the Box**: Write scripts in **Filipino** (`aka`, `bilang`, `lista`, `kung`, `para`, `lathala`, ...) or **English** (`def`/`define`, `int`, `list`, `if`, `for`, `print`, ...) without recompiling! You can also customize keywords in [`constants-english.h`](constants-english.h) and [`constants-filipino.h`](constants-filipino.h).
 - **C++ Syntax + Python Lists & Slicing**: Whitespace-independent C++ block syntax combined with dynamic lists, negative indexing (`a[-1]`), slicing (`a[1:4]`, `a[:3]`), and `for (x in list)` / `para (x sa lista)` iteration.
 - **Built-in Matrix Operations**: 2D integer lists support matrix multiplication (`A * B`) and fast binary matrix exponentiation (`A ^ n`) with configurable modulo via `set_mod(m)`, ideal for solving linear recurrences and constant-space DP problems (see [Errichto's Matrix Exponentiation](https://www.youtube.com/watch?v=eMXNWcbw75E)).
+- **Scientific Notation Literals**: Float literals and conversions support standard scientific notation (`1e5`, `2.5e-2`, `3E+2`).
+- **Configurable Recursion Limits**: Stack overflow protection with `--recursion-limit=<N>` and dynamic runtime getters/setters (`set_recursion_limit` / `itakda_lalim`).
+- **CLI Script Arguments**: Pass command-line arguments to scripts (`args` / `mga_argumento`), with `--` option terminator support.
 - **Interactive REPL Shell**: Supports multi-line blocks, arrow-key command history, session inspection (`#vars`), AST visualization (`#showtree`), and language mode switching (`#lang`).
 - **Rich Error Diagnostics**: Clear error messages with source line previews, `^~~~` caret indicators, and function call stack tracebacks.
 
@@ -35,12 +38,12 @@ while (i < 1000000) i++;
 
 | Benchmark (`1,000,000` iterations) | In-Language Loop Time (Mean ± 95% CI) | End-to-End CLI Wall Time (Mean ± 95% CI) |
 | :--- | :--- | :--- |
-| **KalamanC 2.0** (`i++`) | **32.56 ms ± 0.43 ms** (`[32.13, 32.99] ms`) | **34.79 ms ± 0.46 ms** (`[34.32, 35.25] ms`) |
-| **KalamanC 2.0** (`i = i + 1`) | **58.77 ms ± 0.56 ms** (`[58.21, 59.33] ms`) | **61.07 ms ± 0.89 ms** (`[60.18, 61.95] ms`) |
+| **KalamanC 2.1** (`i++`) | **32.56 ms ± 0.43 ms** (`[32.13, 32.99] ms`) | **34.79 ms ± 0.46 ms** (`[34.32, 35.25] ms`) |
+| **KalamanC 2.1** (`i = i + 1`) | **58.77 ms ± 0.56 ms** (`[58.21, 59.33] ms`) | **61.07 ms ± 0.89 ms** (`[60.18, 61.95] ms`) |
 | **Python 3.9.6** (`i += 1` / `i = i + 1`) | **31.79 ms ± 0.32 ms** (`[31.47, 32.11] ms`) | **40.57 ms ± 0.98 ms** (`[39.59, 41.55] ms`) |
 | **KalamanC 1.0** (`i = i + 1`) | — | **199.30 ms ± 51.35 ms** (`[147.95, 250.65] ms`) |
 
-KalamanC 2.0 matches CPython's in-language loop speed with `i++` and finishes **~14% faster end-to-end** from the CLI due to lighter native startup overhead (and **3.3x–5.7x faster** than KalamanC 1.0).
+KalamanC 2.1 matches CPython's in-language loop speed with `i++` and finishes **~14% faster end-to-end** from the CLI due to lighter native startup overhead (and **3.3x–5.7x faster** than KalamanC 1.0).
 
 <a name=code_example></a>
 # Code Example
@@ -114,6 +117,16 @@ Inside the REPL, you can write single-line or multi-line statements and use shel
 
 # Execute inline code directly
 ./kalman -e 'print([[1, 1], [1, 0]] ^ 10);'
+
+# Pass arguments to a script (accessible via `args` and `mga_argumento`)
+./kalman script.kal arg1 arg2
+./kalman script.kal -- --flag-passed-to-script
+
+# Configure recursion depth limit (default: 1000)
+./kalman --recursion-limit=5000 script.kal
+
+# Force boolean output language ('en', 'fil', or 'auto')
+./kalman --lang=fil -e 'print(1 < 2);'   # Prints totoo
 ```
 
 <a name=tutorial></a>
@@ -245,6 +258,8 @@ All built-in functions can be called using either their English or Filipino name
 | `sqrt(x)` | `ugat(x)` | Square root of `x` as a `double` |
 | `pow_mod(base, exp, mod)` | `pow_mod(base, exp, mod)` | Computes `(base ^ exp) % mod` |
 | `set_mod(mod)` | `itakda_mod(mod)` | Sets matrix modulus (`0` disables modulo) |
+| `set_recursion_limit(n)` | `itakda_lalim(n)` | Sets maximum call stack recursion depth |
+| `get_recursion_limit()` | `kumuha_ng_lalim()` | Returns current maximum call stack recursion depth |
 | `read_file(path)` | `basahin_file(path)` | Reads a file's contents as a `string` |
 | `write_file(path, content)` | `isulat_file(path, content)` | Writes `content` to `path` |
 | `clock()` | `oras()` | Returns elapsed seconds since program start (`double`) |

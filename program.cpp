@@ -193,7 +193,7 @@ int main(int argc, char ** argv)
         }
         else if (arg == "-v" || arg == "--version")
         {
-            std::cout << "KalamanC 2.0 (Modernized Edition)" << std::endl;
+            std::cout << "KalamanC 2.1 (Modernized Edition)" << std::endl;
             return 0;
         }
         else if (arg == "-t" || arg == "--tree")
@@ -306,7 +306,7 @@ int main(int argc, char ** argv)
     }
 
     // Interactive REPL mode
-    std::cout << "KalamanC 2.0 (Interactive Shell)" << std::endl;
+    std::cout << "KalamanC 2.1 (Interactive Shell)" << std::endl;
     std::cout << "Supports both English and Filipino keywords! Type \"#help\" for commands or \"#exit\" to quit.\n" << std::endl;
 
     while (true)
