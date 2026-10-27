@@ -24,8 +24,11 @@ namespace Objects
         NONE
     };
 
+    class Object;
+
     // Refer to object-helpers.cpp.
     std::string type_to_string(Type type);
+    Object* repeat_string(const std::string& str, long long count);
 
     // Refer to base-object.cpp.
     class Object

@@ -84,31 +84,29 @@ Object* Integer::multiplied_by(Object* other) const
         case Type::DOUBLE:
             return new Double(_value * ((Double*)other)->get_value());
         case Type::STRING:
-        {
-            if (_value < 0) return new None();
-            long long e = _value;
-            std::string result;
-            std::string base = ((String*)other)->get_value();
-            result.reserve(base.size() * (size_t)e);
-            while (e > 0)
-            {
-                if (e & 1) result += base;
-                e >>= 1;
-                if (e > 0) base += base;
-            }
-            return new String(result);
-        }
+            return repeat_string(((String*)other)->get_value(), _value);
         case Type::LIST:
         {
             if (_value < 0) return new None();
             List* list = (List*)other;
             int n = list->get_size();
+            if (n > 0 && (size_t)_value > std::numeric_limits<size_t>::max() / (size_t)n)
+                return new None();
             std::vector<Object*> elems;
-            elems.reserve((size_t)_value * n);
-            for (long long k = 0; k < _value; k++)
-                for (int i = 0; i < n; i++)
-                    elems.push_back(list->get_value(i)->copy());
-            return new List(elems);
+            try
+            {
+                elems.reserve((size_t)_value * n);
+                for (long long k = 0; k < _value; k++)
+                    for (int i = 0; i < n; i++)
+                        elems.push_back(list->get_value(i)->copy());
+                return new List(elems);
+            }
+            catch (const std::bad_alloc&)
+            {
+                for (auto* o : elems)
+                    delete o;
+                return new None();
+            }
         }
         default:
             return new None();

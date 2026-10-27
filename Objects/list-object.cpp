@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <limits>
+#include <new>
 using namespace Objects;
 
 long long List::matrix_mod = 1'000'000'007;
@@ -205,12 +207,23 @@ Object* List::multiplied_by(Object* other) const
             long long count = ((Integer*)other)->get_value();
             if (count < 0) return new None();
             int n = _values.size();
+            if (n > 0 && (size_t)count > std::numeric_limits<size_t>::max() / (size_t)n)
+                return new None();
             std::vector<Object*> elems;
-            elems.reserve((size_t)count * n);
-            for (long long k = 0; k < count; k++)
-                for (int i = 0; i < n; i++)
-                    elems.push_back(_values[i]->copy());
-            return new List(elems);
+            try
+            {
+                elems.reserve((size_t)count * n);
+                for (long long k = 0; k < count; k++)
+                    for (int i = 0; i < n; i++)
+                        elems.push_back(_values[i]->copy());
+                return new List(elems);
+            }
+            catch (const std::bad_alloc&)
+            {
+                for (auto* o : elems)
+                    delete o;
+                return new None();
+            }
         }
         case Type::LIST:
         {

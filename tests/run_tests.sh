@@ -481,6 +481,26 @@ assert_eq "Constexpr bilingual keywords and builtins resolution" \
     "Kumusta, Mundo
 totoo mali"
 
+# 33. In-Place Self-Doubling String and List Repetition
+assert_eq "In-place string and list repetition" \
+    "$($BIN -e '
+        string s1 = "abc" * 7;
+        string s2 = 4 * "xyz";
+        string s3 = "kalaman" * 0;
+        string s4 = "test" * 1;
+        list l1 = [1, 2] * 3;
+        list l2 = 2 * ["a", "b"];
+        list l3 = [9] * 0;
+        print(s1, s2, s3, s4, l1, l2, l3);
+    ')" \
+    "abcabcabcabcabcabcabc xyzxyzxyzxyz  test [1, 2, 1, 2, 1, 2] ['a', 'b', 'a', 'b'] []"
+
+NEG_STR_ERR="$($BIN -e '"abc" * -5;' 2>&1 || true)"
+assert_contains "Negative string multiplier error" "$NEG_STR_ERR" "illegal operation <*> between <string> and <int>"
+
+NEG_LIST_ERR="$($BIN -e '[1, 2] * -1;' 2>&1 || true)"
+assert_contains "Negative list multiplier error" "$NEG_LIST_ERR" "illegal operation <*> between <list> and <int>"
+
 echo ""
 echo "Summary: $PASS passed, $FAIL failed."
 if [ "$FAIL" -ne 0 ]; then
